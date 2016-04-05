@@ -5,6 +5,7 @@ spring:
     password: root
     testWhileIdle: true
     validationQuery: SELECT 1
+
   jpa:
     show-sql: true
     hibernate:
@@ -21,3 +22,52 @@ spring:
         max_fetch_depth: 2
         current_session_context_class: org.springframework.orm.hibernate4.SpringSessionContext
         connection.zeroDateTimeBehavior: convertToNull
+
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 192.168.99.100:32768
+          defaultBrokerPort: 32768
+          zkNodes: 192.168.99.100:32769
+          defaultZkPort: 32769
+          offsetUpdateTimeWindow: 10000
+          #offsetUpdateCount: 0
+
+        bindings:
+          input:
+            comsumer:
+              autoCommitOffset: true
+              mode: embeddedHeaders
+              minPartitionCount: 1
+          output:
+            producer:
+              bufferSize: 16384
+              sync: false
+              batchTimeout: 0
+              mode: embeddedHeaders
+
+      instanceCount: 1
+      instanceIndex: 0
+      bindings:
+        input:
+          destination: q1
+          group: null
+          comsumer:
+            concurrency: 1
+            partitioned: false
+        output:
+          destination: q2
+          producer:
+            partitionKeyExpression: null
+            # partitionKeyExtractorClass: null
+            partitionSelectorExpression: null
+            # partitionSelectorClass: null
+            partitionCount: 1
+
+
+
+
+
+
+
