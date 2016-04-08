@@ -1,6 +1,9 @@
+server:
+  port: 8080
+
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/user_service_spring
+    url: jdbc:mysql://localhost:3306/user_service
     username: root
     password: root
     testWhileIdle: true
@@ -27,41 +30,41 @@ spring:
     stream:
       kafka:
         binder:
-          brokers: 192.168.99.100:32768
-          defaultBrokerPort: 32768
-          zkNodes: 192.168.99.100:32769
-          defaultZkPort: 32769
+          brokers: 192.168.239.129:9092,192.168.239.129:9093,192.168.239.129:9094
+          zkNodes: 192.168.239.129:2181
           offsetUpdateTimeWindow: 10000
           #offsetUpdateCount: 0
 
         bindings:
           input:
-            comsumer:
+            consumer:
               autoCommitOffset: true
-              mode: embeddedHeaders
               minPartitionCount: 1
+              startOffset: latest
+              mode: raw
           output:
             producer:
               bufferSize: 16384
               sync: false
               batchTimeout: 0
-              mode: embeddedHeaders
+              mode: raw
 
       instanceCount: 1
       instanceIndex: 0
       bindings:
         input:
-          destination: q1
-          group: null
-          comsumer:
+          # destination: testq1
+          group: user
+          consumer:
             concurrency: 1
             partitioned: false
         output:
-          destination: q2
+          # destination: testq2
+          group: user
           producer:
-            partitionKeyExpression: null
+            # partitionKeyExpression: null
             # partitionKeyExtractorClass: null
-            partitionSelectorExpression: null
+            # partitionSelectorExpression: null
             # partitionSelectorClass: null
             partitionCount: 1
 

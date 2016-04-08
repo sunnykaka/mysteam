@@ -6,6 +6,8 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.integration.annotation.ServiceActivator;
 
+import java.nio.charset.Charset;
+
 /**
  * Created by liubin on 2016/4/5.
  */
@@ -16,7 +18,9 @@ public class EventActivator {
 
     @ServiceActivator(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
     public Object transform(Object payload) {
-        logger.info("Transformed by " + this.getClass().getSimpleName() + ": " + payload);
+        byte[] bytes = (byte[]) payload;
+        String message = new String(bytes, Charset.forName("UTF-8"));
+        logger.info("Transformed by " + this.getClass().getSimpleName() + ": " + message);
         return payload;
     }
 

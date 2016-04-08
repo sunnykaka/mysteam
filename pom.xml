@@ -11,6 +11,7 @@
         <module>user</module>
         <module>eureka</module>
         <module>utils</module>
+        <module>apiutils</module>
     </modules>
 
     <properties>

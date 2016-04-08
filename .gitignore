@@ -13,6 +13,6 @@ dist
 /.project
 /RUNNING_PID
 /.settings
-docs/*.pdb
+*.pdb
 **/development.conf
 **/application-log.*

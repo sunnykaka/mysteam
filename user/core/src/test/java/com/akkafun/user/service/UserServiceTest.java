@@ -38,14 +38,6 @@ public class UserServiceTest extends BaseTest {
     }
 
     @Test
-    public void test2() {
-        Optional<User> user = userService.getById(1L);
-
-        assertThat(user.isPresent(), is(true));
-        System.out.println(user.get().getId());
-    }
-
-    @Test
     public void testRegister() {
 
         RegisterDto registerDto = new RegisterDto();

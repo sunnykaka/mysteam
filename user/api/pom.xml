@@ -11,16 +11,13 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <!-- Stand-alone RESTFul application for testing only -->
-        <!--<start-class>io.pivotal.microservices.services.Main</start-class>-->
-    </properties>
 
     <dependencies>
 
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>com.akkafun.mysteam</groupId>
+            <artifactId>apiutils</artifactId>
+            <version>${version}</version>
         </dependency>
 
     </dependencies>

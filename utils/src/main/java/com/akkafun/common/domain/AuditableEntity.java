@@ -17,26 +17,26 @@ import java.time.LocalDateTime;
 public abstract class AuditableEntity {
 
     @CreatedDate
-    @Column(name = "createTime")
-    private LocalDateTime createdDate;
+    @Column
+    private LocalDateTime createTime;
 
     @LastModifiedDate
-    @Column(name = "updateTime")
-    private LocalDateTime modifiedDate;
+    @Column
+    private LocalDateTime updateTime;
 
-    public LocalDateTime getCreatedDate() {
-        return createdDate;
+    public LocalDateTime getCreateTime() {
+        return createTime;
     }
 
-    public void setCreatedDate(LocalDateTime createdDate) {
-        this.createdDate = createdDate;
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
     }
 
-    public LocalDateTime getModifiedDate() {
-        return modifiedDate;
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
     }
 
-    public void setModifiedDate(LocalDateTime modifiedDate) {
-        this.modifiedDate = modifiedDate;
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 }
