@@ -3,15 +3,15 @@ package com.akkafun.common.event.constant;
 /**
  * Created by liubin on 2016/4/8.
  */
-public enum EventPublishStatus {
+public enum EventProcessStatus {
 
-    NEW("未发布"),
+    NEW("未处理"),
 
-    PUBLISHED("已发布");
+    PROCESSED("已处理");
 
     public String desc;
 
-    EventPublishStatus(String desc) {
+    EventProcessStatus(String desc) {
         this.desc = desc;
     }
 

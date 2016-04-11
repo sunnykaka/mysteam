@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -39,8 +40,8 @@ public class JsonUtils {
 
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
 
-        //hibernate支持
         objectMapper.registerModule(new Hibernate4Module().enable(Hibernate4Module.Feature.FORCE_LAZY_LOADING));
+        objectMapper.registerModule(new JavaTimeModule());
 
         return objectMapper;
     }

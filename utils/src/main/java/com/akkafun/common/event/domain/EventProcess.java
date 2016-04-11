@@ -1,7 +1,7 @@
 package com.akkafun.common.event.domain;
 
 import com.akkafun.common.domain.AuditableEntity;
-import com.akkafun.common.event.constant.EventPublishStatus;
+import com.akkafun.common.event.constant.EventProcessStatus;
 
 import javax.persistence.*;
 
@@ -9,8 +9,8 @@ import javax.persistence.*;
  * Created by liubin on 2016/3/28.
  */
 @Entity
-@Table(name = "event_publish")
-public class EventPublish extends AuditableEntity {
+@Table(name = "event_process")
+public class EventProcess extends AuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,7 +24,8 @@ public class EventPublish extends AuditableEntity {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private EventPublishStatus status;
+    private EventProcessStatus status;
+
 
     public Long getId() {
         return id;
@@ -50,11 +51,11 @@ public class EventPublish extends AuditableEntity {
         this.password = password;
     }
 
-    public EventPublishStatus getStatus() {
+    public EventProcessStatus getStatus() {
         return status;
     }
 
-    public void setStatus(EventPublishStatus status) {
+    public void setStatus(EventProcessStatus status) {
         this.status = status;
     }
 }
