@@ -3,6 +3,8 @@ package com.akkafun.common.utils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
+import java.util.Arrays;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,6 +65,30 @@ public class SQLUtils {
             return sb.toString();
         }
         return "";
+    }
+
+    /**
+     * 批量对id数组进行操作, 默认一次操作次数不大于50.
+     * 主要是针对where id in(...) 这种语句
+     * @param ids
+     * @param function
+     * @return
+     */
+    public static int updateByIdBatch(Long[] ids, Function<Long[], Integer> function) {
+        if(ids == null || ids.length == 0) return 0;
+        //一次执行sql更新的最大数量不超过50
+        int maxLength = 50;
+        if(ids.length <= maxLength) {
+            return function.apply(ids);
+        }
+        int count = 0;
+        for(int i=0; i<=(ids.length / maxLength); i++) {
+            int start = i * maxLength;
+            int end = Math.min(start + maxLength, ids.length);
+            if(start == end) continue;
+            count += function.apply(Arrays.copyOfRange(ids, start, end));
+        }
+        return count;
     }
 
 }

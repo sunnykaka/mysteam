@@ -20,11 +20,8 @@ public class EventProcess extends AuditableEntity {
     private String payload;
 
     @Column
-    private String password;
-
-    @Column
     @Enumerated(EnumType.STRING)
-    private EventProcessStatus status;
+    private EventProcessStatus status = EventProcessStatus.NEW;
 
 
     public Long getId() {
@@ -41,14 +38,6 @@ public class EventProcess extends AuditableEntity {
 
     public void setPayload(String payload) {
         this.payload = payload;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public EventProcessStatus getStatus() {

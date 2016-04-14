@@ -1,26 +1,33 @@
 package com.akkafun.common.spring.cloud.stream;
 
+import com.akkafun.base.event.constants.EventType;
+import com.akkafun.common.event.EventRegistry;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.stream.binder.*;
 import org.springframework.cloud.stream.binding.ChannelBindingService;
 import org.springframework.cloud.stream.config.ChannelBindingServiceProperties;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by liubin on 2016/4/8.
  */
 public class CustomChannelBindingService extends ChannelBindingService {
 
+    private final Log log = LogFactory.getLog(CustomChannelBindingService.class);
+
     private BinderFactory<MessageChannel> binderFactory;
 
     private final ChannelBindingServiceProperties channelBindingServiceProperties;
 
-    private final Map<String, List<Binding<MessageChannel>>> producerBindings = new HashMap<>();
-
     private final Map<String, List<Binding<MessageChannel>>> consumerBindings = new HashMap<>();
 
+    private final EventRegistry eventRegistry = EventRegistry.getInstance();
 
     public CustomChannelBindingService(ChannelBindingServiceProperties channelBindingServiceProperties,
                                        BinderFactory<MessageChannel> binderFactory) {
@@ -32,7 +39,12 @@ public class CustomChannelBindingService extends ChannelBindingService {
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Binding<MessageChannel>> bindConsumer(MessageChannel inputChannel, String inputChannelName) {
-        String[] channelBindingTargets = new String[]{"testq1"};
+        Set<EventType> eventTypeSet = eventRegistry.getAllEventType();
+        String[] channelBindingTargets = eventTypeSet.stream().
+                map(EventType::name).collect(Collectors.toList()).toArray(new String[eventTypeSet.size()]);
+        if(log.isInfoEnabled()) {
+            log.info("spring kafka consumer bind to these topics: " + Arrays.toString(channelBindingTargets));
+        }
         List<Binding<MessageChannel>> bindings = new ArrayList<>();
         Binder<MessageChannel, ConsumerProperties, ?> binder =
                 (Binder<MessageChannel, ConsumerProperties, ?>) getBinderForChannel(inputChannelName);
@@ -53,29 +65,17 @@ public class CustomChannelBindingService extends ChannelBindingService {
         return bindings;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Binding<MessageChannel> bindProducer(MessageChannel outputChannel, String outputChannelName) {
-        String[] channelBindingTargets = new String[]{"testq2"};
-        List<Binding<MessageChannel>> bindings = new ArrayList<>();
-        Binder<MessageChannel, ?, ProducerProperties> binder =
-                (Binder<MessageChannel, ?, ProducerProperties>) getBinderForChannel(outputChannelName);
-        ProducerProperties producerProperties = this.channelBindingServiceProperties.getProducerProperties(outputChannelName);
-        if (binder instanceof ExtendedPropertiesBinder) {
-            ExtendedPropertiesBinder extendedPropertiesBinder = (ExtendedPropertiesBinder) binder;
-            Object extension = extendedPropertiesBinder.getExtendedProducerProperties(outputChannelName);
-            ExtendedProducerProperties extendedProducerProperties = new ExtendedProducerProperties<>(extension);
-            BeanUtils.copyProperties(producerProperties, extendedProducerProperties);
-            producerProperties = extendedProducerProperties;
+    public void unbindConsumers(String inputChannelName) {
+        List<Binding<MessageChannel>> bindings = this.consumerBindings.remove(inputChannelName);
+        if (bindings != null && !CollectionUtils.isEmpty(bindings)) {
+            for (Binding<MessageChannel> binding : bindings) {
+                binding.unbind();
+            }
         }
-        Binding<MessageChannel> binding = null;
-        for (String target : channelBindingTargets) {
-            binding = binder.bindProducer(target, outputChannel, producerProperties);
-            bindings.add(binding);
+        else if (log.isWarnEnabled()) {
+            log.warn("Trying to unbind channel '" + inputChannelName + "', but no binding found.");
         }
-        this.producerBindings.put(outputChannelName, bindings);
-        //return the last binding.
-        return binding;
     }
 
     private Binder<MessageChannel, ?, ?> getBinderForChannel(String channelName) {

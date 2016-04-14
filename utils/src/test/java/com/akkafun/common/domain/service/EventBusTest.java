@@ -1,5 +1,6 @@
 package com.akkafun.common.domain.service;
 
+import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.domain.BaseEvent;
 import com.akkafun.common.event.EventUtils;
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -35,6 +36,8 @@ public class EventBusTest {
 
     static class TestEvent extends BaseEvent {
 
+        private static final EventType EVENT_TYPE = EventType.TEST_EVENT;
+
         private String name;
 
         private LocalDateTime registerTime;
@@ -43,7 +46,7 @@ public class EventBusTest {
         public TestEvent(
                 @JsonProperty("name") String name,
                 @JsonProperty("registerTime") LocalDateTime registerTime) {
-            super("TEST_EVENT");
+            super(EventType.TEST_EVENT);
             this.name = name;
             this.registerTime = registerTime;
         }

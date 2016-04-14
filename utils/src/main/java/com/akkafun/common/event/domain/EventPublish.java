@@ -20,11 +20,8 @@ public class EventPublish extends AuditableEntity {
     private String payload;
 
     @Column
-    private String password;
-
-    @Column
     @Enumerated(EnumType.STRING)
-    private EventPublishStatus status;
+    private EventPublishStatus status = EventPublishStatus.NEW;
 
     public Long getId() {
         return id;
@@ -40,14 +37,6 @@ public class EventPublish extends AuditableEntity {
 
     public void setPayload(String payload) {
         this.payload = payload;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public EventPublishStatus getStatus() {

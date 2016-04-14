@@ -68,5 +68,19 @@ public interface AbstractRepository {
         return query.getResultList();
     }
 
+    /**
+     * 使用jpql进行数据更新操作
+     * @param ql
+     * @param queryParams
+     * @return
+     */
+    default int update(String ql, Map<String, Object> queryParams) {
+
+        Query query = getEm().createQuery(ql);
+        queryParams.forEach(query::setParameter);
+
+        return query.executeUpdate();
+    }
+
 
 }

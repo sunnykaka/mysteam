@@ -1,8 +1,11 @@
 package com.akkafun.base.event.domain;
 
 
+import com.akkafun.base.event.constants.EventType;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Created by liubin on 2016/4/8.
@@ -11,14 +14,15 @@ public abstract class BaseEvent {
 
     protected String id;
 
-    protected String type;
+    protected EventType type;
 
     protected LocalDateTime createTime;
 
     protected String source;
 
-    public BaseEvent(String type) {
-        this.type = type.toLowerCase();
+    public BaseEvent(EventType type) {
+        this.type = type;
+        this.id = UUID.randomUUID().toString();
         createTime = LocalDateTime.now();
     }
 
@@ -30,11 +34,11 @@ public abstract class BaseEvent {
         this.id = id;
     }
 
-    public String getType() {
+    public EventType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(EventType type) {
         this.type = type;
     }
 
