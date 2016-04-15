@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
+ * 子类必须定义static变量EVENT_TYPE
+ * 例如: public static final EventType EVENT_TYPE = EventType.TEST_EVENT;
  * Created by liubin on 2016/4/8.
  */
 public abstract class BaseEvent {

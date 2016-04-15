@@ -8,6 +8,7 @@ import com.google.common.base.Preconditions;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 
 public class EventSubscriber {
@@ -71,9 +72,7 @@ public class EventSubscriber {
 
     @Override
     public int hashCode() {
-        final int PRIME = 31;
-        return (PRIME + method.hashCode()) * PRIME
-                + System.identityHashCode(target);
+        return Objects.hash(target, method, eventClass);
     }
 
     @Override
@@ -83,7 +82,7 @@ public class EventSubscriber {
             // Use == so that different equal instances will still receive events.
             // We only guard against the case that the same object is registered
             // multiple times
-            return target == that.target && method.equals(that.method);
+            return target == that.target && method.equals(that.method) && eventClass == that.eventClass;
         }
         return false;
     }

@@ -52,14 +52,15 @@ public class EventBus {
 
     EventRegistry eventRegistry = EventRegistry.getInstance();
 
-    @Transactional(propagation = Propagation.MANDATORY)
-    public void publish(BaseEvent event) {
+    @Transactional
+    public EventPublish publish(BaseEvent event) {
         String payload = EventUtils.serializeEvent(event);
 
         EventPublish eventPublish = new EventPublish();
         eventPublish.setPayload(payload);
 
         eventPublishRepository.save(eventPublish);
+        return eventPublish;
     }
 
     @SuppressWarnings("unchecked")
@@ -100,7 +101,7 @@ public class EventBus {
     }
 
     @Transactional
-    public void handleUnprocessedEvent() {
+    public void searchAndHandleUnprocessedEvent() {
 
         List<EventProcess> events = eventProcessRepository.findByStatus(EventProcessStatus.NEW);
         logger.debug("待处理事件数量: " + events.size());
@@ -178,18 +179,11 @@ public class EventBus {
     }
 
     @Transactional
-    public void recordEvent(String message) {
+    public EventProcess recordEvent(String message) {
         EventProcess eventProcess = new EventProcess();
         eventProcess.setPayload(message);
         eventProcessRepository.save(eventProcess);
+        return eventProcess;
     }
-
-
-    public void register(Object handler) {
-
-        eventRegistry.register(handler);
-
-    }
-
 
 }

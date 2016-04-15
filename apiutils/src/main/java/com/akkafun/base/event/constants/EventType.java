@@ -7,7 +7,9 @@ public enum EventType {
 
     USER_CREATED,
 
-    TEST_EVENT;
+    TEST_EVENT_FIRST,
+
+    TEST_EVENT_SECOND;
 
 
     public static EventType valueOfIgnoreCase(String name) {

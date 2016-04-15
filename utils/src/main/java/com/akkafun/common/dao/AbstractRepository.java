@@ -21,7 +21,7 @@ public interface AbstractRepository {
     /**
      * 使用jpql进行分页查询
      * @param ql jpql
-     * @param page 分页对象
+     * @param pageable 分页对象
      * @param queryParams 查询参数
      * @param <T>
      * @return

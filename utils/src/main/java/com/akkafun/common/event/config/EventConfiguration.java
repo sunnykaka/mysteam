@@ -1,5 +1,6 @@
 package com.akkafun.common.event.config;
 
+import com.akkafun.common.spring.cloud.stream.CustomBinderAwareChannelResolver;
 import com.akkafun.common.spring.cloud.stream.CustomChannelBindingService;
 import org.springframework.cloud.stream.binder.BinderFactory;
 import org.springframework.cloud.stream.binding.BindableChannelFactory;
@@ -38,7 +39,7 @@ public class EventConfiguration extends AsyncConfigurerSupport {
                                                                  DynamicDestinationsBindable dynamicDestinationsBindable,
                                                                  BindableChannelFactory bindableChannelFactory) {
 
-        return new BinderAwareChannelResolver(binderFactory, channelBindingServiceProperties,
+        return new CustomBinderAwareChannelResolver(binderFactory, channelBindingServiceProperties,
                 dynamicDestinationsBindable, bindableChannelFactory);
     }
 
