@@ -15,7 +15,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
+ * 自定义类与父类的区别:
+ * 重新定义bindConsumer, 因为在启动的时候需要监听事件的都调用了EventRegistry.register.
+ * 所以EventRegistry已经包含了所有的感兴趣的事件类型(即topic), 在这里就将所有感兴趣的topic注册到Processor.INPUT这个channel
+ *
  * Created by liubin on 2016/4/8.
+ *
  */
 public class CustomChannelBindingService extends ChannelBindingService {
 

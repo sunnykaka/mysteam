@@ -1,5 +1,6 @@
 package com.akkafun.common.event.domain;
 
+import com.akkafun.base.event.constants.EventType;
 import com.akkafun.common.domain.AuditableEntity;
 import com.akkafun.common.event.constant.EventPublishStatus;
 
@@ -23,6 +24,14 @@ public class EventPublish extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     private EventPublishStatus status = EventPublishStatus.NEW;
 
+    @Column(unique = true)
+    private String eventId;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;
+
+
     public Long getId() {
         return id;
     }
@@ -45,5 +54,21 @@ public class EventPublish extends AuditableEntity {
 
     public void setStatus(EventPublishStatus status) {
         this.status = status;
+    }
+
+    public String getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
+    }
+
+    public EventType getEventType() {
+        return eventType;
+    }
+
+    public void setEventType(EventType eventType) {
+        this.eventType = eventType;
     }
 }

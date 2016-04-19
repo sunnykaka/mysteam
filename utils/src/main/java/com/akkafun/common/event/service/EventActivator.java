@@ -1,5 +1,6 @@
 package com.akkafun.common.event.service;
 
+import com.akkafun.base.event.constants.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +8,12 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.binding.BinderAwareChannelResolver;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.MessageChannel;
+import org.w3c.dom.events.EventException;
+import sun.plugin2.message.EventMessage;
 
 import javax.validation.ConstraintViolationException;
 import java.nio.charset.Charset;
@@ -36,10 +40,12 @@ public class EventActivator {
 
         try {
             eventBus.recordEvent(message);
-        } catch (ConstraintViolationException e) {
-            if(logger.isDebugEnabled()) {
-                logger.debug("event[{}]在数据库已存在", message);
-            }
+        } catch (DataIntegrityViolationException e) {
+            logger.warn(String.format("event[%s]在数据库已存在, errorMsg: %s", message, e.getMessage()));
+        } catch (EventException e) {
+            logger.error("receiveMessage在保存event的时候发现payload格式不正确: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("receiveMessage在保存event的时候发生错误", e);
         }
 
     }

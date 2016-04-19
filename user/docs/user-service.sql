@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016/4/8 14:07:39                            */
+/* Created on:     2016/4/18 17:17:41                           */
 /*==============================================================*/
 
 
@@ -20,7 +20,10 @@ create table event_process
    payload              national varchar(1024) not null,
    createTime           datetime,
    updateTime           datetime,
-   primary key (id)
+   eventId              varchar(128) not null,
+   eventType            varchar(64),
+   primary key (id),
+   unique key AK_UN_event_process (eventId)
 );
 
 /*==============================================================*/
@@ -33,7 +36,10 @@ create table event_publish
    payload              national varchar(1024) not null,
    createTime           datetime,
    updateTime           datetime,
-   primary key (id)
+   eventId              varchar(128) not null,
+   eventType            varchar(64),
+   primary key (id),
+   unique key AK_UN_event_publish (eventId)
 );
 
 /*==============================================================*/

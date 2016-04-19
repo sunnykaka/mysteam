@@ -35,7 +35,7 @@ public class EventRegistryTest {
             throw new AssertionError("在eventRegistry.getAllEventType() 预期抛出EventException, 但是并没有");
         }
 
-        eventRegistry.registerComplete();
+        eventRegistry.completeRegister();
 
         Set<EventType> eventTypeSet = eventRegistry.getAllEventType();
         assertThat(eventTypeSet.size(), is(2));

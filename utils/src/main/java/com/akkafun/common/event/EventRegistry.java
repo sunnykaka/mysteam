@@ -58,6 +58,10 @@ public class EventRegistry {
                     });
 
 
+    /**
+     * 调用register进行监听器的注册
+     * @param listener
+     */
     public synchronized void register(Object listener) {
 
         if(complete) {
@@ -91,6 +95,11 @@ public class EventRegistry {
         subscribersByType.putAll(methodsInListener);
     }
 
+    /**
+     * 根据事件类型查找所有的监听器
+     * @param eventType
+     * @return
+     */
     public Set<EventSubscriber> findEventSubscriberByType(EventType eventType) {
         if(!complete) {
             throw new EventException("请先调用EventRegistry.registerComplete完成事件注册");
@@ -99,6 +108,10 @@ public class EventRegistry {
         return subscribersByType.get(eventType);
     }
 
+    /**
+     * 得到已注册的所有事件类型
+     * @return
+     */
     public Set<EventType> getAllEventType() {
         if(!complete) {
             throw new EventException("请先调用EventRegistry.registerComplete完成事件注册");
@@ -107,7 +120,11 @@ public class EventRegistry {
         return subscribersByType.keySet();
     }
 
-    public void registerComplete() {
+    /**
+     * 监听器全部注册之后, 需要调用该方法完成注册.
+     * 防止已经完成注册之后又进行注册
+     */
+    public void completeRegister() {
         complete = true;
     }
 

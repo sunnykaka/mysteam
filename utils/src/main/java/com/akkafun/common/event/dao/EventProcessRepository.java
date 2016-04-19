@@ -13,5 +13,7 @@ public interface EventProcessRepository extends PagingAndSortingRepository<Event
 
     List<EventProcess> findByStatus(EventProcessStatus status);
 
+    EventProcess getByEventId(String eventId);
+
 
 }

@@ -32,7 +32,7 @@ public class EventInit {
             for(Object listener : listeners) {
                 EventRegistry.getInstance().register(listener);
             }
-            EventRegistry.getInstance().registerComplete();
+            EventRegistry.getInstance().completeRegister();
         }
     }
 

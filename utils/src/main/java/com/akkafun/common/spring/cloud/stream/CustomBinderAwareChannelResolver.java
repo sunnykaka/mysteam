@@ -25,6 +25,7 @@ import org.springframework.cloud.stream.binding.BindableChannelFactory;
 import org.springframework.cloud.stream.binding.BinderAwareChannelResolver;
 import org.springframework.cloud.stream.binding.DynamicDestinationsBindable;
 import org.springframework.cloud.stream.config.ChannelBindingServiceProperties;
+import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.core.BeanFactoryMessageChannelDestinationResolver;
 import org.springframework.messaging.core.DestinationResolutionException;
@@ -32,14 +33,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
 /**
- * A {@link org.springframework.messaging.core.DestinationResolver} implementation that
- * resolves the channel from the bean factory and, if not present, creates a new channel
- * and adds it to the factory after binding it to the binder. The binder is optionally
- * determined with a prefix preceding a colon.
+ * 自定义类与父类的区别:
+ * 1. 临时解决spring stream bug: https://github.com/spring-cloud/spring-cloud-stream/issues/483
+ * 2. 因为output channel全都是根据事件名称动态创建的, 他们的配置全部沿用Processor.OUTPUT这个channel的配置
+ * Created by liubin on 2016/4/8.
  *
- * @author Mark Fisher
- * @author Gary Russell
- * @author Ilayaperumal Gopinathan
  */
 public class CustomBinderAwareChannelResolver extends BinderAwareChannelResolver {
 
@@ -111,12 +109,14 @@ public class CustomBinderAwareChannelResolver extends BinderAwareChannelResolver
                     @SuppressWarnings("unchecked")
                     Binder<MessageChannel, ?, ProducerProperties> binder =
                             (Binder<MessageChannel, ?, ProducerProperties>) binderFactory.getBinder(binderName);
-                    ProducerProperties producerProperties = this.channelBindingServiceProperties.getProducerProperties(channelName);
-                    String destinationName = this.channelBindingServiceProperties.getBindingDestination(channelName);
+                    //统一使用OUTPUT的配置
+                    String outputChannelName = Processor.OUTPUT;
+                    ProducerProperties producerProperties = this.channelBindingServiceProperties.getProducerProperties(outputChannelName);
+                    String destinationName = channelName;
 
                     if (binder instanceof ExtendedPropertiesBinder) {
                         ExtendedPropertiesBinder extendedPropertiesBinder = (ExtendedPropertiesBinder) binder;
-                        Object extension = extendedPropertiesBinder.getExtendedProducerProperties(channelName);
+                        Object extension = extendedPropertiesBinder.getExtendedProducerProperties(outputChannelName);
                         ExtendedProducerProperties extendedProducerProperties = new ExtendedProducerProperties<>(extension);
                         BeanUtils.copyProperties(producerProperties, extendedProducerProperties);
                         producerProperties = extendedProducerProperties;
