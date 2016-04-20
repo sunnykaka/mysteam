@@ -1,5 +1,7 @@
 package com.akkafun.common.event.config;
 
+import com.akkafun.common.event.scheduler.EventScheduler;
+import com.akkafun.common.event.service.EventBus;
 import com.akkafun.common.spring.cloud.stream.CustomBinderAwareChannelResolver;
 import com.akkafun.common.spring.cloud.stream.CustomChannelBindingService;
 import org.springframework.cloud.stream.binder.BinderFactory;
@@ -13,7 +15,10 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
 import java.util.concurrent.Executor;
 
@@ -21,7 +26,8 @@ import java.util.concurrent.Executor;
  * Created by liubin on 2016/4/8.
  */
 @EnableAsync
-public class EventConfiguration extends AsyncConfigurerSupport {
+@EnableScheduling
+public class EventConfiguration extends AsyncConfigurerSupport implements SchedulingConfigurer {
 
 
     @Bean
@@ -43,6 +49,11 @@ public class EventConfiguration extends AsyncConfigurerSupport {
                 dynamicDestinationsBindable, bindableChannelFactory);
     }
 
+    @Bean
+    public EventScheduler eventScheduler(EventBus eventBus) {
+        return new EventScheduler(eventBus);
+    }
+
 
     @Override
     public Executor getAsyncExecutor() {
@@ -55,4 +66,8 @@ public class EventConfiguration extends AsyncConfigurerSupport {
         return executor;
     }
 
+    @Override
+    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+
+    }
 }

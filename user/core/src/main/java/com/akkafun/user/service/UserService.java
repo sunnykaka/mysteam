@@ -1,7 +1,10 @@
 package com.akkafun.user.service;
 
+import com.akkafun.common.event.service.EventBus;
 import com.akkafun.common.utils.PasswordHash;
 import com.akkafun.user.api.dtos.RegisterDto;
+import com.akkafun.user.api.events.domain.UserCreated;
+import com.akkafun.user.api.exceptions.UserException;
 import com.akkafun.user.dao.UserRepository;
 import com.akkafun.user.domain.User;
 import org.slf4j.Logger;
@@ -21,9 +24,12 @@ public class UserService {
 
     protected Logger logger = LoggerFactory.getLogger(UserService.class);
 
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    EventBus eventBus;
+
 
     @Transactional
     public void save(User user) {
@@ -38,7 +44,7 @@ public class UserService {
     @Transactional
     public User register(RegisterDto registerDto) {
         if(isUsernameExist(registerDto.getUsername(), Optional.empty())) {
-            throw new RuntimeException(String.format("用户名%s已存在", registerDto.getUsername()));
+            throw new UserException(String.format("用户名%s已存在", registerDto.getUsername()));
         }
 
         User user = new User();
@@ -51,6 +57,9 @@ public class UserService {
         }
 
         userRepository.save(user);
+
+        //用户创建事件
+        eventBus.publish(new UserCreated(user.getId(), user.getUsername(), user.getCreateTime()));
 
         return user;
     }

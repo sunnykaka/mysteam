@@ -2,6 +2,7 @@ package com.akkafun.user.service;
 
 import com.akkafun.BaseTest;
 import com.akkafun.user.api.dtos.RegisterDto;
+import com.akkafun.user.api.exceptions.UserException;
 import com.akkafun.user.domain.User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
@@ -49,13 +50,17 @@ public class UserServiceTest extends BaseTest {
 
         Optional<User> userOp = userService.getById(user.getId());
         assertThat(userOp.isPresent(), is(true));
+        //事件已发送
 
+        //重复用户名不能注册
         try {
             userService.register(registerDto);
             throw new AssertionError("使用重复用户名注册成功: " + registerDto.getUsername());
-        } catch(RuntimeException e) {
-            System.out.println(e.getMessage());
+        } catch(UserException expected) {
+
         }
+
+
 
     }
 

@@ -1,6 +1,5 @@
 package com.akkafun.common.event.service;
 
-import com.akkafun.base.event.constants.EventType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +12,7 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.MessageChannel;
 import org.w3c.dom.events.EventException;
-import sun.plugin2.message.EventMessage;
 
-import javax.validation.ConstraintViolationException;
 import java.nio.charset.Charset;
 
 /**

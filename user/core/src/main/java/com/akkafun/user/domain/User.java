@@ -1,5 +1,6 @@
 package com.akkafun.user.domain;
 
+import com.akkafun.common.domain.AuditEntity;
 import com.akkafun.common.domain.AuditableEntity;
 
 import javax.persistence.*;
@@ -9,7 +10,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "user")
-public class User extends AuditableEntity {
+public class User extends AuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -20,9 +21,6 @@ public class User extends AuditableEntity {
 
     @Column
     private String password;
-
-    @Column(name = "optlock", columnDefinition = "integer DEFAULT 0", nullable = false)
-    private long version;
 
     public Long getId() {
         return id;
@@ -48,12 +46,5 @@ public class User extends AuditableEntity {
         this.password = password;
     }
 
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
-    }
 
 }
