@@ -3,6 +3,8 @@ package com.akkafun.common.event.config;
 import com.akkafun.common.event.scheduler.EventScheduler;
 import com.akkafun.common.event.service.EventBus;
 import com.akkafun.common.scheduler.ZkCoordinateScheduledExecutor;
+import com.akkafun.common.scheduler.ZkSchedulerCoordinator;
+import com.akkafun.common.spring.ApplicationConstant;
 import com.akkafun.common.spring.cloud.stream.CustomBinderAwareChannelResolver;
 import com.akkafun.common.spring.cloud.stream.CustomChannelBindingService;
 import org.springframework.cloud.stream.binder.BinderFactory;
@@ -28,38 +30,29 @@ import java.util.concurrent.Executor;
 /**
  * Created by liubin on 2016/4/8.
  */
-@EnableAsync
-public class EventConfiguration extends AsyncConfigurerSupport {
+@EnableScheduling
+public class SchedulerConfiguration implements SchedulingConfigurer {
 
 
     @Bean
-    @DependsOn("binderAwareChannelResolver")
-    public ChannelBindingService bindingService(ChannelBindingServiceProperties channelBindingServiceProperties,
-                                                BinderFactory<MessageChannel> binderFactory) {
+    public ZkSchedulerCoordinator zkSchedulerCoordinator(ApplicationConstant applicationConstant){
 
-        return new CustomChannelBindingService(channelBindingServiceProperties, binderFactory);
+        return new ZkSchedulerCoordinator(applicationConstant);
 
     }
 
-    @Bean
-    public BinderAwareChannelResolver binderAwareChannelResolver(BinderFactory<MessageChannel> binderFactory,
-                                                                 ChannelBindingServiceProperties channelBindingServiceProperties,
-                                                                 DynamicDestinationsBindable dynamicDestinationsBindable,
-                                                                 BindableChannelFactory bindableChannelFactory) {
-
-        return new CustomBinderAwareChannelResolver(binderFactory, channelBindingServiceProperties,
-                dynamicDestinationsBindable, bindableChannelFactory);
-    }
 
     @Override
-    public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(20);
-        executor.setQueueCapacity(10000);
-        executor.setThreadNamePrefix("EventExecutor-");
-        executor.initialize();
-        return executor;
+    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+
+        TaskScheduler taskScheduler = new ConcurrentTaskScheduler(new ZkCoordinateScheduledExecutor(5));
+        taskRegistrar.setTaskScheduler(taskScheduler);
+
+    }
+
+    @Bean
+    public EventScheduler eventScheduler(EventBus eventBus) {
+        return new EventScheduler(eventBus);
     }
 
 }

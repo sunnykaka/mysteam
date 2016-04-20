@@ -1,7 +1,6 @@
 package com.akkafun.common.event.scheduler;
 
 import com.akkafun.common.event.service.EventBus;
-import com.akkafun.common.scheduler.SchedulerTask;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
@@ -15,20 +14,18 @@ public class EventScheduler{
         this.eventBus = eventBus;
     }
 
+    @Scheduled(fixedRate = 1000L)
+    public void sendUnpublishedEvent() {
+        eventBus.sendUnpublishedEvent();
+        try {
+            Thread.sleep(5000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-    //    private static EventScheduler INSTANCE = new EventScheduler();
-//
-//    public static EventScheduler getInstance() {
-//        return INSTANCE;
-//    }
-//
-//    private EventScheduler() {
-//        super();
-//    }
-
-    @Scheduled(fixedDelay = 3000L)
-    public void doRun() {
-        System.out.println("do run");
-
+    @Scheduled(fixedRate = 1000L)
+    public void searchAndHandleUnprocessedEvent() {
+        eventBus.searchAndHandleUnprocessedEvent();
     }
 }

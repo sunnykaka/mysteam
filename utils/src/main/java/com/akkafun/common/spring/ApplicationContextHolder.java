@@ -11,6 +11,8 @@ public class ApplicationContextHolder implements ApplicationContextAware {
 
     public static ApplicationContext context;
 
+    public static ApplicationConstant constant;
+
     public static final ApplicationContextHolder INSTANCE = new ApplicationContextHolder();
 
     private ApplicationContextHolder(){}
@@ -22,5 +24,6 @@ public class ApplicationContextHolder implements ApplicationContextAware {
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         context = applicationContext;
+        constant = applicationContext.getBean(ApplicationConstant.class);
     }
 }

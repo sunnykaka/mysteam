@@ -2,6 +2,10 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: user
+    index: 0
+
   datasource:
     url: jdbc:mysql://localhost:3306/user_service
     username: root

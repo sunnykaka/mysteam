@@ -94,7 +94,7 @@ public class EventBus {
             }
 
         }
-        logger.debug("成功发送事件数量: " + successEventSet.size());
+        logger.info("成功发送事件数量: " + successEventSet.size());
 
         eventPublishRepository.updateStatusBatch(
                 successEventSet.toArray(new Long[successEventSet.size()]),

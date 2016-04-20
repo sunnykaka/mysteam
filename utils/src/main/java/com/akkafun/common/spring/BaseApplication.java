@@ -1,6 +1,7 @@
 package com.akkafun.common.spring;
 
 import com.akkafun.common.event.config.EventConfiguration;
+import com.akkafun.common.event.config.SchedulerConfiguration;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,7 +19,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories("com.akkafun.**.dao")
 @EnableJpaAuditing
 @ComponentScan("com.akkafun.**.service")
-@Import(EventConfiguration.class)
+@Import({EventConfiguration.class, SchedulerConfiguration.class})
 public class BaseApplication {
 
 
@@ -26,5 +27,11 @@ public class BaseApplication {
     public ApplicationContextHolder applicationContextHolder() {
         return ApplicationContextHolder.getInstance();
     }
+
+    @Bean
+    public ApplicationConstant applicationConstant() {
+        return new ApplicationConstant();
+    }
+
 
 }
