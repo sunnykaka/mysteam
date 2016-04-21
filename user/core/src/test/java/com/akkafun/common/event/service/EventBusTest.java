@@ -1,6 +1,6 @@
 package com.akkafun.common.event.service;
 
-import com.akkafun.BaseTest;
+import com.akkafun.user.test.BaseTest;
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.domain.BaseEvent;
 import com.akkafun.common.event.*;
@@ -17,7 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.stream.binder.Binder;
 import org.springframework.cloud.stream.binder.BinderFactory;
 import org.springframework.cloud.stream.binder.kafka.KafkaMessageChannelBinder;
@@ -42,7 +41,6 @@ import static org.junit.Assert.assertThat;
  * Created by liubin on 2016/4/11.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = EventTestApplication.class)
 public class EventBusTest extends BaseTest {
 
     @Autowired
@@ -79,8 +77,8 @@ public class EventBusTest extends BaseTest {
         EventRegistry eventRegistry = EventRegistry.getInstance();
 
         Set<EventType> eventTypeSet = eventRegistry.getAllEventType();
-        assertThat(eventTypeSet.size(), is(2));
-        assertThat(eventTypeSet, containsInAnyOrder(EventType.TEST_EVENT_FIRST, EventType.TEST_EVENT_SECOND));
+        assertThat(eventTypeSet.size(), greaterThan(2));
+        assertThat(eventTypeSet, hasItems(EventType.TEST_EVENT_FIRST, EventType.TEST_EVENT_SECOND));
 
         Set<EventSubscriber> eventFirstSubscriberSet = eventRegistry.findEventSubscriberByType(EventType.TEST_EVENT_FIRST);
         Set<EventSubscriber> eventSecondSubscriberSet = eventRegistry.findEventSubscriberByType(EventType.TEST_EVENT_SECOND);

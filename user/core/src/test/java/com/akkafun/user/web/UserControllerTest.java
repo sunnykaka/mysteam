@@ -1,7 +1,7 @@
 package com.akkafun.user.web;
 
 import com.akkafun.common.utils.JsonUtils;
-import com.akkafun.user.BaseControllerTest;
+import com.akkafun.user.test.BaseControllerTest;
 import com.akkafun.user.api.UserUrl;
 import com.akkafun.user.api.dtos.RegisterDto;
 import com.akkafun.user.api.dtos.UserDto;

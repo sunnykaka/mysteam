@@ -1,6 +1,7 @@
 package com.akkafun.user.service;
 
-import com.akkafun.BaseTest;
+import com.akkafun.common.event.service.EventBus;
+import com.akkafun.user.test.BaseTest;
 import com.akkafun.user.api.dtos.RegisterDto;
 import com.akkafun.user.api.exceptions.UserException;
 import com.akkafun.user.domain.User;
@@ -23,6 +24,9 @@ public class UserServiceTest extends BaseTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EventBus eventBus;
 
     @Test
     @Transactional
@@ -50,7 +54,9 @@ public class UserServiceTest extends BaseTest {
 
         Optional<User> userOp = userService.getById(user.getId());
         assertThat(userOp.isPresent(), is(true));
-        //事件已发送
+
+        //发送事件
+        eventBus.sendUnpublishedEvent();
 
         //重复用户名不能注册
         try {

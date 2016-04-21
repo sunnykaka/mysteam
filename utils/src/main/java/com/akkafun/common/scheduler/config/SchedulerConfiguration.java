@@ -1,4 +1,4 @@
-package com.akkafun.common.event.config;
+package com.akkafun.common.scheduler.config;
 
 import com.akkafun.common.event.scheduler.EventScheduler;
 import com.akkafun.common.event.service.EventBus;
@@ -41,6 +41,11 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
 
     }
 
+    @Bean
+    public EventScheduler eventScheduler(EventBus eventBus) {
+        return new EventScheduler(eventBus);
+    }
+
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
@@ -50,9 +55,5 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
 
     }
 
-    @Bean
-    public EventScheduler eventScheduler(EventBus eventBus) {
-        return new EventScheduler(eventBus);
-    }
 
 }

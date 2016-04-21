@@ -1,6 +1,5 @@
-package com.akkafun.user;
+package com.akkafun.user.test;
 
-import com.akkafun.BaseTest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.HttpEntity;

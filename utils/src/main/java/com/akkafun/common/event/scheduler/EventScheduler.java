@@ -17,11 +17,6 @@ public class EventScheduler{
     @Scheduled(fixedRate = 1000L)
     public void sendUnpublishedEvent() {
         eventBus.sendUnpublishedEvent();
-        try {
-            Thread.sleep(5000L);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     @Scheduled(fixedRate = 1000L)
