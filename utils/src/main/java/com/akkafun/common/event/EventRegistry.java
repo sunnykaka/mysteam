@@ -42,14 +42,13 @@ public class EventRegistry {
             HashMultimap.create();
 
     /**
-     * A thread-safe cache that contains the mapping from each class to all methods in that class and
-     * all super-classes, that are annotated with {@code @Subscribe}. The cache is shared across all
+     * A thread-safe cache that contains the mapping from each class to all methods in that class,
+     * that are annotated with {@code @Subscribe}. The cache is shared across all
      * instances of this class; this greatly improves performance if multiple EventBus instances are
      * created and objects of the same class are registered on all of them.
      */
     private static final LoadingCache<Class<?>, ImmutableList<Method>> subscriberMethodsCache =
             CacheBuilder.newBuilder()
-                    .weakKeys()
                     .build(new CacheLoader<Class<?>, ImmutableList<Method>>() {
                         @Override
                         public ImmutableList<Method> load(Class<?> concreteClass) throws Exception {

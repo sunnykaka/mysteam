@@ -33,7 +33,6 @@ public class EventActivator {
     public void receiveMessage(Object payload) {
         byte[] bytes = (byte[]) payload;
         String message = new String(bytes, Charset.forName("UTF-8"));
-        logger.info("receiveMessage by " + this.getClass().getSimpleName() + ": " + message);
 
         try {
             eventBus.recordEvent(message);
@@ -43,6 +42,7 @@ public class EventActivator {
             logger.error("receiveMessage在保存event的时候发现payload格式不正确: " + e.getMessage());
         } catch (Exception e) {
             logger.error("receiveMessage在保存event的时候发生错误", e);
+            throw e;
         }
 
     }

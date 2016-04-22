@@ -49,10 +49,9 @@ spring:
           output:
             producer:
               bufferSize: 16384
-              sync: false
+              sync: true
               batchTimeout: 0
               mode: raw
-
       instanceCount: 1
       instanceIndex: 0
       bindings:
