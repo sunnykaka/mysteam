@@ -22,6 +22,7 @@ public class EventRegistryTest {
     public void test() {
 
         EventRegistry eventRegistry = EventRegistry.getInstance();
+        eventRegistry.clear();
         eventRegistry.register(new Handler1());
         eventRegistry.register(new Handler2());
 

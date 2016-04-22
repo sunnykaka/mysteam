@@ -91,6 +91,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+        </dependency>
+
+
+        <dependency>
             <groupId>com.akkafun.mysteam</groupId>
             <artifactId>apiutils</artifactId>
             <version>${version}</version>

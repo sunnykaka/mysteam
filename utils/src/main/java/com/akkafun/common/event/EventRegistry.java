@@ -127,6 +127,14 @@ public class EventRegistry {
         complete = true;
     }
 
+    public synchronized void clear() {
+
+        logger.info("EventRegistry clear...");
+        subscribersByType.clear();
+        complete = false;
+
+    }
+
     private static ImmutableList<Method> getAnnotatedMethods(Class<?> clazz) {
         try {
             return subscriberMethodsCache.getUnchecked(clazz);

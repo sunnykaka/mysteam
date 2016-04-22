@@ -2,13 +2,12 @@ package com.akkafun.common.event;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.ClassUtils;
 
-import javax.annotation.PostConstruct;
+public class EventInit implements InitializingBean {
 
-public class EventInit {
-
-    private static Logger logger = LoggerFactory.getLogger(EventRegistry.class);
+    private static Logger logger = LoggerFactory.getLogger(EventInit.class);
 
     private Object[] listeners;
 
@@ -16,7 +15,6 @@ public class EventInit {
         this.listeners = listeners;
     }
 
-    @PostConstruct
     public void register() {
         if(logger.isInfoEnabled()) {
             int size = listeners == null ? 0 : listeners.length;
@@ -36,4 +34,8 @@ public class EventInit {
         }
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        register();
+    }
 }

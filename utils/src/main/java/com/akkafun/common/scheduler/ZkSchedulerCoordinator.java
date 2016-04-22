@@ -53,7 +53,7 @@ public class ZkSchedulerCoordinator implements InitializingBean, DisposableBean 
 
         LeaderSelectorListener listener = new SchedulerLeaderSelector();
         selector = new LeaderSelector(client, path, listener);
-        selector.autoRequeue();  // not required, but this is behavior that you will probably expect
+//        selector.autoRequeue();  // not required, but this is behavior that you will probably expect
         selector.start();
 
     }
@@ -81,6 +81,7 @@ public class ZkSchedulerCoordinator implements InitializingBean, DisposableBean 
             leader = true;
             latch.await();
             logger.info("主动放弃 scheduler leader");
+            leader = false;
         }
     }
 

@@ -3,6 +3,7 @@ package com.akkafun.user.test;
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.common.event.EventHandler;
 import com.akkafun.common.event.EventInit;
+import com.akkafun.common.event.EventRegistry;
 import com.akkafun.common.event.service.EventActivator;
 import com.akkafun.common.spring.BaseApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +19,7 @@ public class TestApplication {
 
     @Bean
     public EventInit eventInit() {
+        EventRegistry.getInstance().clear();
         return new EventInit(EventHandler.getInstance(), new com.akkafun.user.event.EventHandler());
     }
 

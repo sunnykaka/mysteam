@@ -17,7 +17,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 })
 @EnableJpaRepositories("com.akkafun.**.dao")
 @EnableJpaAuditing
-@ComponentScan("com.akkafun.**.service")
+@ComponentScan({"com.akkafun.**.service", "com.akkafun.**.web"})
 @Import({EventConfiguration.class})
 public class BaseApplication {
 
