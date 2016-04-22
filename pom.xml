@@ -8,10 +8,11 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>user</module>
-        <module>eureka</module>
-        <module>utils</module>
         <module>apiutils</module>
+        <module>common</module>
+        <module>eureka</module>
+        <module>user</module>
+        <module>account</module>
     </modules>
 
     <properties>
@@ -99,8 +100,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
-
         </dependencies>
     </dependencyManagement>
 

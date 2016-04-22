@@ -3,7 +3,7 @@ package com.akkafun.user.service;
 import com.akkafun.common.event.service.EventBus;
 import com.akkafun.common.utils.PasswordHash;
 import com.akkafun.user.api.dtos.RegisterDto;
-import com.akkafun.user.api.events.domain.UserCreated;
+import com.akkafun.user.api.events.UserCreated;
 import com.akkafun.user.api.exceptions.UserException;
 import com.akkafun.user.dao.UserRepository;
 import com.akkafun.user.domain.User;

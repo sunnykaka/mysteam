@@ -1,7 +1,6 @@
 package com.akkafun.user.domain;
 
 import com.akkafun.common.domain.AuditEntity;
-import com.akkafun.common.domain.AuditableEntity;
 
 import javax.persistence.*;
 

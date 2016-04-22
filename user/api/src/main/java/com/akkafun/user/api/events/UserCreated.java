@@ -1,4 +1,4 @@
-package com.akkafun.user.api.events.domain;
+package com.akkafun.user.api.events;
 
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.domain.BaseEvent;

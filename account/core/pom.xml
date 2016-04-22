@@ -2,18 +2,18 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>user-service-core</artifactId>
+    <artifactId>account-service-core</artifactId>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>com.akkafun.mysteam</groupId>
-        <artifactId>user-service</artifactId>
+        <artifactId>account-service</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <!-- Stand-alone RESTFul application for testing only -->
-        <start-class>com.akkafun.user.context.Application</start-class>
+        <start-class>com.akkafun.account.context.Application</start-class>
     </properties>
 
     <dependencies>
@@ -35,6 +35,13 @@
             <artifactId>user-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.akkafun.mysteam</groupId>
+            <artifactId>account-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
 
 
     </dependencies>

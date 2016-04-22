@@ -1,14 +1,12 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016/4/22 18:06:54                           */
+/* Created on:     2016/4/22 15:10:35                           */
 /*==============================================================*/
 
 
 drop table if exists account;
 
 drop table if exists account_flow;
-
-drop table if exists user;
 
 /*==============================================================*/
 /* Table: account                                               */
@@ -31,20 +29,6 @@ create table account_flow
    accountId            bigint not null,
    description          varchar(255),
    type                 varchar(32),
-   primary key (id)
-);
-
-/*==============================================================*/
-/* Table: user                                                  */
-/*==============================================================*/
-create table user
-(
-   id                   bigint unsigned not null auto_increment,
-   username             varchar(100) not null,
-   password             varchar(255) not null,
-   createTime           datetime,
-   updateTime           datetime,
-   optlock              int default 0,
    primary key (id)
 );
 

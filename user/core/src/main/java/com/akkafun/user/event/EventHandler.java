@@ -2,7 +2,7 @@ package com.akkafun.user.event;
 
 import com.akkafun.common.event.Subscribe;
 import com.akkafun.common.spring.ApplicationContextHolder;
-import com.akkafun.user.api.events.domain.UserCreated;
+import com.akkafun.user.api.events.UserCreated;
 import com.akkafun.user.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
