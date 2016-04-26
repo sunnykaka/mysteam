@@ -1,7 +1,7 @@
 package com.akkafun.common.event.domain;
 
 import com.akkafun.base.event.constants.EventType;
-import com.akkafun.common.domain.AuditableEntity;
+import com.akkafun.common.domain.AuditEntity;
 import com.akkafun.common.event.constant.EventPublishStatus;
 
 import javax.persistence.*;
@@ -11,7 +11,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "event_publish")
-public class EventPublish extends AuditableEntity {
+public class EventPublish extends AuditEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

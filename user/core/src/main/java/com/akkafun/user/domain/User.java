@@ -1,6 +1,6 @@
 package com.akkafun.user.domain;
 
-import com.akkafun.common.domain.AuditEntity;
+import com.akkafun.common.domain.VersionEntity;
 
 import javax.persistence.*;
 
@@ -9,7 +9,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "user")
-public class User extends AuditEntity {
+public class User extends VersionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

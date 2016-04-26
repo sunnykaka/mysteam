@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016/4/22 15:10:35                           */
+/* Created on:     2016/4/26 9:54:25                            */
 /*==============================================================*/
 
 
@@ -16,6 +16,9 @@ create table account
    id                   bigint unsigned not null auto_increment,
    balance              bigint not null,
    userId               bigint not null,
+   optlock              int default 0,
+   createTime           datetime,
+   updateTime           datetime,
    primary key (id)
 );
 
@@ -29,6 +32,8 @@ create table account_flow
    accountId            bigint not null,
    description          varchar(255),
    type                 varchar(32),
+   createTime           datetime,
+   updateTime           datetime,
    primary key (id)
 );
 
