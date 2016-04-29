@@ -1,10 +1,10 @@
-package com.akkafun.account.context;
+package com.akkafun.coupon.context;
 
-import com.akkafun.account.event.EventHandler;
 import com.akkafun.common.event.EventInit;
 import com.akkafun.common.event.EventRegistry;
 import com.akkafun.common.scheduler.config.SchedulerConfiguration;
 import com.akkafun.common.spring.BaseApplication;
+import com.akkafun.coupon.event.EventHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -26,5 +26,4 @@ public class Application {
         EventRegistry.getInstance().clear();
         return new EventInit(new EventHandler());
     }
-
 }

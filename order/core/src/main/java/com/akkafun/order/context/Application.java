@@ -1,6 +1,5 @@
-package com.akkafun.account.context;
+package com.akkafun.order.context;
 
-import com.akkafun.account.event.EventHandler;
 import com.akkafun.common.event.EventInit;
 import com.akkafun.common.event.EventRegistry;
 import com.akkafun.common.scheduler.config.SchedulerConfiguration;
@@ -21,10 +20,10 @@ public class Application {
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean
-    public EventInit eventInit() {
-        EventRegistry.getInstance().clear();
-        return new EventInit(new EventHandler());
-    }
+//    @Bean
+//    public EventInit eventInit() {
+//        EventRegistry.getInstance().clear();
+//        return new EventInit(new EventHandler());
+//    }
 
 }

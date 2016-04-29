@@ -44,7 +44,7 @@ spring:
             consumer:
               autoCommitOffset: true
               minPartitionCount: 1
-              startOffset: latest
+              startOffset: earliest
               mode: raw
           output:
             producer:

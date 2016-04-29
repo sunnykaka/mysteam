@@ -13,6 +13,8 @@
         <module>eureka</module>
         <module>user</module>
         <module>account</module>
+        <module>coupon</module>
+        <module>order</module>
     </modules>
 
     <properties>

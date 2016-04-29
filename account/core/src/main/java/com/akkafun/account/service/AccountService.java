@@ -20,10 +20,12 @@ public class AccountService {
     AccountFlowRepository accountFlowRepository;
 
     @Transactional
-    public void initAccount(Long userId) {
+    public Account initAccount(Long userId) {
         Account account = new Account();
         account.setBalance(0L);
         account.setUserId(userId);
         accountRepository.save(account);
+
+        return account;
     }
 }

@@ -1,13 +1,13 @@
 server:
-  port: 8081
+  port: 8082
 
 spring:
   application:
-    name: account
+    name: coupon
     index: 0
 
   datasource:
-    url: jdbc:mysql://localhost:3306/account_service
+    url: jdbc:mysql://localhost:3306/coupon_service
     username: root
     password: root
     testWhileIdle: true
@@ -57,13 +57,13 @@ spring:
       bindings:
         input:
           # destination: testq1
-          group: account
+          group: coupon
           consumer:
             concurrency: 1
             partitioned: false
         output:
           # destination: testq2
-          group: account
+          group: coupon
           producer:
             # partitionKeyExpression: null
             # partitionKeyExtractorClass: null
