@@ -1,5 +1,6 @@
 package com.akkafun.user.web;
 
+import com.akkafun.base.api.Error;
 import com.akkafun.common.utils.JsonUtils;
 import com.akkafun.user.test.BaseControllerTest;
 import com.akkafun.user.api.UserUrl;
@@ -38,7 +39,31 @@ public class UserControllerTest extends BaseControllerTest {
         assertThat(userDto.getId(), notNullValue());
         assertThat(userDto.getUsername(), notNullValue());
 
+
+
     }
+
+    @Test
+    public void testRegisterWithNullPasswordReturnErrorCode() {
+
+//        RegisterDto registerDto = new RegisterDto();
+//        registerDto.setUsername(RandomStringUtils.randomAlphanumeric(8));
+//
+//        String errorMessage = restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
+//                createJsonEntity(JsonUtils.object2Json(registerDto)), String.class);
+//
+//        assertThat(errorMessage, notNullValue());
+//        Error error = JsonUtils.json2Object(errorMessage, Error.class);
+//        assertThat(error.getCode(), is());
+//
+//
+//        assertThat(userDto.getId(), notNullValue());
+//        assertThat(userDto.getUsername(), notNullValue());
+
+
+
+    }
+
 
 
 

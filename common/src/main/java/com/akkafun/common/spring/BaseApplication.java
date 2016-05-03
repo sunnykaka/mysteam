@@ -1,10 +1,18 @@
 package com.akkafun.common.spring;
 
 import com.akkafun.common.event.config.EventConfiguration;
+import com.akkafun.common.spring.mvc.AppErrorController;
+import com.akkafun.common.spring.mvc.AppExceptionHandlerController;
+import com.akkafun.common.utils.JsonUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.autoconfigure.web.ErrorAttributes;
+import org.springframework.boot.autoconfigure.web.ErrorController;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -32,5 +40,27 @@ public class BaseApplication {
     }
 
 
+
+
+
+    //MVC CONFIG
+    //customize object mapper
+    @Bean
+    @Primary
+    public ObjectMapper objectMapper() {
+        return JsonUtils.OBJECT_MAPPER;
+    }
+
+    //error page
+    @Bean
+    public ErrorController errorController(ErrorAttributes errorAttributes, ServerProperties serverProperties) {
+        return new AppErrorController(errorAttributes, serverProperties.getError());
+    }
+
+    //exception handler
+    @Bean
+    public AppExceptionHandlerController appExceptionHandlerController() {
+        return new AppExceptionHandlerController();
+    }
 
 }

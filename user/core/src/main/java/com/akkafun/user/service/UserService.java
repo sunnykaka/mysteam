@@ -1,10 +1,11 @@
 package com.akkafun.user.service;
 
+import com.akkafun.base.exception.AppBusinessException;
 import com.akkafun.common.event.service.EventBus;
 import com.akkafun.common.utils.PasswordHash;
+import com.akkafun.user.api.UserErrorCode;
 import com.akkafun.user.api.dtos.RegisterDto;
 import com.akkafun.user.api.events.UserCreated;
-import com.akkafun.user.api.exceptions.UserException;
 import com.akkafun.user.dao.UserRepository;
 import com.akkafun.user.domain.User;
 import org.slf4j.Logger;
@@ -44,7 +45,8 @@ public class UserService {
     @Transactional
     public User register(RegisterDto registerDto) {
         if(isUsernameExist(registerDto.getUsername(), Optional.empty())) {
-            throw new UserException(String.format("用户名%s已存在", registerDto.getUsername()));
+            throw new AppBusinessException(UserErrorCode.UsernameExist,
+                    String.format("用户名%s已存在", registerDto.getUsername()));
         }
 
         User user = new User();
@@ -53,7 +55,7 @@ public class UserService {
             user.setPassword(PasswordHash.createHash(registerDto.getPassword()));
         } catch (GeneralSecurityException e) {
             logger.error("创建哈希密码的时候发生错误", e);
-            throw new RuntimeException("用户注册失败");
+            throw new AppBusinessException("用户注册失败");
         }
 
         userRepository.save(user);

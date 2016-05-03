@@ -1,10 +1,10 @@
 package com.akkafun.user.service;
 
+import com.akkafun.base.exception.AppBusinessException;
 import com.akkafun.common.event.service.EventBus;
-import com.akkafun.user.test.BaseTest;
 import com.akkafun.user.api.dtos.RegisterDto;
-import com.akkafun.user.api.exceptions.UserException;
 import com.akkafun.user.domain.User;
+import com.akkafun.user.test.BaseTest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +62,7 @@ public class UserServiceTest extends BaseTest {
         try {
             userService.register(registerDto);
             throw new AssertionError("使用重复用户名注册成功: " + registerDto.getUsername());
-        } catch(UserException expected) {
+        } catch(AppBusinessException expected) {
 
         }
 
