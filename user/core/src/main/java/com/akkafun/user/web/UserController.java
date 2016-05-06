@@ -26,11 +26,7 @@ public class UserController {
     UserService userService;
 
     @RequestMapping(value = USER_REGISTER_URL, method = RequestMethod.POST)
-    public UserDto register(Model model, @Valid @RequestBody RegisterDto registerDto, BindingResult bindingResult) {
-
-        if(bindingResult.hasErrors()) {
-            System.out.println(bindingResult.getAllErrors());
-        }
+    public UserDto register(Model model, @Valid @RequestBody RegisterDto registerDto) {
 
         User user = userService.register(registerDto);
         UserDto userDto = new UserDto();

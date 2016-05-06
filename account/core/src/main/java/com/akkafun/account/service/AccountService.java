@@ -28,4 +28,10 @@ public class AccountService {
 
         return account;
     }
+
+    @Transactional(readOnly = true)
+    public boolean checkEnoughBalance(Long userId, Long balance) {
+        Account account = accountRepository.findByUserId(userId);
+        return account != null && account.getBalance() >= balance;
+    }
 }

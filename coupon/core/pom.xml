@@ -32,6 +32,14 @@
 
         <dependency>
             <groupId>com.akkafun.mysteam</groupId>
+            <artifactId>common</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.akkafun.mysteam</groupId>
             <artifactId>user-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>

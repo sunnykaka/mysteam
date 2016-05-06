@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Import;
  */
 @SpringBootApplication
 @Import(BaseApplication.class)
-public class TestApplication {
+public class TestUserApplication {
 
     @Bean
     public EventInit eventInit() {

@@ -1,8 +1,10 @@
 package com.akkafun.user.web;
 
-import com.akkafun.base.api.Error;
+import com.akkafun.base.api.CommonErrorCode;
+import com.akkafun.common.test.TestUtils;
 import com.akkafun.common.utils.JsonUtils;
-import com.akkafun.user.test.BaseControllerTest;
+import com.akkafun.user.api.UserErrorCode;
+import com.akkafun.user.test.UserBaseControllerTest;
 import com.akkafun.user.api.UserUrl;
 import com.akkafun.user.api.dtos.RegisterDto;
 import com.akkafun.user.api.dtos.UserDto;
@@ -12,13 +14,14 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 /**
  * Created by liubin on 2016/3/29.
  */
-public class UserControllerTest extends BaseControllerTest {
+public class UserControllerTest extends UserBaseControllerTest {
 
     @Autowired
     private UserService userService;
@@ -39,33 +42,84 @@ public class UserControllerTest extends BaseControllerTest {
         assertThat(userDto.getId(), notNullValue());
         assertThat(userDto.getUsername(), notNullValue());
 
-
-
     }
 
+    /**
+     * 测试用户名已存在的异常处理(AppBusinessException)
+     */
     @Test
-    public void testRegisterWithNullPasswordReturnErrorCode() {
+    public void testRegisterWithExistUsername() {
 
-//        RegisterDto registerDto = new RegisterDto();
-//        registerDto.setUsername(RandomStringUtils.randomAlphanumeric(8));
-//
-//        String errorMessage = restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
-//                createJsonEntity(JsonUtils.object2Json(registerDto)), String.class);
-//
-//        assertThat(errorMessage, notNullValue());
-//        Error error = JsonUtils.json2Object(errorMessage, Error.class);
-//        assertThat(error.getCode(), is());
-//
-//
-//        assertThat(userDto.getId(), notNullValue());
-//        assertThat(userDto.getUsername(), notNullValue());
+        RegisterDto registerDto = new RegisterDto();
+        registerDto.setUsername(RandomStringUtils.randomAlphanumeric(8));
+        registerDto.setPassword(RandomStringUtils.randomAlphanumeric(8));
 
+        UserDto userDto = restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
+                createJsonEntity(JsonUtils.object2Json(registerDto)), UserDto.class);
 
+        assertThat(userDto, notNullValue());
+        assertThat(userDto.getId(), notNullValue());
+        assertThat(userDto.getUsername(), notNullValue());
+
+        TestUtils.assertServerError(
+                () -> restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
+                        createJsonEntity(JsonUtils.object2Json(registerDto)), UserDto.class),
+                error -> {
+                    assertThat(error.getCode(), is(UserErrorCode.UsernameExist.getCode()));
+                    assertThat(error.getRequestUri(), notNullValue());
+                }
+        );
 
     }
 
 
+    /**
+     * 测试密码为空, 密码长度过长的异常处理(MethodArgumentNotValidException)
+     */
+    @Test
+    public void testRegisterWithInvalidParam() {
 
+        RegisterDto registerDto = new RegisterDto();
+        registerDto.setUsername(RandomStringUtils.randomAlphanumeric(8));
+
+        TestUtils.assertServerError(
+                () -> restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
+                        createJsonEntity(JsonUtils.object2Json(registerDto)), Object.class),
+                error -> {
+                    assertThat(error.getCode(), is(CommonErrorCode.BAD_REQUEST.getCode()));
+                    assertThat(error.getRequestUri(), notNullValue());
+                }
+        );
+
+        registerDto.setPassword(RandomStringUtils.randomAlphanumeric(30));
+        TestUtils.assertServerError(
+                () -> restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
+                        createJsonEntity(JsonUtils.object2Json(registerDto)), Object.class),
+                error -> {
+                    assertThat(error.getCode(), is(CommonErrorCode.BAD_REQUEST.getCode()));
+                    assertThat(error.getRequestUri(), notNullValue());
+                }
+        );
+
+
+    }
+
+    /**
+     * 测试访问不存在页面的异常处理(404)
+     */
+    @Test
+    public void testServer404Error() {
+
+        TestUtils.assertServerError(
+                () -> restTemplate.getForObject(buildRequestUrl("/A_URL_NOT_EXIST"), Object.class),
+                error -> {
+                    System.out.println(error);
+                    assertThat(error.getCode(), is(CommonErrorCode.NOT_FOUND.getCode()));
+                    assertThat(error.getMessage(), notNullValue());
+                }
+        );
+
+    }
 
 
 }

@@ -4,7 +4,7 @@ import com.akkafun.base.exception.AppBusinessException;
 import com.akkafun.common.event.service.EventBus;
 import com.akkafun.user.api.dtos.RegisterDto;
 import com.akkafun.user.domain.User;
-import com.akkafun.user.test.BaseTest;
+import com.akkafun.user.test.UserBaseTest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by liubin on 2016/3/29.
  */
-public class UserServiceTest extends BaseTest {
+public class UserServiceTest extends UserBaseTest {
 
     @Autowired
     private UserService userService;

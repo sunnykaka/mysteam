@@ -39,28 +39,11 @@ public class BaseApplication {
         return ApplicationContextHolder.getInstance();
     }
 
-
-
-
-
-    //MVC CONFIG
     //customize object mapper
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
         return JsonUtils.OBJECT_MAPPER;
-    }
-
-    //error page
-    @Bean
-    public ErrorController errorController(ErrorAttributes errorAttributes, ServerProperties serverProperties) {
-        return new AppErrorController(errorAttributes, serverProperties.getError());
-    }
-
-    //exception handler
-    @Bean
-    public AppExceptionHandlerController appExceptionHandlerController() {
-        return new AppExceptionHandlerController();
     }
 
 }

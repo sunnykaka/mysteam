@@ -1,5 +1,8 @@
 package com.akkafun.base.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Created by liubin on 15-8-3.
  */
@@ -16,13 +19,17 @@ public class Error {
     }
 
     public Error(ErrorCode errorCode, String requestUri, String message) {
-        if(errorCode != null) {
-            this.code = errorCode.getCode();
-        }
+        this(errorCode == null ? null : errorCode.getCode(), requestUri, message);
+    }
+
+    @JsonCreator
+    public Error(@JsonProperty("code") String code,
+                 @JsonProperty("requestUri") String requestUri,
+                 @JsonProperty("message") String message) {
+        this.code = code;
         this.requestUri = requestUri;
         this.message = message;
     }
-
 
     public String getCode() {
         return code;
@@ -34,5 +41,14 @@ public class Error {
 
     public String getRequestUri() {
         return requestUri;
+    }
+
+    @Override
+    public String toString() {
+        return "Error{" +
+                "code='" + code + '\'' +
+                ", message='" + message + '\'' +
+                ", requestUri='" + requestUri + '\'' +
+                '}';
     }
 }

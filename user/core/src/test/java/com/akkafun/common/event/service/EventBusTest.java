@@ -1,20 +1,24 @@
 package com.akkafun.common.event.service;
 
-import com.akkafun.user.test.BaseTest;
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.domain.BaseEvent;
-import com.akkafun.common.event.*;
+import com.akkafun.common.event.EventHandler;
+import com.akkafun.common.event.EventRegistry;
+import com.akkafun.common.event.EventSubscriber;
+import com.akkafun.common.event.EventUtils;
 import com.akkafun.common.event.constant.EventProcessStatus;
 import com.akkafun.common.event.constant.EventPublishStatus;
+import com.akkafun.common.event.constants.TestEventFirst;
+import com.akkafun.common.event.constants.TestEventSecond;
 import com.akkafun.common.event.dao.EventProcessRepository;
 import com.akkafun.common.event.dao.EventPublishRepository;
 import com.akkafun.common.event.domain.EventProcess;
 import com.akkafun.common.event.domain.EventPublish;
+import com.akkafun.user.test.UserBaseTest;
 import com.google.common.collect.Lists;
 import kafka.serializer.Decoder;
 import kafka.serializer.DefaultDecoder;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.stream.binder.Binder;
@@ -24,7 +28,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.integration.kafka.core.*;
 import org.springframework.integration.kafka.util.MessageUtils;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
@@ -40,8 +43,7 @@ import static org.junit.Assert.assertThat;
  *
  * Created by liubin on 2016/4/11.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-public class EventBusTest extends BaseTest {
+public class EventBusTest extends UserBaseTest {
 
     @Autowired
     EventBus eventBus;

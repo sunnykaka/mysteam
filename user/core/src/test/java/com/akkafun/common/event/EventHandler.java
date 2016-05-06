@@ -1,5 +1,7 @@
 package com.akkafun.common.event;
 
+import com.akkafun.common.event.constants.TestEventFirst;
+import com.akkafun.common.event.constants.TestEventSecond;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -9,7 +9,7 @@ import com.akkafun.base.api.ErrorCode;
 public class AppBusinessException extends BaseException {
 
     //类似Http状态码
-    private ErrorCode errorCode = CommonErrorCode.InternalError;
+    private ErrorCode errorCode = CommonErrorCode.INTERNAL_ERROR;
 
 
     public AppBusinessException(String message) {

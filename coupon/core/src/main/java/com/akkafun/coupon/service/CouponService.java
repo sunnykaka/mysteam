@@ -29,4 +29,9 @@ public class CouponService {
         return coupon;
     }
 
+    @Transactional(readOnly = true)
+    public boolean checkCoupon(Long couponId) {
+        Coupon coupon = couponRepository.findOne(couponId);
+        return coupon != null && coupon.getState().equals(CouponState.VALID);
+    }
 }
