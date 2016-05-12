@@ -32,28 +32,30 @@ spring:
 
   cloud:
     stream:
+      instanceCount: 1
+      instanceIndex: 0
       kafka:
         binder:
           brokers: 192.168.239.129:9092,192.168.239.129:9093,192.168.239.129:9094
           zkNodes: 192.168.239.129:2181
           offsetUpdateTimeWindow: 10000
           #offsetUpdateCount: 0
+          requiredAcks: 1
+          minPartitionCount: 1
+          replicationFactor: 1
 
         bindings:
           input:
             consumer:
               autoCommitOffset: true
-              minPartitionCount: 1
               startOffset: earliest
-              mode: raw
+              headerMode: raw
           output:
             producer:
               bufferSize: 16384
               sync: true
               batchTimeout: 0
-              mode: raw
-      instanceCount: 1
-      instanceIndex: 0
+
       bindings:
         input:
           # destination: testq1
@@ -61,6 +63,7 @@ spring:
           consumer:
             concurrency: 1
             partitioned: false
+            headerMode: raw
         output:
           # destination: testq2
           group: user
@@ -70,7 +73,17 @@ spring:
             # partitionSelectorExpression: null
             # partitionSelectorClass: null
             partitionCount: 1
+            headerMode: raw
 
+# Discovery Server Access
+eureka:
+  instance:
+    # hostname: localhost
+    preferIpAddress: true
+
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:1111/eureka/
 
 
 

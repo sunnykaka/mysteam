@@ -13,7 +13,7 @@
 
     <properties>
         <!-- Stand-alone RESTFul application for testing only -->
-        <start-class>com.akkafun.user.context.Application</start-class>
+        <start-class>com.akkafun.user.context.UserApplication</start-class>
     </properties>
 
     <dependencies>

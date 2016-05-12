@@ -94,4 +94,23 @@ public class Order extends VersionEntity {
     public void setOrderItemList(List<OrderItem> orderItemList) {
         this.orderItemList = orderItemList;
     }
+
+    /**
+     * 计算订单总额
+     * @param orderItemList
+     */
+    public Long calcTotalAmount(List<OrderItem> orderItemList) {
+        return orderItemList.stream().mapToLong(orderItem -> orderItem.getPrice() * orderItem.getQuantity()).sum();
+    }
+
+    /**
+     * 计算订单应付金额
+     *
+     * @param totalAmount
+     * @param couponAmount
+     * @return
+     */
+    public Long calcPayAmount(Long totalAmount, Long couponAmount) {
+        return Math.max(totalAmount - couponAmount, 0L);
+    }
 }

@@ -13,7 +13,7 @@
 
     <properties>
         <!-- Stand-alone RESTFul application for testing only -->
-        <start-class>com.akkafun.order.context.Application</start-class>
+        <start-class>com.akkafun.order.context.OrderApplication</start-class>
     </properties>
 
     <dependencies>
@@ -41,6 +41,12 @@
         <dependency>
             <groupId>com.akkafun.mysteam</groupId>
             <artifactId>user-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.akkafun.mysteam</groupId>
+            <artifactId>account-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

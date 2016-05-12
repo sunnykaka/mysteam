@@ -15,10 +15,10 @@ import org.springframework.context.annotation.Import;
  */
 @SpringBootApplication
 @Import({BaseApplication.class, SchedulerConfiguration.class})
-public class Application {
+public class AccountApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(AccountApplication.class, args);
     }
 
     @Bean

@@ -7,6 +7,8 @@ public enum EventType {
 
     USER_CREATED,
 
+    ORDER_CREATE_PENDING,
+
     TEST_EVENT_FIRST,
 
     TEST_EVENT_SECOND;

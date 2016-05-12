@@ -41,5 +41,10 @@ public class AppBusinessException extends BaseException {
         return errorCode;
     }
 
-
+    @Override
+    public String toString() {
+        return "AppBusinessException{" +
+                "errorCode=" + errorCode +
+                "} " + super.toString();
+    }
 }

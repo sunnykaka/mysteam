@@ -5,6 +5,16 @@ package com.akkafun.coupon.api;
  */
 public interface CouponUrl {
 
+    String SERVICE_NAME = "COUPON";
+
+    String SERVICE_HOSTNAME = "http://COUPON";
+
     String CHECK_VALID_URL = "/coupons/{couponId}/valid";
+
+    String COUPON_LIST_URL = "/coupons";
+
+    static String buildUrl(String url) {
+        return SERVICE_HOSTNAME + url;
+    }
 
 }

@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -40,7 +41,7 @@ public class EventRegistryTest {
 
         Set<EventType> eventTypeSet = eventRegistry.getAllEventType();
         assertThat(eventTypeSet.size(), is(2));
-        assertThat(eventTypeSet, contains(EventType.TEST_EVENT_FIRST, EventType.TEST_EVENT_SECOND));
+        assertThat(eventTypeSet, containsInAnyOrder(EventType.TEST_EVENT_FIRST, EventType.TEST_EVENT_SECOND));
 
         Set<EventSubscriber> eventFirstSubscriberSet = eventRegistry.findEventSubscriberByType(EventType.TEST_EVENT_FIRST);
         Set<EventSubscriber> eventSecondSubscriberSet = eventRegistry.findEventSubscriberByType(EventType.TEST_EVENT_SECOND);

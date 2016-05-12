@@ -5,19 +5,24 @@ import com.akkafun.common.event.EventRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.boot.bind.RelaxedDataBinder;
 import org.springframework.cloud.stream.binder.*;
 import org.springframework.cloud.stream.binding.ChannelBindingService;
 import org.springframework.cloud.stream.config.ChannelBindingServiceProperties;
+import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * 自定义类与父类的区别:
- * 重新定义bindConsumer, 因为在启动的时候需要监听事件的都调用了EventRegistry.register.
- * 所以EventRegistry已经包含了所有的感兴趣的事件类型(即topic), 在这里就将所有感兴趣的topic注册到Processor.INPUT这个channel
+ * 1. 重新定义bindConsumer, 因为在启动的时候需要监听事件的都调用了EventRegistry.register.
+ *    所以EventRegistry已经包含了所有的感兴趣的事件类型(即topic), 在这里就将所有感兴趣的topic注册到Processor.INPUT这个channel
+ *
+ * 2. 重新定义bindProducer, 因为output channel全都是根据事件名称动态创建的, 他们的配置全部沿用Processor.OUTPUT这个channel的配置
  *
  * Created by liubin on 2016/4/8.
  *
@@ -26,19 +31,25 @@ public class CustomChannelBindingService extends ChannelBindingService {
 
     private final Log log = LogFactory.getLog(CustomChannelBindingService.class);
 
+    private final CustomValidatorBean validator;
+
     private BinderFactory<MessageChannel> binderFactory;
 
     private final ChannelBindingServiceProperties channelBindingServiceProperties;
 
     private final Map<String, List<Binding<MessageChannel>>> consumerBindings = new HashMap<>();
 
+    private final Map<String, Binding<MessageChannel>> producerBindings = new HashMap<>();
+
     private final EventRegistry eventRegistry = EventRegistry.getInstance();
 
     public CustomChannelBindingService(ChannelBindingServiceProperties channelBindingServiceProperties,
-                                       BinderFactory<MessageChannel> binderFactory) {
+                                 BinderFactory<MessageChannel> binderFactory) {
         super(channelBindingServiceProperties, binderFactory);
         this.channelBindingServiceProperties = channelBindingServiceProperties;
         this.binderFactory = binderFactory;
+        this.validator = new CustomValidatorBean();
+        this.validator.afterPropertiesSet();
     }
 
     @SuppressWarnings("unchecked")
@@ -62,12 +73,35 @@ public class CustomChannelBindingService extends ChannelBindingService {
             BeanUtils.copyProperties(consumerProperties, extendedConsumerProperties);
             consumerProperties = extendedConsumerProperties;
         }
+        validate(consumerProperties);
         for (String target : channelBindingTargets) {
             Binding<MessageChannel> binding = binder.bindConsumer(target, channelBindingServiceProperties.getGroup(inputChannelName), inputChannel, consumerProperties);
             bindings.add(binding);
         }
         this.consumerBindings.put(inputChannelName, bindings);
         return bindings;
+
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Binding<MessageChannel> bindProducer(MessageChannel outputChannel, String outputChannelName) {
+        String channelBindingTarget = this.channelBindingServiceProperties.getBindingDestination(outputChannelName);
+        Binder<MessageChannel, ?, ProducerProperties> binder =
+                (Binder<MessageChannel, ?, ProducerProperties>) getBinderForChannel(outputChannelName);
+        //统一使用OUTPUT的配置
+        String channelNameForProperties = Processor.OUTPUT;
+        ProducerProperties producerProperties = this.channelBindingServiceProperties.getProducerProperties(channelNameForProperties);
+        if (binder instanceof ExtendedPropertiesBinder) {
+            Object extension = ((ExtendedPropertiesBinder) binder).getExtendedProducerProperties(channelNameForProperties);
+            ExtendedProducerProperties extendedProducerProperties = new ExtendedProducerProperties<>(extension);
+            BeanUtils.copyProperties(producerProperties, extendedProducerProperties);
+            producerProperties = extendedProducerProperties;
+        }
+        validate(producerProperties);
+        Binding<MessageChannel> binding = binder.bindProducer(channelBindingTarget, outputChannel, producerProperties);
+        this.producerBindings.put(outputChannelName, binding);
+        return binding;
     }
 
     @Override
@@ -83,9 +117,30 @@ public class CustomChannelBindingService extends ChannelBindingService {
         }
     }
 
+    @Override
+    public void unbindProducers(String outputChannelName) {
+        Binding<MessageChannel> binding = this.producerBindings.remove(outputChannelName);
+        if (binding != null) {
+            binding.unbind();
+        }
+        else if (log.isWarnEnabled()) {
+            log.warn("Trying to unbind channel '" + outputChannelName + "', but no binding found.");
+        }
+    }
+
+
     private Binder<MessageChannel, ?, ?> getBinderForChannel(String channelName) {
         String transport = this.channelBindingServiceProperties.getBinder(channelName);
         return binderFactory.getBinder(transport);
+    }
+
+    private void validate(Object properties) {
+        RelaxedDataBinder dataBinder = new RelaxedDataBinder(properties);
+        dataBinder.setValidator(validator);
+        dataBinder.validate();
+        if (dataBinder.getBindingResult().hasErrors()) {
+            throw new IllegalStateException(dataBinder.getBindingResult().toString());
+        }
     }
 
 }

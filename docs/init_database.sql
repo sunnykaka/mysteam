@@ -17,4 +17,5 @@ source common/docs/common.sql;
 create database if not exists order_service;
 use order_service;
 source order/docs/order-service.sql;
+source order/docs/init-product.sql;
 source common/docs/common.sql;

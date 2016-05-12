@@ -5,6 +5,15 @@ package com.akkafun.account.api;
  */
 public interface AccountUrl {
 
+    String SERVICE_NAME = "ACCOUNT";
+
+    String SERVICE_HOSTNAME = "http://ACCOUNT";
+
     String CHECK_ENOUGH_BALANCE_URL = "/accounts/enough";
+
+    static String buildUrl(String url) {
+        return SERVICE_HOSTNAME + url;
+    }
+
 
 }

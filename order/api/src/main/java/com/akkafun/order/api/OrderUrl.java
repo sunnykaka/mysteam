@@ -5,6 +5,14 @@ package com.akkafun.order.api;
  */
 public interface OrderUrl {
 
+    String SERVICE_NAME = "ORDER";
+
+    String SERVICE_HOSTNAME = "http://ORDER";
+
     String PLACE_ORDER = "/orders/place";
+
+    default String buildUrl(String url) {
+        return SERVICE_HOSTNAME + url;
+    }
 
 }
