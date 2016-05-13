@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
  */
 public class ApplicationConstant {
 
-    @Value("${spring.cloud.stream.kafka.binder.zkNodes}")
+    @Value("${spring.cloud.stream.kafka.binder.zkNodes:}")
     public String zkAddress;
 
     @Value("${spring.application.name}")

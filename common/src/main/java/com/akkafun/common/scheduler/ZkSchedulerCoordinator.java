@@ -2,6 +2,7 @@ package com.akkafun.common.scheduler;
 
 import com.akkafun.common.spring.ApplicationConstant;
 import com.akkafun.common.utils.ZkUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -43,6 +44,10 @@ public class ZkSchedulerCoordinator implements InitializingBean, DisposableBean 
     public void afterPropertiesSet() throws Exception {
 
         String zkAddress = applicationConstant.zkAddress;
+        if(StringUtils.isBlank(zkAddress)) {
+            logger.warn("zkAddress 为空, ZkSchedulerCoordinator 停止运行");
+            return;
+        }
         String applicationName = applicationConstant.applicationName;
         String path = ZkUtils.createZkSchedulerLeaderPath(applicationName);
 
