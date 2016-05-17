@@ -6,6 +6,7 @@ import com.akkafun.order.api.dtos.PlaceOrderDto;
 import com.akkafun.order.domain.Order;
 import com.akkafun.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -20,6 +21,7 @@ import static com.akkafun.order.api.OrderUrl.PLACE_ORDER;
  * Created by liubin on 2016/3/29.
  */
 @RestController
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class OrderController {
 
     @Autowired

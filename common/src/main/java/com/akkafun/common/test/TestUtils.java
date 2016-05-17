@@ -2,6 +2,9 @@ package com.akkafun.common.test;
 
 import com.akkafun.base.api.Error;
 import com.akkafun.common.utils.JsonUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -48,6 +51,15 @@ public class TestUtils {
         }
 
     }
+
+    public static HttpEntity<String> createJsonEntity(Object object) {
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<>(JsonUtils.object2Json(object), requestHeaders);
+    }
+
+
+
 
 
 }

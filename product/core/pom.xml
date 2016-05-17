@@ -2,53 +2,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>integration-test</artifactId>
+    <artifactId>product-service-core</artifactId>
     <packaging>jar</packaging>
 
     <parent>
         <groupId>com.akkafun.mysteam</groupId>
-        <artifactId>base</artifactId>
+        <artifactId>product-service</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
     <properties>
+        <!-- Stand-alone RESTFul application for testing only -->
+        <start-class>com.akkafun.product.context.ProductApplication</start-class>
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.akkafun.mysteam</groupId>
-            <artifactId>user-service-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.akkafun.mysteam</groupId>
-            <artifactId>account-service-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.akkafun.mysteam</groupId>
-            <artifactId>coupon-service-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.akkafun.mysteam</groupId>
-            <artifactId>order-service-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.akkafun.mysteam</groupId>
-            <artifactId>product-service-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -65,8 +38,13 @@
             <scope>test</scope>
         </dependency>
 
-    </dependencies>
+        <dependency>
+            <groupId>com.akkafun.mysteam</groupId>
+            <artifactId>product-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
+    </dependencies>
 
     <build>
         <plugins>

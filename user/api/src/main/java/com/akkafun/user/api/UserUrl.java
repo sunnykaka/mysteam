@@ -11,7 +11,7 @@ public interface UserUrl {
 
     String USER_REGISTER_URL = "/users/register";
 
-    default String buildUrl(String url) {
+    static String buildUrl(String url) {
         return SERVICE_HOSTNAME + url;
     }
 

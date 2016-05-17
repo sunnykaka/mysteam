@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016/4/29 17:48:13                           */
+/* Created on:     2016/5/16 14:30:42                           */
 /*==============================================================*/
 
 
@@ -9,8 +9,6 @@ drop table if exists order_coupon;
 drop table if exists order_item;
 
 drop table if exists order_table;
-
-drop table if exists product;
 
 /*==============================================================*/
 /* Table: order_coupon                                          */
@@ -54,19 +52,6 @@ create table order_table
    optlock              int default 0,
    createTime           datetime,
    updateTime           datetime,
-   primary key (id)
-);
-
-/*==============================================================*/
-/* Table: product                                               */
-/*==============================================================*/
-create table product
-(
-   id                   bigint unsigned not null auto_increment,
-   name                 national varchar(255) not null,
-   description          text,
-   price                bigint,
-   category             varchar(32),
    primary key (id)
 );
 

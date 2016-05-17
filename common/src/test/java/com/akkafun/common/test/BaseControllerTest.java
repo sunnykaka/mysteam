@@ -26,10 +26,4 @@ public abstract class BaseControllerTest extends BaseTest {
         return String.format("%s/%s", localServerUrl(), url);
     }
 
-    protected HttpEntity<String> createJsonEntity(String json) {
-        HttpHeaders requestHeaders = new HttpHeaders();
-        requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<>(json, requestHeaders);
-    }
-
 }

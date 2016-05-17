@@ -5,6 +5,7 @@ import com.akkafun.user.api.dtos.UserDto;
 import com.akkafun.user.domain.User;
 import com.akkafun.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +21,7 @@ import static com.akkafun.user.api.UserUrl.*;
  * Created by liubin on 2016/3/29.
  */
 @RestController
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 
     @Autowired

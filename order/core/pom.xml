@@ -58,6 +58,12 @@
 
         <dependency>
             <groupId>com.akkafun.mysteam</groupId>
+            <artifactId>product-service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.akkafun.mysteam</groupId>
             <artifactId>order-service-api</artifactId>
             <version>${project.version}</version>
         </dependency>

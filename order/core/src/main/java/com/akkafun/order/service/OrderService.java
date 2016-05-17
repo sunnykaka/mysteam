@@ -10,15 +10,16 @@ import com.akkafun.coupon.api.constants.CouponState;
 import com.akkafun.coupon.api.dtos.CouponDto;
 import com.akkafun.order.api.constants.OrderStatus;
 import com.akkafun.order.api.dtos.PlaceOrderDto;
+import com.akkafun.order.api.dtos.PlaceOrderItemDto;
 import com.akkafun.order.api.events.OrderCreatePending;
 import com.akkafun.order.dao.OrderCouponRepository;
 import com.akkafun.order.dao.OrderItemRepository;
 import com.akkafun.order.dao.OrderRepository;
-import com.akkafun.order.dao.ProductRepository;
 import com.akkafun.order.domain.Order;
 import com.akkafun.order.domain.OrderCoupon;
 import com.akkafun.order.domain.OrderItem;
-import com.akkafun.order.domain.Product;
+import com.akkafun.product.api.ProductUrl;
+import com.akkafun.product.api.dtos.ProductDto;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +34,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by liubin on 2016/4/29.
@@ -60,27 +60,12 @@ public class OrderService {
     OrderCouponRepository orderCouponRepository;
 
     @Autowired
-    ProductRepository productRepository;
-
-    @Autowired
     RestTemplate restTemplate;
-
-    /**
-     * The RestTemplate works because it uses a custom request-factory that uses
-     * Ribbon to look-up the service to use. This method simply exists to show
-     * this.
-     */
-    @PostConstruct
-    public void demoOnly() {
-        // Can't do this in the constructor because the RestTemplate injection
-        // happens afterwards.
-        logger.warn("The RestTemplate request factory is "
-                + restTemplate.getRequestFactory());
-    }
 
 
     /**
      * 下订单
+     *
      * @param placeOrderDto
      * @return
      */
@@ -90,67 +75,33 @@ public class OrderService {
         order.setUserId(placeOrderDto.getUserId());
         order.setStatus(OrderStatus.CREATE_PENDING);
         order.setOrderNo(Long.parseLong(RandomStringUtils.randomNumeric(8)));
+
+        //查询产品信息
+        List<Long> productIds = placeOrderDto.getPlaceOrderItemList().stream()
+                .map(PlaceOrderItemDto::getProductId)
+                .collect(Collectors.toList());
+
+        List<ProductDto> productDtoList = findProducts(productIds);
+        Map<Long, ProductDto> productDtoMap = productDtoList.stream()
+                .collect(Collectors.toMap(ProductDto::getId, Function.identity()));
+
         List<OrderItem> orderItemList = placeOrderDto.getPlaceOrderItemList().stream().map(placeOrderItemDto -> {
             OrderItem orderItem = new OrderItem();
             orderItem.setProductId(placeOrderItemDto.getProductId());
             orderItem.setQuantity(placeOrderItemDto.getQuantity());
-            Product product = productRepository.findOne(placeOrderItemDto.getProductId());
-            if (product == null) {
-                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST,
-                        "产品不存在, ID:" + placeOrderItemDto.getProductId());
-            }
-            orderItem.setPrice(product.getPrice());
+            ProductDto productDto = productDtoMap.get(placeOrderItemDto.getProductId());
+            orderItem.setPrice(productDto.getPrice());
             return orderItem;
         }).collect(Collectors.toList());
 
         order.setTotalAmount(order.calcTotalAmount(orderItemList));
 
+        //查询优惠券信息
         List<OrderCoupon> orderCouponList = new ArrayList<>();
         Set<Long> couponIdSet = new HashSet<>(placeOrderDto.getCouponIdList());
-        if(!couponIdSet.isEmpty()) {
-            //处理优惠券信息
+        if (!couponIdSet.isEmpty()) {
 
-            URI uri = UriComponentsBuilder
-                    .fromHttpUrl(CouponUrl.buildUrl(CouponUrl.COUPON_LIST_URL))
-                    .queryParam("id", couponIdSet.toArray())
-                    .build().encode().toUri();
-
-            ResponseEntity<List<CouponDto>> response = restTemplate.exchange(
-                    uri,
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<List<CouponDto>>() {
-                    }
-            );
-
-            List<CouponDto> couponDtoList = response.getBody();
-            if(couponDtoList == null || !response.getStatusCode().is2xxSuccessful()) {
-                throw new AppBusinessException(
-                        String.format("请求获取优惠券接口失败, 返回status: %s, 请求uri: %s",
-                                response.getStatusCode().value(), uri.toString()));
-            }
-
-            List<Long> couponDtoIdList = couponDtoList.stream()
-                    .map(CouponDto::getId)
-                    .collect(Collectors.toList());
-            //过滤出在数据库不存在的优惠券id列表
-            List<Long> notExistIdList = couponIdSet.stream()
-                    .filter(couponId -> !couponDtoIdList.contains(couponId))
-                    .collect(Collectors.toList());
-            if(!notExistIdList.isEmpty()) {
-                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST,
-                        String.format("不存在的优惠券id: %s", notExistIdList.toString()));
-            }
-
-            //过滤出无效的优惠券
-            List<CouponDto> notValidCouponDtoList = couponDtoList.stream()
-                    .filter(couponDto -> !couponDto.getState().equals(CouponState.VALID))
-                    .collect(Collectors.toList());
-            if(!notValidCouponDtoList.isEmpty()) {
-                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST,
-                        String.format("无效的优惠券信息, 优惠券id: %s",
-                                notValidCouponDtoList.stream().map(CouponDto::getId).collect(Collectors.toList())));
-            }
+            List<CouponDto> couponDtoList = findCoupons(new ArrayList<>(couponIdSet));
 
             orderCouponList = couponDtoList.stream().map(couponDto -> {
                 OrderCoupon orderCoupon = new OrderCoupon();
@@ -162,23 +113,20 @@ public class OrderService {
 
         }
 
+        //计算订单金额
         long couponAmount = orderCouponList.stream().mapToLong(OrderCoupon::getCouponAmount).sum();
         order.setPayAmount(order.calcPayAmount(order.getTotalAmount(), couponAmount));
 
         //检验账户余额是否足够
-        if(order.getPayAmount() > 0L) {
-            URI uri = UriComponentsBuilder
-                    .fromHttpUrl(AccountUrl.buildUrl(AccountUrl.CHECK_ENOUGH_BALANCE_URL))
-                    .queryParam("userId", placeOrderDto.getUserId())
-                    .queryParam("balance", order.getPayAmount())
-                    .build().encode().toUri();
+        if (order.getPayAmount() > 0L) {
 
-            BooleanWrapper booleanWrapper = restTemplate.getForObject(uri, BooleanWrapper.class);
-            if(!booleanWrapper.isResult()) {
+            boolean balanceEnough = isBalanceEnough(placeOrderDto.getUserId(), order.getPayAmount());
+            if(!balanceEnough) {
                 throw new AppBusinessException(CommonErrorCode.BAD_REQUEST, "下单失败, 账户余额不足");
             }
         }
 
+        //保存订单信息
         orderRepository.save(order);
         orderItemList.forEach(orderItem -> {
             orderItem.setOrderId(order.getId());
@@ -189,9 +137,90 @@ public class OrderService {
             orderCouponRepository.save(orderCoupon);
         });
 
+        //发布事件
         eventBus.publish(new OrderCreatePending(order.getId(), order.getOrderNo(), order.getTotalAmount(),
                 order.getPayAmount(), order.getUserId()));
 
         return order;
     }
+
+    private List<ProductDto> findProducts(List<Long> productIds) {
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl(ProductUrl.buildUrl(ProductUrl.PRODUCT_LIST_URL))
+                .queryParam("id", productIds.toArray())
+                .build().encode().toUri();
+
+        ProductDto[] productDtos = restTemplate.getForObject(uri, ProductDto[].class);
+        List<ProductDto> productDtoList = Arrays.asList(productDtos);
+
+        if (!productDtoList.isEmpty()) {
+            List<Long> productDtoIdList = productDtoList.stream()
+                    .map(ProductDto::getId)
+                    .collect(Collectors.toList());
+
+            //过滤出在根据接口查询不到的产品id列表
+            List<Long> notExistIdList = productIds.stream()
+                    .filter(productId -> !productDtoIdList.contains(productId))
+                    .collect(Collectors.toList());
+
+            if (!notExistIdList.isEmpty()) {
+                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST,
+                        String.format("不存在的产品id: %s", notExistIdList.toString()));
+            }
+        }
+
+        return productDtoList;
+    }
+
+    private List<CouponDto> findCoupons(List<Long> couponIds) {
+
+        if(couponIds.isEmpty()) return new ArrayList<>();
+
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl(CouponUrl.buildUrl(CouponUrl.COUPON_LIST_URL))
+                .queryParam("id", couponIds.toArray())
+                .build().encode().toUri();
+
+        CouponDto[] couponDtos = restTemplate.getForObject(uri, CouponDto[].class);
+        List<CouponDto> couponDtoList = Arrays.asList(couponDtos);
+
+        if(!couponDtoList.isEmpty()) {
+            List<Long> couponDtoIdList = couponDtoList.stream()
+                    .map(CouponDto::getId)
+                    .collect(Collectors.toList());
+            //过滤出在数据库不存在的优惠券id列表
+            List<Long> notExistIdList = couponIds.stream()
+                    .filter(couponId -> !couponDtoIdList.contains(couponId))
+                    .collect(Collectors.toList());
+            if (!notExistIdList.isEmpty()) {
+                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST,
+                        String.format("不存在的优惠券id: %s", notExistIdList.toString()));
+            }
+
+            //过滤出无效的优惠券
+            List<CouponDto> notValidCouponDtoList = couponDtoList.stream()
+                    .filter(couponDto -> !couponDto.getState().equals(CouponState.VALID))
+                    .collect(Collectors.toList());
+            if (!notValidCouponDtoList.isEmpty()) {
+                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST,
+                        String.format("无效的优惠券信息, 优惠券id: %s",
+                                notValidCouponDtoList.stream().map(CouponDto::getId).collect(Collectors.toList())));
+            }
+        }
+
+        return couponDtoList;
+    }
+
+    private boolean isBalanceEnough(Long userId, Long amount) {
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl(AccountUrl.buildUrl(AccountUrl.CHECK_ENOUGH_BALANCE_URL))
+                .queryParam("userId", userId)
+                .queryParam("balance", amount)
+                .build().encode().toUri();
+
+        BooleanWrapper booleanWrapper = restTemplate.getForObject(uri, BooleanWrapper.class);
+
+        return booleanWrapper.isResult();
+    }
+
 }

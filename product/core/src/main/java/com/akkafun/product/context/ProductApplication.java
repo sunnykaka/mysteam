@@ -1,10 +1,10 @@
-package com.akkafun.order.context;
+package com.akkafun.product.context;
 
 import com.akkafun.common.event.EventInit;
 import com.akkafun.common.event.EventRegistry;
 import com.akkafun.common.scheduler.config.SchedulerConfiguration;
 import com.akkafun.common.spring.BaseApplication;
-import com.akkafun.order.event.EventHandler;
+import com.akkafun.product.event.EventHandler;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -15,10 +15,10 @@ import org.springframework.context.annotation.Import;
  */
 @SpringBootApplication
 @Import({BaseApplication.class, SchedulerConfiguration.class})
-public class OrderApplication {
+public class ProductApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OrderApplication.class, args);
+        SpringApplication.run(ProductApplication.class, args);
     }
 
     @Bean

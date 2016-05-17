@@ -1,4 +1,4 @@
-package com.akkafun.order.domain;
+package com.akkafun.product.domain;
 
 import javax.persistence.*;
 

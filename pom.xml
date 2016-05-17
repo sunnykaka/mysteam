@@ -15,6 +15,7 @@
         <module>account</module>
         <module>coupon</module>
         <module>order</module>
+        <module>product</module>
         <module>integration-test</module>
     </modules>
 

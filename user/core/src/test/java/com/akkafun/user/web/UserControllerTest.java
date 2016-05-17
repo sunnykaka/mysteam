@@ -18,6 +18,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import static com.akkafun.common.test.TestUtils.createJsonEntity;
+
 /**
  * Created by liubin on 2016/3/29.
  */
@@ -36,7 +38,7 @@ public class UserControllerTest extends UserBaseControllerTest {
         registerDto.setPassword(RandomStringUtils.randomAlphanumeric(8));
 
         UserDto userDto = restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
-                createJsonEntity(JsonUtils.object2Json(registerDto)), UserDto.class);
+                createJsonEntity(registerDto), UserDto.class);
 
         assertThat(userDto, notNullValue());
         assertThat(userDto.getId(), notNullValue());
@@ -55,7 +57,7 @@ public class UserControllerTest extends UserBaseControllerTest {
         registerDto.setPassword(RandomStringUtils.randomAlphanumeric(8));
 
         UserDto userDto = restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
-                createJsonEntity(JsonUtils.object2Json(registerDto)), UserDto.class);
+                createJsonEntity(registerDto), UserDto.class);
 
         assertThat(userDto, notNullValue());
         assertThat(userDto.getId(), notNullValue());
@@ -63,7 +65,7 @@ public class UserControllerTest extends UserBaseControllerTest {
 
         TestUtils.assertServerError(
                 () -> restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
-                        createJsonEntity(JsonUtils.object2Json(registerDto)), UserDto.class),
+                        createJsonEntity(registerDto), UserDto.class),
                 error -> {
                     assertThat(error.getCode(), is(UserErrorCode.UsernameExist.getCode()));
                     assertThat(error.getRequestUri(), notNullValue());
@@ -84,7 +86,7 @@ public class UserControllerTest extends UserBaseControllerTest {
 
         TestUtils.assertServerError(
                 () -> restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
-                        createJsonEntity(JsonUtils.object2Json(registerDto)), Object.class),
+                        createJsonEntity(registerDto), Object.class),
                 error -> {
                     assertThat(error.getCode(), is(CommonErrorCode.BAD_REQUEST.getCode()));
                     assertThat(error.getRequestUri(), notNullValue());
@@ -94,7 +96,7 @@ public class UserControllerTest extends UserBaseControllerTest {
         registerDto.setPassword(RandomStringUtils.randomAlphanumeric(30));
         TestUtils.assertServerError(
                 () -> restTemplate.postForObject(buildRequestUrl(UserUrl.USER_REGISTER_URL),
-                        createJsonEntity(JsonUtils.object2Json(registerDto)), Object.class),
+                        createJsonEntity(registerDto), Object.class),
                 error -> {
                     assertThat(error.getCode(), is(CommonErrorCode.BAD_REQUEST.getCode()));
                     assertThat(error.getRequestUri(), notNullValue());

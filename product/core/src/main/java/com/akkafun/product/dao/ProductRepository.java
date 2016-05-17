@@ -1,6 +1,6 @@
-package com.akkafun.order.dao;
+package com.akkafun.product.dao;
 
-import com.akkafun.order.domain.Product;
+import com.akkafun.product.domain.Product;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**

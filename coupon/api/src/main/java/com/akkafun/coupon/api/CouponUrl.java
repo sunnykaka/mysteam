@@ -13,6 +13,8 @@ public interface CouponUrl {
 
     String COUPON_LIST_URL = "/coupons";
 
+    String USER_COUPON_LIST_URL = "/coupons/{userId}";
+
     static String buildUrl(String url) {
         return SERVICE_HOSTNAME + url;
     }

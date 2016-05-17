@@ -51,31 +51,20 @@ public class CouponService {
      * 查询优惠券列表, 如果对应id在数据库不存在, 返回的List的位置对应null值.
      * 入参数组长度一定等于返回的List长度.
      *
-     * @param ids
+     * @param idList
      * @return
      */
-    public List<CouponDto> findCoupons(Long[] ids) {
-        if(ids == null || ids.length == 0) return new ArrayList<>();
-        if(ids.length > 50) throw new AppBusinessException(CommonErrorCode.BAD_REQUEST, "一次查询的id数量不能超过50");
+    public List<Coupon> findCouponsById(List<Long> idList) {
+        if(idList == null || idList.isEmpty()) return new ArrayList<>();
+        if(idList.size() > 50) throw new AppBusinessException(CommonErrorCode.BAD_REQUEST, "一次查询的id数量不能超过50");
 
-        List<Long> idList = Arrays.asList(ids);
-        Iterable<Coupon> coupons = couponRepository.findAll(idList);
+        return Lists.newArrayList(couponRepository.findAll(idList));
+    }
 
-        Map<Long, CouponDto> couponDtoMap = StreamSupport.stream(coupons.spliterator(), false)
-                .map(coupon -> {
-                    CouponDto couponDto = new CouponDto();
-                    couponDto.setAmount(coupon.getAmount());
-                    couponDto.setCode(coupon.getCode());
-                    couponDto.setCreateTime(coupon.getCreateTime());
-                    couponDto.setId(coupon.getId());
-                    couponDto.setOrderId(coupon.getOrderId());
-                    couponDto.setState(coupon.getState());
-                    couponDto.setUpdateTime(coupon.getUpdateTime());
-                    couponDto.setUserId(coupon.getUserId());
-                    couponDto.setUseTime(coupon.getUseTime());
-                    return couponDto;
-                }).collect(Collectors.toMap(CouponDto::getId, Function.identity()));
 
-        return idList.stream().map(couponDtoMap::get).collect(Collectors.toList());
+    public List<Coupon> findCouponsByUser(Long userId) {
+        if(userId == null) return new ArrayList<>();
+        return couponRepository.findByUserId(userId);
+
     }
 }
