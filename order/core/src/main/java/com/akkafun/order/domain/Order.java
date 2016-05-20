@@ -97,9 +97,9 @@ public class Order extends VersionEntity {
 
     /**
      * 计算订单总额
-     * @param orderItemList
+     * @param
      */
-    public Long calcTotalAmount(List<OrderItem> orderItemList) {
+    public Long calcTotalAmount() {
         return orderItemList.stream().mapToLong(orderItem -> orderItem.getPrice() * orderItem.getQuantity()).sum();
     }
 

@@ -1,8 +1,6 @@
 package com.akkafun.order.domain;
 
 import com.akkafun.common.domain.LockableEntity;
-import com.akkafun.common.domain.VersionEntity;
-import com.akkafun.order.api.constants.OrderStatus;
 
 import javax.persistence.*;
 
@@ -19,10 +17,6 @@ public class OrderItem extends LockableEntity {
 
     @Column
     private Long productId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productId", insertable = false, updatable = false)
-    private Product product;
 
     @Column
     private Long orderId;
@@ -75,14 +69,6 @@ public class OrderItem extends LockableEntity {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
     }
 
     public Order getOrder() {

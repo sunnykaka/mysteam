@@ -16,7 +16,9 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by liubin on 2016/5/5.
  */
-public class TestUtils {
+public interface TestUtils {
+
+    public static final long WAIT_ASYNC_EVENT_TIME = 5000L;
 
 
     /**
@@ -27,7 +29,7 @@ public class TestUtils {
      * @param runnable
      * @param consumer
      */
-    public static void assertServerError(Runnable runnable, Consumer<Error> consumer) throws AssertionError {
+    static void assertServerError(Runnable runnable, Consumer<Error> consumer) throws AssertionError {
 
         Exception unexpected = null;
 
@@ -52,10 +54,22 @@ public class TestUtils {
 
     }
 
-    public static HttpEntity<String> createJsonEntity(Object object) {
+    static HttpEntity<String> createJsonEntity(Object object) {
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(JsonUtils.object2Json(object), requestHeaders);
+    }
+
+    /**
+     * 等待异步事件处理
+     */
+    static void waitForAsyncEventComplete() {
+        try {
+            Thread.sleep(WAIT_ASYNC_EVENT_TIME);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 

@@ -11,7 +11,7 @@ public interface OrderUrl {
 
     String PLACE_ORDER = "/orders/place";
 
-    default String buildUrl(String url) {
+    static String buildUrl(String url) {
         return SERVICE_HOSTNAME + url;
     }
 

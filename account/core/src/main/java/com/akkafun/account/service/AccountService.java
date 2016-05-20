@@ -22,7 +22,7 @@ public class AccountService {
     @Transactional
     public Account initAccount(Long userId) {
         Account account = new Account();
-        account.setBalance(0L);
+        account.setBalance(1000000L);
         account.setUserId(userId);
         accountRepository.save(account);
 

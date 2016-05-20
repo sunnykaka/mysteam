@@ -93,8 +93,9 @@ public class OrderService {
             orderItem.setPrice(productDto.getPrice());
             return orderItem;
         }).collect(Collectors.toList());
+        order.setOrderItemList(orderItemList);
 
-        order.setTotalAmount(order.calcTotalAmount(orderItemList));
+        order.setTotalAmount(order.calcTotalAmount());
 
         //查询优惠券信息
         List<OrderCoupon> orderCouponList = new ArrayList<>();
