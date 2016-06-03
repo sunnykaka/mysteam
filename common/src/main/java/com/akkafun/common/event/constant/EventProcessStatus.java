@@ -7,7 +7,9 @@ public enum EventProcessStatus {
 
     NEW("未处理"),
 
-    PROCESSED("已处理");
+    PROCESSED("已处理"),
+
+    IGNORE("忽略");
 
     public String desc;
 

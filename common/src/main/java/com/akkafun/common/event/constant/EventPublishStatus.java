@@ -7,7 +7,9 @@ public enum EventPublishStatus {
 
     NEW("未发布"),
 
-    PUBLISHED("已发布");
+    PUBLISHED("已发布"),
+
+    IGNORE("忽略");
 
     public String desc;
 

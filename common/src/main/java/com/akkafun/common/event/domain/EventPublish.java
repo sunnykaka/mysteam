@@ -1,7 +1,8 @@
 package com.akkafun.common.event.domain;
 
 import com.akkafun.base.event.constants.EventType;
-import com.akkafun.common.domain.AuditEntity;
+import com.akkafun.common.domain.VersionEntity;
+import com.akkafun.common.event.constant.EventCategory;
 import com.akkafun.common.event.constant.EventPublishStatus;
 
 import javax.persistence.*;
@@ -10,8 +11,10 @@ import javax.persistence.*;
  * Created by liubin on 2016/3/28.
  */
 @Entity
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="event_category")
 @Table(name = "event_publish")
-public class EventPublish extends AuditEntity {
+public abstract class EventPublish extends VersionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,6 +26,10 @@ public class EventPublish extends AuditEntity {
     @Column
     @Enumerated(EnumType.STRING)
     private EventPublishStatus status = EventPublishStatus.NEW;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private EventCategory eventCategory;
 
     @Column(unique = true)
     private String eventId;
@@ -54,6 +61,14 @@ public class EventPublish extends AuditEntity {
 
     public void setStatus(EventPublishStatus status) {
         this.status = status;
+    }
+
+    public EventCategory getEventCategory() {
+        return eventCategory;
+    }
+
+    public void setEventCategory(EventCategory eventCategory) {
+        this.eventCategory = eventCategory;
     }
 
     public String getEventId() {

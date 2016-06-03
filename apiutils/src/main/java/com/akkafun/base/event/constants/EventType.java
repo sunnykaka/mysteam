@@ -11,7 +11,11 @@ public enum EventType {
 
     TEST_EVENT_FIRST,
 
-    TEST_EVENT_SECOND;
+    TEST_EVENT_SECOND,
+
+    ASK_RESPONSE,
+
+    REVOKE_ASK;
 
 
     public static EventType valueOfIgnoreCase(String name) {

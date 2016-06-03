@@ -14,75 +14,35 @@ import java.util.UUID;
  */
 public abstract class BaseEvent {
 
-    protected String id;
-
-    protected EventType type;
+    protected Long id;
 
     protected LocalDateTime createTime;
 
-    protected String source;
-
-    public BaseEvent(EventType type) {
-        this.type = type;
-        this.id = UUID.randomUUID().toString();
+    public BaseEvent(Long id) {
+        this.id = id;
         createTime = LocalDateTime.now();
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public EventType getType() {
-        return type;
-    }
-
-    public void setType(EventType type) {
-        this.type = type;
     }
 
     public LocalDateTime getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(LocalDateTime createTime) {
-        this.createTime = createTime;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
-    }
+    public abstract EventType getType();
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof BaseEvent)) return false;
         BaseEvent baseEvent = (BaseEvent) o;
-        return Objects.equals(id, baseEvent.id) &&
-                Objects.equals(type, baseEvent.type) &&
-                Objects.equals(createTime, baseEvent.createTime) &&
-                Objects.equals(source, baseEvent.source);
+        return Objects.equals(id, baseEvent.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, type, createTime, source);
-    }
-
-    @Override
-    public String toString() {
-        return "BaseEvent{" +
-                "id='" + id + '\'' +
-                ", type='" + type + '\'' +
-                ", createTime=" + createTime +
-                ", source='" + source + '\'' +
-                '}';
+        return Objects.hash(id);
     }
 }

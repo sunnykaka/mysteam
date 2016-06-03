@@ -1,7 +1,8 @@
 package com.akkafun.common.event.domain;
 
 import com.akkafun.base.event.constants.EventType;
-import com.akkafun.common.domain.AuditEntity;
+import com.akkafun.common.domain.VersionEntity;
+import com.akkafun.common.event.constant.EventCategory;
 import com.akkafun.common.event.constant.EventProcessStatus;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "event_process")
-public class EventProcess extends AuditEntity {
+public class EventProcess extends VersionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,8 +25,13 @@ public class EventProcess extends AuditEntity {
     @Enumerated(EnumType.STRING)
     private EventProcessStatus status = EventProcessStatus.NEW;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private EventCategory eventCategory;
+
+
     @Column(unique = true)
-    private String eventId;
+    private Long eventId;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -56,11 +62,19 @@ public class EventProcess extends AuditEntity {
         this.status = status;
     }
 
-    public String getEventId() {
+    public EventCategory getEventCategory() {
+        return eventCategory;
+    }
+
+    public void setEventCategory(EventCategory eventCategory) {
+        this.eventCategory = eventCategory;
+    }
+
+    public Long getEventId() {
         return eventId;
     }
 
-    public void setEventId(String eventId) {
+    public void setEventId(Long eventId) {
         this.eventId = eventId;
     }
 

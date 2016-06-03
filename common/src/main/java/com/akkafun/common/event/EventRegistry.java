@@ -3,6 +3,7 @@ package com.akkafun.common.event;
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.domain.BaseEvent;
 import com.akkafun.common.exception.EventException;
+import com.akkafun.common.spring.utils.InnerClassPathScanningCandidateComponentProvider;
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
@@ -11,20 +12,23 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.*;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.kafka.common.utils.CopyOnWriteMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by liubin on 2016/4/12.
  */
-public class EventRegistry {
+public class EventRegistry implements InitializingBean, DisposableBean {
 
     private static final EventRegistry INSTANCE = new EventRegistry();
 
@@ -169,6 +173,29 @@ public class EventRegistry {
         }
         return ImmutableList.copyOf(identifiers.values());
     }
+
+
+    private Map<EventType, Class<? extends BaseEvent>> eventTypeClassMap = new CopyOnWriteMap<>();
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        // 1. 查询所有的BaseEvent子类, 将他们的eventType和class绑定.
+        // 2. 查找所有NotifyEventHandler, AskEventHandler, RevokableAskEventHandler的实现类, 将他们与对应事件绑定
+
+        ClassPathScanningCandidateComponentProvider provider = new InnerClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AssignableTypeFilter(BaseEvent.class));
+
+        Set<BeanDefinition> componentSet = provider.findCandidateComponents("com/akkafun");
+
+
+
+    }
+
+    @Override
+    public void destroy() throws Exception {
+
+    }
+
 
     private static final class MethodIdentifier {
         private final String name;
