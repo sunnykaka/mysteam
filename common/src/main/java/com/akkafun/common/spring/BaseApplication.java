@@ -34,7 +34,6 @@ import java.util.List;
 @EnableJpaRepositories("com.akkafun.**.dao")
 @EnableJpaAuditing
 @ComponentScan({"com.akkafun.**.service", "com.akkafun.**.web"})
-@EnableDiscoveryClient
 @Import({EventConfiguration.class})
 public class BaseApplication {
 
@@ -73,17 +72,6 @@ public class BaseApplication {
     @Bean
     public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
         return new MappingJackson2HttpMessageConverter(objectMapper());
-    }
-
-
-    @Bean(destroyMethod = "shutdown")
-    @org.springframework.cloud.context.config.annotation.RefreshScope
-    public EurekaClient eurekaClient(ApplicationInfoManager manager,
-                                     EurekaClientConfig config,
-                                     DiscoveryClient.DiscoveryClientOptionalArgs optionalArgs,
-                                     ApplicationContext context) {
-        manager.getInfo(); // force initialization
-        return new CloudEurekaClient(manager, config, optionalArgs, context);
     }
 
 
