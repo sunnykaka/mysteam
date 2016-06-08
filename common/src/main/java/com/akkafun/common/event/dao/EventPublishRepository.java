@@ -13,5 +13,6 @@ public interface EventPublishRepository extends PagingAndSortingRepository<Event
 
     List<EventPublish> findByStatus(EventPublishStatus status);
 
+    EventPublish getByEventId(Long eventId);
 
 }

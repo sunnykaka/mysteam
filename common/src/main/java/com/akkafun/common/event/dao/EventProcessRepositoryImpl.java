@@ -28,6 +28,7 @@ public class EventProcessRepositoryImpl implements EventProcessRepositoryCustom 
         params.put("status", EventProcessStatus.PROCESSED);
         params.put("oldStatus", EventProcessStatus.NEW);
 
+        //TODO 处理乐观锁
         return update("update EventProcess ep set ep.status = :status where ep.id = :id and ep.status = :oldStatus", params);
     }
 }

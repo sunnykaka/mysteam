@@ -1,6 +1,5 @@
-package com.akkafun.common.event.constant;
+package com.akkafun.base.event.constants;
 
-import com.akkafun.base.event.constants.FailureReason;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -53,5 +52,14 @@ public class FailureInfo {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return "FailureInfo{" +
+                "reason=" + reason +
+                ", failureTime=" + failureTime +
+                ", message='" + message + '\'' +
+                '}';
     }
 }

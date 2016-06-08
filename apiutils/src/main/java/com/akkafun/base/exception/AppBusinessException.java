@@ -11,6 +11,10 @@ public class AppBusinessException extends BaseException {
     //类似Http状态码
     private ErrorCode errorCode = CommonErrorCode.INTERNAL_ERROR;
 
+    public AppBusinessException() {
+        super(CommonErrorCode.INTERNAL_ERROR.getMessage());
+    }
+
 
     public AppBusinessException(String message) {
         super(message);

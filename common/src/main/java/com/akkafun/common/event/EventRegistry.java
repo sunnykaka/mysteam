@@ -1,10 +1,17 @@
 package com.akkafun.common.event;
 
 import com.akkafun.base.event.constants.EventType;
-import com.akkafun.base.event.domain.BaseEvent;
+import com.akkafun.base.event.domain.*;
+import com.akkafun.base.exception.AppBusinessException;
+import com.akkafun.base.exception.BaseException;
+import com.akkafun.common.event.constant.EventCategory;
+import com.akkafun.common.event.handler.AskEventHandler;
+import com.akkafun.common.event.handler.NotifyEventHandler;
+import com.akkafun.common.event.handler.RevokableAskEventHandler;
 import com.akkafun.common.exception.EventException;
 import com.akkafun.common.spring.utils.InnerClassPathScanningCandidateComponentProvider;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -23,6 +30,8 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -30,15 +39,9 @@ import java.util.*;
  */
 public class EventRegistry implements InitializingBean, DisposableBean {
 
-    private static final EventRegistry INSTANCE = new EventRegistry();
-
-    public static EventRegistry getInstance() {
-        return INSTANCE;
-    }
-
-    private EventRegistry() {}
-
     private static Logger logger = LoggerFactory.getLogger(EventRegistry.class);
+
+    public static final String BASE_PACKAGE = "com/akkafun";
 
     private volatile boolean complete = false;
 
@@ -175,8 +178,15 @@ public class EventRegistry implements InitializingBean, DisposableBean {
     }
 
 
-    private Map<EventType, Class<? extends BaseEvent>> eventTypeClassMap = new CopyOnWriteMap<>();
+    private Map<EventType, Class<? extends BaseEvent>> eventTypeClassMap = new HashMap<>();
 
+    private SetMultimap<EventType, NotifyEventHandler> notifyEventHandlerMap = HashMultimap.create();
+
+    private SetMultimap<EventType, AskEventHandler> askEventHandlerMap = HashMultimap.create();
+
+    private SetMultimap<EventType, RevokableAskEventHandler> revokableAskEventHandlerMap = HashMultimap.create();
+
+    @SuppressWarnings("unchecked")
     @Override
     public void afterPropertiesSet() throws Exception {
         // 1. 查询所有的BaseEvent子类, 将他们的eventType和class绑定.
@@ -185,15 +195,235 @@ public class EventRegistry implements InitializingBean, DisposableBean {
         ClassPathScanningCandidateComponentProvider provider = new InnerClassPathScanningCandidateComponentProvider(false);
         provider.addIncludeFilter(new AssignableTypeFilter(BaseEvent.class));
 
-        Set<BeanDefinition> componentSet = provider.findCandidateComponents("com/akkafun");
+        Map<EventType, Class<? extends BaseEvent>> map = new HashMap<>();
+        Set<BeanDefinition> beanDefinitions = provider.findCandidateComponents(BASE_PACKAGE);
+        for(BeanDefinition beanDefinition : beanDefinitions) {
+            String eventClassName = beanDefinition.getBeanClassName();
+            Class<? extends BaseEvent> eventClass = (Class<? extends BaseEvent>)Class.forName(eventClassName);
+            EventType eventType = getEventTypeFromClass(eventClass);
+
+            Class<? extends BaseEvent> previousValue = map.put(eventType, eventClass);
+            if(previousValue != null) {
+                throw new BaseException(String.format("duplicate eventType: %s, eventClass[%s, %s]",
+                        eventType, previousValue, eventClass));
+            }
+
+        }
+        synchronized (this) {
+            this.eventTypeClassMap = Collections.unmodifiableMap(map);
+        }
+
+        SetMultimap<EventType, NotifyEventHandler> notifyEventHandlerMap = buildHandlerMap(NotifyEventHandler.class);
+        SetMultimap<EventType, AskEventHandler> askEventHandlerMap = buildHandlerMap(AskEventHandler.class);
+        SetMultimap<EventType, RevokableAskEventHandler> revokableAskEventHandlerMap = buildHandlerMap(RevokableAskEventHandler.class);
+        synchronized (this) {
+            this.notifyEventHandlerMap = Multimaps.unmodifiableSetMultimap(notifyEventHandlerMap);
+            this.askEventHandlerMap = Multimaps.unmodifiableSetMultimap(askEventHandlerMap);
+            this.revokableAskEventHandlerMap = Multimaps.unmodifiableSetMultimap(revokableAskEventHandlerMap);
+        }
+
+    }
+
+    /**
+     * 得到感兴趣的所有事件类型
+     * @return
+     */
+    public Set<EventType> allInterestedEventType() {
+
+        Set<EventType> allInterestedSet = new HashSet<>();
+
+        allInterestedSet.add(AskResponseEvent.EVENT_TYPE);
+        allInterestedSet.addAll(notifyEventHandlerMap.keySet());
+        allInterestedSet.addAll(askEventHandlerMap.keySet());
+        allInterestedSet.addAll(revokableAskEventHandlerMap.keySet());
+
+        return allInterestedSet;
+    }
+
+    /**
+     * 根据EventType得到对应的EventCategory
+     * @param eventType
+     * @return
+     */
+    public EventCategory getEventCategoryByType(EventType eventType) {
+        Class<? extends BaseEvent> eventClass = eventTypeClassMap.get(eventType);
+        EventCategory eventCategory;
+        if(eventClass.equals(AskResponseEvent.class)) {
+            eventCategory = EventCategory.ASKRESP;
+        } else if(NotifyEvent.class.isAssignableFrom(eventClass)) {
+            eventCategory = EventCategory.NOTIFY;
+        } else if(AskEvent.class.isAssignableFrom(eventClass)) {
+            eventCategory = EventCategory.ASK;
+        } else if(RevokeAskEvent.class.isAssignableFrom(eventClass)) {
+            eventCategory = EventCategory.REVOKE;
+        } else {
+            throw new EventException("unknown event category for event type: " + eventType);
+        }
+
+        return eventCategory;
+    }
+
+    public BaseEvent deserializeEvent(EventType eventType, String payload) {
+        Class<? extends BaseEvent> eventClass = eventTypeClassMap.get(eventType);
+        return EventUtils.deserializeEvent(payload, eventClass);
+    }
+
+    /**
+     * @param payload
+     * @return
+     */
+    public AskResponseEvent deserializeAskResponseEvent(String payload) {
+        return EventUtils.deserializeEvent(payload, AskResponseEvent.class);
+    }
 
 
 
+//    /**
+//     * @param eventType
+//     * @param payload
+//     * @return
+//     */
+//    public NotifyEvent deserializeNotifyEvent(EventType eventType, String payload) {
+//        Class<? extends BaseEvent> eventClass = eventTypeClassMap.get(eventType);
+//        EventCategory eventCategory = getEventCategoryByType(eventType);
+//        if(eventCategory.equals(EventCategory.NOTIFY)) {
+//            throw new EventException("not a notify event for event type: " + eventType);
+//        }
+//        return (NotifyEvent)EventUtils.deserializeEvent(payload, eventClass);
+//    }
+//
+//    /**
+//     * @param eventType
+//     * @param payload
+//     * @return
+//     */
+//    public AskEvent deserializeAskEvent(EventType eventType, String payload) {
+//        Class<? extends BaseEvent> eventClass = eventTypeClassMap.get(eventType);
+//        EventCategory eventCategory = getEventCategoryByType(eventType);
+//        if(eventCategory.equals(EventCategory.ASK)) {
+//            throw new EventException("not a ask event for event type: " + eventType);
+//        }
+//        return (AskEvent)EventUtils.deserializeEvent(payload, eventClass);
+//    }
+//
+//    /**
+//     * @param payload
+//     * @return
+//     */
+//    public AskResponseEvent deserializeAskResponseEvent(String payload) {
+//        return EventUtils.deserializeEvent(payload, AskResponseEvent.class);
+//    }
+//
+//    /**
+//     * @param eventType
+//     * @param payload
+//     * @return
+//     */
+//    public RevokeAskEvent deserializeRevokeEvent(EventType eventType, String payload) {
+//        Class<? extends BaseEvent> eventClass = eventTypeClassMap.get(eventType);
+//        EventCategory eventCategory = getEventCategoryByType(eventType);
+//        if(eventCategory.equals(EventCategory.REVOKE)) {
+//            throw new EventException("not a revoke event for event type: " + eventType);
+//        }
+//        return (RevokeAskEvent)EventUtils.deserializeEvent(payload, eventClass);
+//    }
+
+
+
+
+    /**
+     * 根据事件类型查找notify监听器
+     * @param eventType
+     * @return
+     */
+    public Set<NotifyEventHandler> findNotifyEventHandlers(EventType eventType) {
+        return notifyEventHandlerMap.get(eventType);
+    }
+
+    /**
+     * 根据事件类型查找ask监听器
+     * @param eventType
+     * @return
+     */
+    public Set<AskEventHandler> findAskEventHandlers(EventType eventType) {
+//        Set<AskEventHandler> askEventHandlers = new HashSet<>();
+//        askEventHandlers.addAll(askEventHandlerMap.get(eventType));
+//        askEventHandlers.addAll(revokableAskEventHandlerMap.get(eventType));
+//        return askEventHandlers;
+        return askEventHandlerMap.get(eventType);
+    }
+
+    /**
+     * 根据事件类型查找revoke监听器
+     * @param eventType
+     * @return
+     */
+    public Set<RevokableAskEventHandler> findRevokableAskEventHandlers(EventType eventType) {
+        return revokableAskEventHandlerMap.get(eventType);
+    }
+
+
+
+
+    @SuppressWarnings("unchecked")
+    private <T> SetMultimap<EventType, T> buildHandlerMap(Class<T> handlerClass) throws Exception{
+
+        SetMultimap<EventType, T> multimap = HashMultimap.create();
+
+        ClassPathScanningCandidateComponentProvider provider = new InnerClassPathScanningCandidateComponentProvider(false);
+        provider.addIncludeFilter(new AssignableTypeFilter(handlerClass));
+
+        Set<BeanDefinition> beanDefinitions = provider.findCandidateComponents(BASE_PACKAGE);
+        for(BeanDefinition beanDefinition : beanDefinitions) {
+            String className = beanDefinition.getBeanClassName();
+            Class<? extends T> eventHandlerClass = (Class<? extends T>)Class.forName(className);
+//            if(handlerClass.equals(AskEventHandler.class) && RevokableAskEventHandler.class.isAssignableFrom(eventHandlerClass)) {
+//                //RevokableAskEventHandler的实现类不放到AskEventHandler的map里
+//                continue;
+//            }
+            Type type = eventHandlerClass.getGenericInterfaces()[0];
+            if (!(type instanceof ParameterizedType)) {
+                throw new BaseException(String.format("class %s type parameter is not instance of ParameterizedType," +
+                        " the type is %s ", eventHandlerClass, type.toString()));
+            }
+
+            Type actualType = ((ParameterizedType) type).getActualTypeArguments()[0];
+            String eventClassName = actualType.getTypeName();
+            Class<? extends BaseEvent> eventClass = (Class<? extends BaseEvent>)Class.forName(eventClassName);
+            EventType eventType = getEventTypeFromClass(eventClass);
+
+            multimap.put(eventType, eventHandlerClass.newInstance());
+        }
+
+        return multimap;
+    }
+
+    private EventType getEventTypeFromClass(Class<? extends BaseEvent> eventClass) {
+        Field eventTypeField = FieldUtils.getField(eventClass, "EVENT_TYPE");
+        EventType eventType;
+        if(eventTypeField == null) {
+            throw new BaseException("event class " + eventClass
+                    + " require a public static field EVENT_TYPE ");
+        }
+        try {
+            eventType = (EventType)eventTypeField.get(null);
+            Preconditions.checkNotNull(eventType);
+        } catch (IllegalAccessException e) {
+            logger.error("", e);
+            throw new BaseException("event class " + eventClass
+                    + " require a static field EVENT_TYPE ");
+        }
+        return eventType;
     }
 
     @Override
     public void destroy() throws Exception {
-
+        synchronized (this) {
+            this.eventTypeClassMap = new HashMap<>();
+            this.notifyEventHandlerMap = HashMultimap.create();
+            this.askEventHandlerMap = HashMultimap.create();
+            this.revokableAskEventHandlerMap = HashMultimap.create();
+        }
     }
 
 

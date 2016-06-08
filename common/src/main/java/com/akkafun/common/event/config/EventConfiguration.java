@@ -1,5 +1,6 @@
 package com.akkafun.common.event.config;
 
+import com.akkafun.common.event.EventRegistry;
 import com.akkafun.common.spring.cloud.stream.CustomChannelBindingService;
 import org.springframework.cloud.stream.binder.BinderFactory;
 import org.springframework.cloud.stream.binding.BindableChannelFactory;
@@ -21,6 +22,14 @@ import java.util.concurrent.Executor;
  */
 @EnableAsync
 public class EventConfiguration extends AsyncConfigurerSupport {
+
+    @Bean
+    public EventRegistry eventRegistry() {
+
+        return new EventRegistry();
+
+    }
+
 
 
     @Bean

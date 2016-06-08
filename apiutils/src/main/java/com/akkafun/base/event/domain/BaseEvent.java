@@ -2,6 +2,7 @@ package com.akkafun.base.event.domain;
 
 
 import com.akkafun.base.event.constants.EventType;
+import com.sun.javafx.event.EventUtil;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -18,9 +19,12 @@ public abstract class BaseEvent {
 
     protected LocalDateTime createTime;
 
-    public BaseEvent(Long id) {
-        this.id = id;
+    public BaseEvent() {
         createTime = LocalDateTime.now();
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getId() {

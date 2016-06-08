@@ -32,7 +32,7 @@ public abstract class EventPublish extends VersionEntity {
     private EventCategory eventCategory;
 
     @Column(unique = true)
-    private String eventId;
+    private Long eventId;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -71,11 +71,11 @@ public abstract class EventPublish extends VersionEntity {
         this.eventCategory = eventCategory;
     }
 
-    public String getEventId() {
+    public Long getEventId() {
         return eventId;
     }
 
-    public void setEventId(String eventId) {
+    public void setEventId(Long eventId) {
         this.eventId = eventId;
     }
 

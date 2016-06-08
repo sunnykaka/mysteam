@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016/6/3 15:00:29                            */
+/* Created on:     2016/6/6 15:25:27                            */
 /*==============================================================*/
 
 
@@ -8,7 +8,7 @@ drop table if exists event_process;
 
 drop table if exists event_publish;
 
-drop table if exists united_event_watch;
+drop table if exists event_watch;
 
 /*==============================================================*/
 /* Table: event_process                                         */
@@ -45,7 +45,6 @@ create table event_publish
    timeoutTime          datetime,
    askEventStatus       varchar(100) comment 'PENDING, TIMEOUT, FAILED, SUCCESS, CANCELLED',
    watchId              bigint,
-   extraParams          varchar(1024),
    success              boolean,
    askEventId           bigint,
    primary key (id),
@@ -53,9 +52,9 @@ create table event_publish
 );
 
 /*==============================================================*/
-/* Table: united_event_watch                                    */
+/* Table: event_watch                                           */
 /*==============================================================*/
-create table united_event_watch
+create table event_watch
 (
    id                   bigint unsigned not null auto_increment,
    askEventIds          varchar(512) not null,
@@ -64,6 +63,8 @@ create table united_event_watch
    createTime           datetime not null,
    updateTime           datetime,
    optlock              int default 0,
+   callbackClass        varchar(128),
+   united               boolean default false,
    primary key (id)
 );
 

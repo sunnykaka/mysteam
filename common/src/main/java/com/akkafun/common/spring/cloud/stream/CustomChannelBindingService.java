@@ -41,13 +41,14 @@ public class CustomChannelBindingService extends ChannelBindingService {
 
     private final Map<String, Binding<MessageChannel>> producerBindings = new HashMap<>();
 
-    private final EventRegistry eventRegistry = EventRegistry.getInstance();
+    private final EventRegistry eventRegistry;
 
     public CustomChannelBindingService(ChannelBindingServiceProperties channelBindingServiceProperties,
-                                 BinderFactory<MessageChannel> binderFactory) {
+                                 BinderFactory<MessageChannel> binderFactory, EventRegistry eventRegistry) {
         super(channelBindingServiceProperties, binderFactory);
         this.channelBindingServiceProperties = channelBindingServiceProperties;
         this.binderFactory = binderFactory;
+        this.eventRegistry = eventRegistry;
         this.validator = new CustomValidatorBean();
         this.validator.afterPropertiesSet();
     }
@@ -55,7 +56,7 @@ public class CustomChannelBindingService extends ChannelBindingService {
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Binding<MessageChannel>> bindConsumer(MessageChannel inputChannel, String inputChannelName) {
-        Set<EventType> eventTypeSet = eventRegistry.getAllEventType();
+        Set<EventType> eventTypeSet = eventRegistry.allInterestedEventType();
         String[] channelBindingTargets = eventTypeSet.stream().
                 map(EventType::name).collect(Collectors.toList()).toArray(new String[eventTypeSet.size()]);
         if(log.isInfoEnabled()) {

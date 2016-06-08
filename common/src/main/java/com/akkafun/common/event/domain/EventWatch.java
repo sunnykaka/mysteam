@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
  * Created by liubin on 2016/3/28.
  */
 @Entity
-@Table(name = "united_event_watch")
-public class UnitedEventWatch extends VersionEntity {
+@Table(name = "event_watch")
+public class EventWatch extends VersionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,6 +28,12 @@ public class UnitedEventWatch extends VersionEntity {
 
     @Column
     private String askEventIds;
+
+    @Column
+    private String callbackClass;
+
+    @Column
+    private boolean united;
 
 
     public Long getId() {
@@ -63,5 +69,21 @@ public class UnitedEventWatch extends VersionEntity {
     public void setAskEventIds(List<Long> askEventIds) {
         this.askEventIds = String.join(",",
                 askEventIds.stream().map(String::valueOf).collect(Collectors.toList()));
+    }
+
+    public String getCallbackClass() {
+        return callbackClass;
+    }
+
+    public void setCallbackClass(String callbackClass) {
+        this.callbackClass = callbackClass;
+    }
+
+    public boolean isUnited() {
+        return united;
+    }
+
+    public void setUnited(boolean united) {
+        this.united = united;
     }
 }

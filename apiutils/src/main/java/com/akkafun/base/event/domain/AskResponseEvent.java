@@ -7,17 +7,18 @@ import com.akkafun.base.event.constants.EventType;
  */
 public class AskResponseEvent extends BaseEvent {
 
+    public static final EventType EVENT_TYPE = EventType.ASK_RESPONSE;
+
+    @Override
+    public EventType getType() {
+        return EVENT_TYPE;
+    }
+
     private boolean success;
 
     private Long askEventId;
 
-    @Override
-    public EventType getType() {
-        return EventType.ASK_RESPONSE;
-    }
-
-    public AskResponseEvent(Long id, boolean success, Long askEventId) {
-        super(id);
+    public AskResponseEvent(boolean success, Long askEventId) {
         this.success = success;
         this.askEventId = askEventId;
     }

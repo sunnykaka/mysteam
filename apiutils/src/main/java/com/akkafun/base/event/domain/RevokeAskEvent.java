@@ -1,6 +1,7 @@
 package com.akkafun.base.event.domain;
 
 import com.akkafun.base.event.constants.EventType;
+import com.akkafun.base.event.constants.FailureInfo;
 import com.akkafun.base.event.constants.FailureReason;
 
 /**
@@ -8,7 +9,7 @@ import com.akkafun.base.event.constants.FailureReason;
  */
 public class RevokeAskEvent extends BaseEvent {
 
-    private FailureReason reason;
+    private FailureInfo failureInfo;
 
     private Long askEventId;
 
@@ -17,14 +18,13 @@ public class RevokeAskEvent extends BaseEvent {
         return EventType.REVOKE_ASK;
     }
 
-    public RevokeAskEvent(Long id, FailureReason reason, Long askEventId) {
-        super(id);
-        this.reason = reason;
+    public RevokeAskEvent(FailureInfo failureInfo, Long askEventId) {
+        this.failureInfo = failureInfo;
         this.askEventId = askEventId;
     }
 
-    public FailureReason getReason() {
-        return reason;
+    public FailureInfo getFailureInfo() {
+        return failureInfo;
     }
 
     public Long getAskEventId() {
@@ -34,7 +34,7 @@ public class RevokeAskEvent extends BaseEvent {
     @Override
     public String toString() {
         return "RevokeAskEvent{" +
-                "reason=" + reason +
+                "failureInfo=" + failureInfo +
                 ", askEventId=" + askEventId +
                 "} " + super.toString();
     }

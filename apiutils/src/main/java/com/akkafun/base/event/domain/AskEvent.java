@@ -7,8 +7,7 @@ public abstract class AskEvent extends BaseEvent {
 
     long ttl;
 
-    public AskEvent(Long id) {
-        super(id);
+    public AskEvent() {
     }
 
     public long getTtl() {

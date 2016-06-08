@@ -22,9 +22,6 @@ public class AskRequestEventPublish extends EventPublish {
     @Column
     private Long watchId;
 
-    @Column
-    private String extraParams;
-
     public LocalDateTime getTimeoutTime() {
         return timeoutTime;
     }
@@ -49,11 +46,4 @@ public class AskRequestEventPublish extends EventPublish {
         this.watchId = watchId;
     }
 
-    public String getExtraParams() {
-        return extraParams;
-    }
-
-    public void setExtraParams(String extraParams) {
-        this.extraParams = extraParams;
-    }
 }
