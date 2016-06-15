@@ -56,6 +56,10 @@ public class AskParameterBuilder {
     /**
      *
      * 回调类必须要有onSuccess方法, 可以没有onFailure方法.
+     * 回调类必须要有无参构造函数, 并且是public作用域.
+     * 回调类不能是匿名类, 因为匿名类可能没有无参构造函数
+     * 如果回调类不符合要求, 会抛出EventException
+     *
      *
      * 非united事件回调类示例:
      * <blockquote><pre>
@@ -86,7 +90,7 @@ public class AskParameterBuilder {
      * @return
      */
     public AskParameterBuilder callbackClass(Class<?> callbackClass) {
-        //TODO verify callbackClass
+        EventRegistry.getAskEventCallback(callbackClass.getName());
         this.callbackClass = callbackClass;
         return this;
     }

@@ -1,7 +1,7 @@
 package com.akkafun.account.event;
 
 import com.akkafun.account.service.AccountService;
-import com.akkafun.common.event.Subscribe;
+import com.akkafun.common.event.handler.NotifyEventHandler;
 import com.akkafun.common.spring.ApplicationContextHolder;
 import com.akkafun.user.api.events.UserCreated;
 import org.slf4j.Logger;
@@ -11,14 +11,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 /**
  * Created by liubin on 2016/4/14.
  */
-public class EventHandler {
+public class EventHandler implements NotifyEventHandler<UserCreated> {
 
     protected Logger logger = LoggerFactory.getLogger(EventHandler.class);
 
     AccountService accountService = ApplicationContextHolder.context.getBean(AccountService.class);
 
-    @Subscribe
-    public void handleUserCreatedEvent(UserCreated event) {
+    @Override
+    public void notify(UserCreated event) {
         try {
             accountService.initAccount(event.getUserId());
         } catch (DataIntegrityViolationException e) {
@@ -26,5 +26,4 @@ public class EventHandler {
                     event.getUserId(), e.getMessage()));
         }
     }
-
 }

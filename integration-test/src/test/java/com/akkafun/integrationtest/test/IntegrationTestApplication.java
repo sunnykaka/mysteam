@@ -1,11 +1,8 @@
 package com.akkafun.integrationtest.test;
 
-import com.akkafun.common.event.EventInit;
-import com.akkafun.common.event.EventRegistry;
 import com.akkafun.common.spring.BaseApplication;
 import com.akkafun.common.spring.ServiceClientApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -14,12 +11,5 @@ import org.springframework.context.annotation.Import;
 @SpringBootApplication
 @Import({BaseApplication.class, ServiceClientApplication.class})
 public class IntegrationTestApplication {
-
-    @Bean
-    public EventInit eventInit() {
-        EventRegistry.getInstance().clear();
-        return new EventInit();
-    }
-
 
 }

@@ -1,8 +1,10 @@
 package com.akkafun.common.event;
 
 import com.akkafun.base.event.constants.EventType;
+import com.akkafun.base.event.constants.FailureReason;
 import com.akkafun.base.event.domain.BaseEvent;
 import com.akkafun.base.exception.AppBusinessException;
+import com.akkafun.common.event.constant.AskEventStatus;
 import com.akkafun.common.exception.EventException;
 import com.akkafun.common.utils.JsonUtils;
 import com.google.common.base.Preconditions;
@@ -74,4 +76,36 @@ public class EventUtils {
     public static String getAskCallbackMethodName(boolean success) {
         return success ? SUCCESS_CALLBACK_NAME : FAILED_CALLBACK_NAME;
     }
+
+    public static FailureReason fromAskEventStatus(AskEventStatus status) {
+
+        switch (status) {
+            case CANCELLED:
+                return FailureReason.CANCELLED;
+            case FAILED:
+                return FailureReason.FAILED;
+            case TIMEOUT:
+                return FailureReason.TIMEOUT;
+            default:
+                throw new EventException("unknown FailureReason from AskEventStatus: " + status);
+        }
+
+    }
+
+    public static AskEventStatus fromFailureReason(FailureReason reason) {
+
+        switch (reason) {
+            case CANCELLED:
+                return AskEventStatus.CANCELLED;
+            case FAILED:
+                return AskEventStatus.FAILED;
+            case TIMEOUT:
+                return AskEventStatus.TIMEOUT;
+            default:
+                throw new EventException("unknown AskEventStatus from FailureReason: " + reason);
+        }
+
+    }
+
+
 }

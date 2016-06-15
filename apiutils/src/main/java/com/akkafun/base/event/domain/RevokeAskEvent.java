@@ -9,14 +9,16 @@ import com.akkafun.base.event.constants.FailureReason;
  */
 public class RevokeAskEvent extends BaseEvent {
 
-    private FailureInfo failureInfo;
-
-    private Long askEventId;
+    public static final EventType EVENT_TYPE = EventType.REVOKE_ASK;
 
     @Override
     public EventType getType() {
-        return EventType.REVOKE_ASK;
+        return EVENT_TYPE;
     }
+
+    private FailureInfo failureInfo;
+
+    private Long askEventId;
 
     public RevokeAskEvent(FailureInfo failureInfo, Long askEventId) {
         this.failureInfo = failureInfo;

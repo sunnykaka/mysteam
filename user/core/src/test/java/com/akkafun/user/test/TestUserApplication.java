@@ -1,9 +1,6 @@
 package com.akkafun.user.test;
 
 import com.akkafun.base.event.constants.EventType;
-import com.akkafun.common.event.EventHandler;
-import com.akkafun.common.event.EventInit;
-import com.akkafun.common.event.EventRegistry;
 import com.akkafun.common.event.service.EventActivator;
 import com.akkafun.common.spring.BaseApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,12 +13,6 @@ import org.springframework.context.annotation.Import;
 @SpringBootApplication
 @Import(BaseApplication.class)
 public class TestUserApplication {
-
-    @Bean
-    public EventInit eventInit() {
-        EventRegistry.getInstance().clear();
-        return new EventInit(EventHandler.getInstance(), new com.akkafun.user.event.EventHandler());
-    }
 
 
     /**
@@ -36,7 +27,7 @@ public class TestUserApplication {
             @Override
             public boolean sendMessage(String message, String destination) {
                 //当遇到TEST_EVENT_SECOND事件时, 抛出异常
-                if(destination.equals(EventType.TEST_EVENT_SECOND.toString())) {
+                if(destination.equals(EventType.NOTIFY_FIRST_TEST_EVENT.toString())) {
                     throw new RuntimeException("我是异常");
                 }
                 return eventActivator.sendMessage(message, destination);

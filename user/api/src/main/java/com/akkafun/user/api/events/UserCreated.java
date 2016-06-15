@@ -2,6 +2,7 @@ package com.akkafun.user.api.events;
 
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.domain.BaseEvent;
+import com.akkafun.base.event.domain.NotifyEvent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,9 +11,14 @@ import java.time.LocalDateTime;
 /**
  * Created by liubin on 2016/4/8.
  */
-public class UserCreated extends BaseEvent {
+public class UserCreated extends NotifyEvent {
 
     public static final EventType EVENT_TYPE = EventType.USER_CREATED;
+
+    @Override
+    public EventType getType() {
+        return EVENT_TYPE;
+    }
 
     private Long userId;
 
@@ -25,7 +31,6 @@ public class UserCreated extends BaseEvent {
             @JsonProperty("userId") Long userId,
             @JsonProperty("username") String username,
             @JsonProperty("registerTime") LocalDateTime registerTime) {
-        super(EVENT_TYPE);
         this.userId = userId;
         this.username = username;
         this.registerTime = registerTime;
@@ -42,4 +47,5 @@ public class UserCreated extends BaseEvent {
     public LocalDateTime getRegisterTime() {
         return registerTime;
     }
+
 }

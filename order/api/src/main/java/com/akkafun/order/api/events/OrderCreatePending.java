@@ -2,6 +2,7 @@ package com.akkafun.order.api.events;
 
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.domain.BaseEvent;
+import com.akkafun.base.event.domain.NotifyEvent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,9 +11,14 @@ import java.time.LocalDateTime;
 /**
  * Created by liubin on 2016/5/9.
  */
-public class OrderCreatePending extends BaseEvent {
+public class OrderCreatePending extends NotifyEvent {
 
     public static final EventType EVENT_TYPE = EventType.ORDER_CREATE_PENDING;
+
+    @Override
+    public EventType getType() {
+        return EVENT_TYPE;
+    }
 
     private Long orderId;
 
@@ -31,7 +37,6 @@ public class OrderCreatePending extends BaseEvent {
             @JsonProperty("totalAmount") Long totalAmount,
             @JsonProperty("payAmount") Long payAmount,
             @JsonProperty("userId") Long userId) {
-        super(EVENT_TYPE);
         this.orderId = orderId;
         this.orderNo = orderNo;
         this.totalAmount = totalAmount;

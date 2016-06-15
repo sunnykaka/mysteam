@@ -34,9 +34,9 @@ public class EventConfiguration extends AsyncConfigurerSupport {
 
     @Bean
     public ChannelBindingService bindingService(ChannelBindingServiceProperties channelBindingServiceProperties,
-                                                BinderFactory<MessageChannel> binderFactory) {
+                                                BinderFactory<MessageChannel> binderFactory, EventRegistry eventRegistry) {
 
-        return new CustomChannelBindingService(channelBindingServiceProperties, binderFactory);
+        return new CustomChannelBindingService(channelBindingServiceProperties, binderFactory, eventRegistry);
 
     }
 

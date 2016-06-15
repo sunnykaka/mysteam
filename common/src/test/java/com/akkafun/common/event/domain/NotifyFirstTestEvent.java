@@ -1,26 +1,30 @@
-package com.akkafun.common.event.constants;
+package com.akkafun.common.event.domain;
 
 import com.akkafun.base.event.constants.EventType;
-import com.akkafun.base.event.domain.BaseEvent;
+import com.akkafun.base.event.domain.NotifyEvent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class TestEventFirst extends BaseEvent {
+public class NotifyFirstTestEvent extends NotifyEvent {
 
-    public static final EventType EVENT_TYPE = EventType.TEST_EVENT_FIRST;
+    public static final EventType EVENT_TYPE = EventType.NOTIFY_FIRST_TEST_EVENT;
+
+    @Override
+    public EventType getType() {
+        return EVENT_TYPE;
+    }
 
     private String name;
 
     private LocalDateTime registerTime;
 
     @JsonCreator
-    public TestEventFirst(
+    public NotifyFirstTestEvent(
             @JsonProperty("name") String name,
             @JsonProperty("registerTime") LocalDateTime registerTime) {
-        super(EVENT_TYPE);
         this.name = name;
         this.registerTime = registerTime;
     }
@@ -34,23 +38,8 @@ public class TestEventFirst extends BaseEvent {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof TestEventFirst)) return false;
-        if (!super.equals(o)) return false;
-        TestEventFirst testEventFirst = (TestEventFirst) o;
-        return Objects.equals(name, testEventFirst.name) &&
-                Objects.equals(registerTime, testEventFirst.registerTime);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), name, registerTime);
-    }
-
-    @Override
     public String toString() {
-        return "TestEventFirst{" +
+        return "NotifyFirstTestEvent{" +
                 "name='" + name + '\'' +
                 ", registerTime=" + registerTime +
                 "} " + super.toString();

@@ -5,6 +5,4 @@ package com.akkafun.base.event.domain;
  */
 public abstract class NotifyEvent extends BaseEvent {
 
-    public NotifyEvent() {
-    }
 }

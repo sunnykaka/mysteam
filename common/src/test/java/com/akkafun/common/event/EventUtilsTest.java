@@ -1,7 +1,6 @@
 package com.akkafun.common.event;
 
-import com.akkafun.common.event.EventUtils;
-import com.akkafun.common.event.constants.TestEventFirst;
+import com.akkafun.common.event.domain.NotifyFirstTestEvent;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
@@ -19,11 +18,11 @@ public class EventUtilsTest {
     @Test
     public void testSerialize() {
 
-        TestEventFirst testEventFirst = new TestEventFirst("张三", LocalDateTime.now());
+        NotifyFirstTestEvent testEventFirst = new NotifyFirstTestEvent("张三", LocalDateTime.now());
 
         String json = EventUtils.serializeEvent(testEventFirst);
 
-        TestEventFirst testEventFirstFromJson = EventUtils.deserializeEvent(json, TestEventFirst.class);
+        NotifyFirstTestEvent testEventFirstFromJson = EventUtils.deserializeEvent(json, NotifyFirstTestEvent.class);
 
         assertThat(testEventFirstFromJson, is(testEventFirst));
 

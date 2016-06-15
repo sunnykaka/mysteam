@@ -1,16 +1,10 @@
 package com.akkafun.common.event;
 
 import com.akkafun.base.event.constants.EventType;
-import com.akkafun.common.event.constants.TestEventFirst;
-import com.akkafun.common.event.constants.TestEventSecond;
-import com.akkafun.common.exception.EventException;
 import org.junit.Test;
 
-import java.util.Set;
-
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 
@@ -20,67 +14,54 @@ import static org.junit.Assert.assertThat;
 public class EventRegistryTest {
 
     @Test
-    public void test() {
+    public void testInitEventClassMapAndHandlerMapSuccess() throws Exception {
 
-        EventRegistry eventRegistry = EventRegistry.getInstance();
-        eventRegistry.clear();
-        eventRegistry.register(new Handler1());
-        eventRegistry.register(new Handler2());
+        EventRegistry eventRegistry = new EventRegistry();
+        eventRegistry.afterPropertiesSet();
 
-        boolean pass = false;
-        try {
-            eventRegistry.getAllEventType();
-        } catch (EventException expected) {
-            pass = true;
-        }
-        if(!pass) {
-            throw new AssertionError("在eventRegistry.getAllEventType() 预期抛出EventException, 但是并没有");
-        }
+        assertThat(eventRegistry.getEventClassByType(EventType.ASK_TEST_EVENT), notNullValue());
+        assertThat(eventRegistry.getEventClassByType(EventType.REVOKABLE_ASK_TEST_EVENT), notNullValue());
+        assertThat(eventRegistry.getEventClassByType(EventType.NOTIFY_FIRST_TEST_EVENT), notNullValue());
+        assertThat(eventRegistry.getEventClassByType(EventType.NOTIFY_SECOND_TEST_EVENT), notNullValue());
 
-        eventRegistry.completeRegister();
-
-        Set<EventType> eventTypeSet = eventRegistry.getAllEventType();
-        assertThat(eventTypeSet.size(), is(2));
-        assertThat(eventTypeSet, containsInAnyOrder(EventType.TEST_EVENT_FIRST, EventType.TEST_EVENT_SECOND));
-
-        Set<EventSubscriber> eventFirstSubscriberSet = eventRegistry.findEventSubscriberByType(EventType.TEST_EVENT_FIRST);
-        Set<EventSubscriber> eventSecondSubscriberSet = eventRegistry.findEventSubscriberByType(EventType.TEST_EVENT_SECOND);
-        assertThat(eventFirstSubscriberSet.size(), is(3));
-        assertThat(eventSecondSubscriberSet.size(), is(2));
+        assertThat(eventRegistry.getNotifyEventHandlers(EventType.NOTIFY_FIRST_TEST_EVENT).size(), is(2));
+        assertThat(eventRegistry.getNotifyEventHandlers(EventType.NOTIFY_SECOND_TEST_EVENT).size(), is(1));
+        assertThat(eventRegistry.getAskEventHandlers(EventType.ASK_TEST_EVENT).size(), is(1));
+        assertThat(eventRegistry.getRevokableAskEventHandlers(EventType.REVOKABLE_ASK_TEST_EVENT).size(), is(1));
 
     }
-
-    public static class Handler1 {
-
-        @Subscribe
-        public void handleFirstEvent(TestEventFirst event) {
-
-        }
-
-        @Subscribe
-        public void handleFirstEventAgain(TestEventFirst event) {
-
-        }
-
-        @Subscribe
-        public void handleSecondEvent(TestEventSecond event) {
-
-        }
-
-    }
-
-    public static class Handler2 {
-
-        @Subscribe
-        public void handleSecondEvent(TestEventSecond event) {
-
-        }
-
-        @Subscribe
-        public void handleFirstEventThird(TestEventFirst event) {
-
-        }
-    }
+//
+//    public static class Handler1 {
+//
+//        @Subscribe
+//        public void handleFirstEvent(TestEventFirst event) {
+//
+//        }
+//
+//        @Subscribe
+//        public void handleFirstEventAgain(TestEventFirst event) {
+//
+//        }
+//
+//        @Subscribe
+//        public void handleSecondEvent(TestEventSecond event) {
+//
+//        }
+//
+//    }
+//
+//    public static class Handler2 {
+//
+//        @Subscribe
+//        public void handleSecondEvent(TestEventSecond event) {
+//
+//        }
+//
+//        @Subscribe
+//        public void handleFirstEventThird(TestEventFirst event) {
+//
+//        }
+//    }
 
 
 }

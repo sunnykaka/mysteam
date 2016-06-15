@@ -12,7 +12,7 @@ import javax.persistence.*;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="event_category")
+@DiscriminatorColumn(name="eventCategory")
 @Table(name = "event_publish")
 public abstract class EventPublish extends VersionEntity {
 
@@ -26,10 +26,6 @@ public abstract class EventPublish extends VersionEntity {
     @Column
     @Enumerated(EnumType.STRING)
     private EventPublishStatus status = EventPublishStatus.NEW;
-
-    @Column
-    @Enumerated(EnumType.STRING)
-    private EventCategory eventCategory;
 
     @Column(unique = true)
     private Long eventId;
@@ -61,14 +57,6 @@ public abstract class EventPublish extends VersionEntity {
 
     public void setStatus(EventPublishStatus status) {
         this.status = status;
-    }
-
-    public EventCategory getEventCategory() {
-        return eventCategory;
-    }
-
-    public void setEventCategory(EventCategory eventCategory) {
-        this.eventCategory = eventCategory;
     }
 
     public Long getEventId() {

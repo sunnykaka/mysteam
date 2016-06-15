@@ -9,13 +9,19 @@ public enum EventType {
 
     ORDER_CREATE_PENDING,
 
-    TEST_EVENT_FIRST,
-
-    TEST_EVENT_SECOND,
-
     ASK_RESPONSE,
 
-    REVOKE_ASK;
+    REVOKE_ASK,
+
+
+
+    NOTIFY_FIRST_TEST_EVENT,
+
+    NOTIFY_SECOND_TEST_EVENT,
+
+    ASK_TEST_EVENT,
+
+    REVOKABLE_ASK_TEST_EVENT;
 
 
     public static EventType valueOfIgnoreCase(String name) {

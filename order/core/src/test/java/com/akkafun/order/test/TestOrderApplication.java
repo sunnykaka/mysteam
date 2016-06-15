@@ -1,10 +1,7 @@
 package com.akkafun.order.test;
 
-import com.akkafun.common.event.EventInit;
-import com.akkafun.common.event.EventRegistry;
 import com.akkafun.common.spring.BaseApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 /**
@@ -13,12 +10,6 @@ import org.springframework.context.annotation.Import;
 @SpringBootApplication
 @Import(BaseApplication.class)
 public class TestOrderApplication {
-
-    @Bean
-    public EventInit eventInit() {
-        EventRegistry.getInstance().clear();
-        return new EventInit();
-    }
 
 
 }
