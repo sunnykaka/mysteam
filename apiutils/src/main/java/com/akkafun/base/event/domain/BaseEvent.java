@@ -37,6 +37,8 @@ public abstract class BaseEvent {
 
     public abstract EventType getType();
 
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

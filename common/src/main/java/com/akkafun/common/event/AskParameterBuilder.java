@@ -95,12 +95,22 @@ public class AskParameterBuilder {
         return this;
     }
 
-    public AskParameterBuilder addParams(String name, String value) {
+    public AskParameterBuilder addParam(String name, String value) {
         Preconditions.checkNotNull(name);
         Preconditions.checkNotNull(value);
         extraParams.put(name, value);
         return this;
     }
+
+    public AskParameterBuilder addParamMap(Map<String, String> paramMap) {
+        paramMap.forEach((k, v) -> {
+            Preconditions.checkNotNull(k);
+            Preconditions.checkNotNull(v);
+        });
+        extraParams.putAll(paramMap);
+        return this;
+    }
+
 
     public AskParameter build() {
         return new AskParameter(united, askEvents, callbackClass, extraParams);

@@ -2,6 +2,7 @@ package com.akkafun.common.domain;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Version;
 
 /**
  * Created by liubin on 2016/3/28.
@@ -9,6 +10,7 @@ import javax.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class LockableEntity {
 
+    @Version
     @Column(name = "optlock", columnDefinition = "integer DEFAULT 0", nullable = false)
     private long version;
 

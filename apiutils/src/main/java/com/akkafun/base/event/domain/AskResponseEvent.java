@@ -1,6 +1,7 @@
 package com.akkafun.base.event.domain;
 
 import com.akkafun.base.event.constants.EventType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by liubin on 2016/6/3.
@@ -18,7 +19,9 @@ public class AskResponseEvent extends BaseEvent {
 
     private Long askEventId;
 
-    public AskResponseEvent(boolean success, Long askEventId) {
+    public AskResponseEvent(
+            @JsonProperty("success") boolean success,
+            @JsonProperty("askEventId") Long askEventId) {
         this.success = success;
         this.askEventId = askEventId;
     }

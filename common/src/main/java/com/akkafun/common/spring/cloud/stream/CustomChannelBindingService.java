@@ -56,7 +56,7 @@ public class CustomChannelBindingService extends ChannelBindingService {
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Binding<MessageChannel>> bindConsumer(MessageChannel inputChannel, String inputChannelName) {
-        Set<EventType> eventTypeSet = eventRegistry.allInterestedEventType();
+        Set<EventType> eventTypeSet = eventRegistry.getInterestedEventTypes();
         String[] channelBindingTargets = eventTypeSet.stream().
                 map(EventType::name).collect(Collectors.toList()).toArray(new String[eventTypeSet.size()]);
         if(log.isInfoEnabled()) {

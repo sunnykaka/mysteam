@@ -3,6 +3,7 @@ package com.akkafun.base.event.domain;
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.constants.FailureInfo;
 import com.akkafun.base.event.constants.FailureReason;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by liubin on 2016/6/3.
@@ -20,7 +21,9 @@ public class RevokeAskEvent extends BaseEvent {
 
     private Long askEventId;
 
-    public RevokeAskEvent(FailureInfo failureInfo, Long askEventId) {
+    public RevokeAskEvent(
+            @JsonProperty("failureInfo") FailureInfo failureInfo,
+            @JsonProperty("askEventId") Long askEventId) {
         this.failureInfo = failureInfo;
         this.askEventId = askEventId;
     }

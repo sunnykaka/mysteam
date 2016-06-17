@@ -26,9 +26,10 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
-import java.util.stream.Stream;
 
 /**
  * Created by liubin on 2016/4/12.
@@ -44,7 +45,7 @@ public class EventRegistry implements InitializingBean, DisposableBean {
                     .build(new CacheLoader<String, AskEventCallback>() {
                         @Override
                         public AskEventCallback load(String callbackClassName) throws Exception {
-                            return getAskEventCallbackInternal(callbackClassName);
+                            return AskEventCallback.createCallback(callbackClassName);
                         }
                     });
 
@@ -56,52 +57,8 @@ public class EventRegistry implements InitializingBean, DisposableBean {
 
     private SetMultimap<EventType, RevokableAskEventHandler> revokableAskEventHandlerMap = HashMultimap.create();
 
+    private Set<EventType> interestedEventTypes = new HashSet<>();
 
-    /**
-     * 根据className找到对应的类, 读取类的信息
-     * @param callbackClassName
-     * @return
-     * @throws Exception
-     */
-    private static AskEventCallback getAskEventCallbackInternal(String callbackClassName) throws Exception {
-
-        Class<?> callbackClass = Class.forName(callbackClassName);
-
-        List<Method> methods = Arrays.asList(callbackClassName.getClass().getMethods());
-        Optional<Method> successMethodOptional = getCallbackMethod(callbackClassName, methods, true);
-        Optional<Method> failureMethodOptional = getCallbackMethod(callbackClassName, methods, false);
-        if(!successMethodOptional.isPresent()) {
-            throw new EventException(String.format("回调类%s中没有%s方法",
-                    callbackClassName, EventUtils.SUCCESS_CALLBACK_NAME));
-        }
-
-        List<Parameter> parameters = Arrays.asList(successMethodOptional.get().getParameters());
-
-        return new AskEventCallback(callbackClassName, callbackClass,
-                successMethodOptional.get(), failureMethodOptional, parameters);
-
-    }
-
-    /**
-     * 查找回调成功或失败的方法
-     * @param callbackClassName
-     * @param methods
-     * @param success
-     * @return
-     * @throws Exception
-     */
-    private static Optional<Method> getCallbackMethod(String callbackClassName, List<Method> methods,
-                                                      boolean success) throws Exception {
-
-        String methodName = EventUtils.getAskCallbackMethodName(success);
-        Stream<Method> methodStream = methods.stream()
-                .filter(method -> methodName.equals(method.getName()));
-        if(methodStream.count() > 1) {
-            throw new EventException(String.format("回调类%s有%d个%s方法, 应该只能有1个",
-                    callbackClassName, methodStream.count(), methodName));
-        }
-        return methodStream.findFirst();
-    }
 
     /**
      * 根据回调类名解析成回调对象, 如果回调类不符合要求, 会抛出EventException
@@ -144,10 +101,12 @@ public class EventRegistry implements InitializingBean, DisposableBean {
             }
 
         }
+        //得到事件类型和事件类class的映射
         synchronized (this) {
             this.eventTypeClassMap = Collections.unmodifiableMap(map);
         }
 
+        //得到事件类型和对应的handler类的映射
         SetMultimap<EventType, NotifyEventHandler> notifyEventHandlerMap = buildHandlerMap(NotifyEventHandler.class);
         SetMultimap<EventType, AskEventHandler> askEventHandlerMap = buildHandlerMap(AskEventHandler.class);
         SetMultimap<EventType, RevokableAskEventHandler> revokableAskEventHandlerMap = buildHandlerMap(RevokableAskEventHandler.class);
@@ -157,22 +116,25 @@ public class EventRegistry implements InitializingBean, DisposableBean {
             this.revokableAskEventHandlerMap = Multimaps.unmodifiableSetMultimap(revokableAskEventHandlerMap);
         }
 
+        //得到感兴趣的所有事件类型
+        Set<EventType> allInterestedSet = new HashSet<>();
+        allInterestedSet.add(AskResponseEvent.EVENT_TYPE);
+        allInterestedSet.add(RevokeAskEvent.EVENT_TYPE);
+        allInterestedSet.addAll(notifyEventHandlerMap.keySet());
+        allInterestedSet.addAll(askEventHandlerMap.keySet());
+        allInterestedSet.addAll(revokableAskEventHandlerMap.keySet());
+
+        synchronized (this) {
+            this.interestedEventTypes = Collections.unmodifiableSet(allInterestedSet);
+        }
     }
 
     /**
      * 得到感兴趣的所有事件类型
      * @return
      */
-    public Set<EventType> allInterestedEventType() {
-
-        Set<EventType> allInterestedSet = new HashSet<>();
-
-        allInterestedSet.add(AskResponseEvent.EVENT_TYPE);
-        allInterestedSet.addAll(notifyEventHandlerMap.keySet());
-        allInterestedSet.addAll(askEventHandlerMap.keySet());
-        allInterestedSet.addAll(revokableAskEventHandlerMap.keySet());
-
-        return allInterestedSet;
+    public Set<EventType> getInterestedEventTypes() {
+        return this.interestedEventTypes;
     }
 
     /**
@@ -323,45 +285,5 @@ public class EventRegistry implements InitializingBean, DisposableBean {
             this.revokableAskEventHandlerMap = HashMultimap.create();
         }
     }
-
-
-    public static final class AskEventCallback {
-        private final String callbackClassName;
-        private final Class<?> callbackClass;
-        private final Method successMethod;
-        private final Optional<Method> failureMethod;
-        private final List<Parameter> parameters;
-
-
-        public AskEventCallback(String callbackClassName, Class<?> callbackClass, Method successMethod,
-                                Optional<Method> failureMethod, List<Parameter> parameters) {
-            this.callbackClassName = callbackClassName;
-            this.callbackClass = callbackClass;
-            this.successMethod = successMethod;
-            this.failureMethod = failureMethod;
-            this.parameters = parameters;
-        }
-
-        public String getCallbackClassName() {
-            return callbackClassName;
-        }
-
-        public Class<?> getCallbackClass() {
-            return callbackClass;
-        }
-
-        public Method getSuccessMethod() {
-            return successMethod;
-        }
-
-        public Optional<Method> getFailureMethod() {
-            return failureMethod;
-        }
-
-        public List<Parameter> getParameters() {
-            return parameters;
-        }
-    }
-
 
 }

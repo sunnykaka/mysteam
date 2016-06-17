@@ -27,7 +27,7 @@ public class TestUserApplication {
             @Override
             public boolean sendMessage(String message, String destination) {
                 //当遇到TEST_EVENT_SECOND事件时, 抛出异常
-                if(destination.equals(EventType.NOTIFY_FIRST_TEST_EVENT.toString())) {
+                if(destination.equals(EventType.NOTIFY_SECOND_TEST_EVENT.toString())) {
                     throw new RuntimeException("我是异常");
                 }
                 return eventActivator.sendMessage(message, destination);

@@ -59,17 +59,12 @@ public class EventUtils {
         if(EventType.valueOfIgnoreCase(type) == null) {
             throw new EventException(String.format("unknown event type:%s, payload: %s", type, payload));
         }
-        if(StringUtils.isBlank((String)map.get("id"))) {
+        if(map.get("id") == null) {
             throw new EventException(String.format("event id is blank, payload: %s", payload));
         }
 
         return map;
 
-    }
-
-    public static Long generateEventId() {
-        //TODO generate id
-        return Long.parseLong(RandomStringUtils.randomAlphanumeric(18));
     }
 
 
