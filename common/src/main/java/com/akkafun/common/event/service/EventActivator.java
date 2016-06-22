@@ -31,6 +31,7 @@ public class EventActivator {
 
     @ServiceActivator(inputChannel = Processor.INPUT)
     public void receiveMessage(Object payload) {
+        //TODO 验证receiveMessage是否是被spring顺序执行的
         byte[] bytes = (byte[]) payload;
         String message = new String(bytes, Charset.forName("UTF-8"));
 

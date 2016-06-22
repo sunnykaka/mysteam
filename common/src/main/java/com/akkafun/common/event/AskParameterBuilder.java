@@ -90,7 +90,6 @@ public class AskParameterBuilder {
      * @return
      */
     public AskParameterBuilder callbackClass(Class<?> callbackClass) {
-        EventRegistry.getAskEventCallback(callbackClass.getName());
         this.callbackClass = callbackClass;
         return this;
     }
@@ -113,6 +112,12 @@ public class AskParameterBuilder {
 
 
     public AskParameter build() {
+
+        Preconditions.checkNotNull(callbackClass);
+        Preconditions.checkNotNull(askEvents);
+        AskEventCallback askEventCallback = EventRegistry.getAskEventCallback(callbackClass.getName());
+        askEventCallback.checkMethodParameter(united, askEvents);
+
         return new AskParameter(united, askEvents, callbackClass, extraParams);
     }
 

@@ -2,8 +2,7 @@ package com.akkafun.common.event.domain;
 
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.common.domain.VersionEntity;
-import com.akkafun.common.event.constant.EventCategory;
-import com.akkafun.common.event.constant.EventPublishStatus;
+import com.akkafun.common.event.constant.ProcessStatus;
 
 import javax.persistence.*;
 
@@ -25,7 +24,7 @@ public abstract class EventPublish extends VersionEntity {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private EventPublishStatus status = EventPublishStatus.NEW;
+    private ProcessStatus status = ProcessStatus.NEW;
 
     @Column(unique = true)
     private Long eventId;
@@ -51,11 +50,11 @@ public abstract class EventPublish extends VersionEntity {
         this.payload = payload;
     }
 
-    public EventPublishStatus getStatus() {
+    public ProcessStatus getStatus() {
         return status;
     }
 
-    public void setStatus(EventPublishStatus status) {
+    public void setStatus(ProcessStatus status) {
         this.status = status;
     }
 

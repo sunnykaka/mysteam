@@ -1,21 +1,33 @@
 package com.akkafun.common.event.handlers;
 
 import com.akkafun.base.event.constants.FailureInfo;
+import com.akkafun.common.event.domain.AskTestEvent;
 import com.akkafun.common.event.domain.RevokableAskTestEvent;
 import com.akkafun.common.event.handler.RevokableAskEventHandler;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by liubin on 2016/6/15.
  */
 public class RevokableAskTestEventHandler implements RevokableAskEventHandler<RevokableAskTestEvent> {
 
+
+    public static final String SUCCESS_EVENT_NAME = "克尔苏加德";
+
+    public static final List<RevokableAskTestEvent> events = new CopyOnWriteArrayList<>();
+    public static final List<RevokableAskTestEvent> revokeEvents = new CopyOnWriteArrayList<>();
+
+
     @Override
     public void processRevoke(RevokableAskTestEvent originEvent, FailureInfo failureInfo) {
-
+        revokeEvents.add(originEvent);
     }
 
     @Override
     public boolean processRequest(RevokableAskTestEvent event) {
-        return false;
+        events.add(event);
+        return event.getName().equals(SUCCESS_EVENT_NAME);
     }
 }

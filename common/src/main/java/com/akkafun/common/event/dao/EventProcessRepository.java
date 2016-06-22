@@ -1,6 +1,6 @@
 package com.akkafun.common.event.dao;
 
-import com.akkafun.common.event.constant.EventProcessStatus;
+import com.akkafun.common.event.constant.ProcessStatus;
 import com.akkafun.common.event.domain.EventProcess;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -11,7 +11,7 @@ import java.util.List;
  */
 public interface EventProcessRepository extends PagingAndSortingRepository<EventProcess, Long>, EventProcessRepositoryCustom{
 
-    List<EventProcess> findByStatus(EventProcessStatus status);
+    List<EventProcess> findByStatus(ProcessStatus status);
 
     EventProcess getByEventId(Long eventId);
 

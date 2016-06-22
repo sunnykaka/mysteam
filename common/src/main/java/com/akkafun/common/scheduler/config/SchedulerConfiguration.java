@@ -2,6 +2,7 @@ package com.akkafun.common.scheduler.config;
 
 import com.akkafun.common.event.scheduler.EventScheduler;
 import com.akkafun.common.event.service.EventBus;
+import com.akkafun.common.event.service.EventWatchService;
 import com.akkafun.common.scheduler.ZkCoordinateScheduledExecutor;
 import com.akkafun.common.scheduler.ZkSchedulerCoordinator;
 import com.akkafun.common.spring.ApplicationConstant;

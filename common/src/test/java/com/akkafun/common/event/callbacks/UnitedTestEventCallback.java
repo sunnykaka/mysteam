@@ -15,6 +15,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class UnitedTestEventCallback {
 
+    public static final String SUCCESS_EVENT_NAME = "克尔苏加德";
+
     public static final List<CallbackParam> successParams = new CopyOnWriteArrayList<>();
     public static final List<CallbackParam> failureParams = new CopyOnWriteArrayList<>();
 

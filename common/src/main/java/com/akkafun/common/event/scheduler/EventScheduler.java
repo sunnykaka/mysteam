@@ -1,6 +1,7 @@
 package com.akkafun.common.event.scheduler;
 
 import com.akkafun.common.event.service.EventBus;
+import com.akkafun.common.event.service.EventWatchService;
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
@@ -23,4 +24,10 @@ public class EventScheduler{
     public void searchAndHandleUnprocessedEvent() {
         eventBus.searchAndHandleUnprocessedEvent();
     }
+
+    @Scheduled(fixedRate = 1000L)
+    public void handleUnprocessedEventWatchProcess() {
+        eventBus.handleUnprocessedEventWatchProcess();
+    }
+
 }

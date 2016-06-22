@@ -6,6 +6,7 @@ import com.akkafun.common.event.callbacks.UnitedTestEventCallback;
 import com.akkafun.common.event.handlers.AskTestEventHandler;
 import com.akkafun.common.event.handlers.NotifyFirstTestEventFirstHandler;
 import com.akkafun.common.event.handlers.NotifyFirstTestEventSecondHandler;
+import com.akkafun.common.event.handlers.RevokableAskTestEventHandler;
 
 /**
  * Created by liubin on 2016/6/17.
@@ -21,6 +22,8 @@ public class EventTestUtils {
         AskTestEventHandler.events.clear();
         NotifyFirstTestEventFirstHandler.events.clear();
         NotifyFirstTestEventSecondHandler.events.clear();
+        RevokableAskTestEventHandler.events.clear();
+        RevokableAskTestEventHandler.revokeEvents.clear();
 
     }
 

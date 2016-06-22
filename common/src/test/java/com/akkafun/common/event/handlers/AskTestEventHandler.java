@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class AskTestEventHandler implements AskEventHandler<AskTestEvent> {
 
-    public static final String SUCCESS_EVENT_NAME = "张三";
+    public static final String SUCCESS_EVENT_NAME = "克尔苏加德";
 
     public static final List<AskTestEvent> events = new CopyOnWriteArrayList<>();
 

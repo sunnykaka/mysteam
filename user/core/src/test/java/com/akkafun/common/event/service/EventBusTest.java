@@ -3,6 +3,7 @@ package com.akkafun.common.event.service;
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.constants.FailureInfo;
 import com.akkafun.base.event.constants.FailureReason;
+import com.akkafun.base.event.domain.AskEvent;
 import com.akkafun.base.event.domain.BaseEvent;
 import com.akkafun.common.event.AskParameter;
 import com.akkafun.common.event.AskParameterBuilder;
@@ -10,12 +11,13 @@ import com.akkafun.common.event.EventTestUtils;
 import com.akkafun.common.event.EventUtils;
 import com.akkafun.common.event.callbacks.AskTestEventSecondCallback;
 import com.akkafun.common.event.callbacks.CallbackParam;
-import com.akkafun.common.event.constant.EventProcessStatus;
-import com.akkafun.common.event.constant.EventPublishStatus;
+import com.akkafun.common.event.callbacks.UnitedTestEventCallback;
+import com.akkafun.common.event.constant.ProcessStatus;
 import com.akkafun.common.event.dao.*;
 import com.akkafun.common.event.domain.*;
 import com.akkafun.common.event.handlers.AskTestEventHandler;
 import com.akkafun.common.event.handlers.NotifyFirstTestEventFirstHandler;
+import com.akkafun.common.event.handlers.RevokableAskTestEventHandler;
 import com.akkafun.user.test.UserBaseTest;
 import com.google.common.collect.Lists;
 import kafka.serializer.Decoder;
@@ -104,7 +106,7 @@ public class EventBusTest extends UserBaseTest {
         NotifyEventPublish eventPublishFromDb = notifyEventPublishRepository.findOne(eventPublish.getId());
 
         assertThat(eventPublishFromDb.getPayload(), is(eventPublish.getPayload()));
-        assertThat(eventPublishFromDb.getStatus(), is(EventPublishStatus.NEW));
+        assertThat(eventPublishFromDb.getStatus(), is(ProcessStatus.NEW));
         assertThat(eventPublishFromDb.getEventType(), is(event.getType()));
         assertThat(eventPublishFromDb.getEventId(), is(event.getId()));
 
@@ -112,7 +114,7 @@ public class EventBusTest extends UserBaseTest {
 
         //判断状态已经改过来了
         eventPublishFromDb = notifyEventPublishRepository.findOne(eventPublish.getId());
-        assertThat(eventPublishFromDb.getStatus(), is(EventPublishStatus.PUBLISHED));
+        assertThat(eventPublishFromDb.getStatus(), is(ProcessStatus.PROCESSED));
         //判断消息已经发送到kafka
         assertMessageWasSent(event);
 
@@ -120,7 +122,7 @@ public class EventBusTest extends UserBaseTest {
         EventProcess eventProcess = eventProcessRepository.getByEventId(event.getId());
         assertThat(eventProcess, notNullValue());
         assertThat(eventProcess.getPayload(), is(eventPublish.getPayload()));
-        assertThat(eventProcess.getStatus(), is(EventProcessStatus.NEW));
+        assertThat(eventProcess.getStatus(), is(ProcessStatus.NEW));
         assertThat(eventProcess.getEventType(), is(event.getType()));
 
         List<NotifyFirstTestEvent> firstEventList = NotifyFirstTestEventFirstHandler.events;
@@ -132,7 +134,7 @@ public class EventBusTest extends UserBaseTest {
 
         //判断状态已经改过来了
         eventProcess = eventProcessRepository.getByEventId(event.getId());
-        assertThat(eventProcess.getStatus(), is(EventProcessStatus.PROCESSED));
+        assertThat(eventProcess.getStatus(), is(ProcessStatus.PROCESSED));
         //判断事件已经处理
         assertThat(firstEventList, hasItem(event));
         assertThat(secondEventList, hasItem(event));
@@ -161,6 +163,8 @@ public class EventBusTest extends UserBaseTest {
         try {
             eventBus.searchAndHandleUnprocessedEvent();
             Thread.sleep(3000L);
+            eventBus.handleUnprocessedEventWatchProcess();
+            Thread.sleep(3000L);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -185,18 +189,18 @@ public class EventBusTest extends UserBaseTest {
             NotifyEventPublish firstEventPublishFromDb = notifyEventPublishRepository.findOne(firstEventPublish.getId());
             NotifyEventPublish secondEventPublishFromDb = notifyEventPublishRepository.findOne(secondEventPublish.getId());
             assertThat(firstEventPublishFromDb.getPayload(), is(firstEventPublishFromDb.getPayload()));
-            assertThat(firstEventPublishFromDb.getStatus(), is(EventPublishStatus.NEW));
+            assertThat(firstEventPublishFromDb.getStatus(), is(ProcessStatus.NEW));
             assertThat(secondEventPublishFromDb.getPayload(), is(secondEventPublish.getPayload()));
-            assertThat(secondEventPublishFromDb.getStatus(), is(EventPublishStatus.NEW));
+            assertThat(secondEventPublishFromDb.getStatus(), is(ProcessStatus.NEW));
 
             eventBus.sendUnpublishedEvent();
 
             //判断状态已经改过来了
             firstEventPublishFromDb = notifyEventPublishRepository.findOne(firstEventPublish.getId());
-            assertThat(firstEventPublishFromDb.getStatus(), is(EventPublishStatus.PUBLISHED));
+            assertThat(firstEventPublishFromDb.getStatus(), is(ProcessStatus.PROCESSED));
             //这个事件由于抛了异常, 状态没变
             secondEventPublishFromDb = notifyEventPublishRepository.findOne(secondEventPublish.getId());
-            assertThat(secondEventPublishFromDb.getStatus(), is(EventPublishStatus.NEW));
+            assertThat(secondEventPublishFromDb.getStatus(), is(ProcessStatus.NEW));
 
         } finally {
             eventBus.setEventActivator(eventActivator);
@@ -218,7 +222,7 @@ public class EventBusTest extends UserBaseTest {
         EventProcess eventProcess = eventBus.recordEvent(eventJson);
         assertThat(eventProcess.getId(), notNullValue());
         assertThat(eventProcess.getPayload(), is(eventJson));
-        assertThat(eventProcess.getStatus(), is(EventProcessStatus.NEW));
+        assertThat(eventProcess.getStatus(), is(ProcessStatus.NEW));
         assertThat(eventProcess.getEventType(), is(event.getType()));
 
         try {
@@ -236,80 +240,86 @@ public class EventBusTest extends UserBaseTest {
 
     @Test
     public void testSendAndReceiveSuccessAskEvent() {
-        testAskEvent(true);
+        testAskEvent(true, false);
     }
 
     @Test
     public void testSendAndReceiveFailureAskEvent() {
-        testAskEvent(false);
+        testAskEvent(false, false);
+    }
+
+    @Test
+    public void testSendAndReceiveSuccessUnitedAskEvent() {
+        testAskEvent(true, true);
+    }
+
+    @Test
+    public void testSendAndReceiveFailureUnitedAskEvent() {
+        testAskEvent(false, true);
     }
 
 
 
-
     /**
-     * 测试非united ask请求是否发送成功
+     * 测试ask请求是否发送成功
      * 测试ask请求是否被接收并且handler是否执行成功
      * 测试ask的结果ASK_RESPONSE是否发送
      * 测试ASK_RESPONSE的是否接收并且callback是否执行
+     * @param success 执行成功方法还是失败方法
+     * @param united
      *
      */
-    private void testAskEvent(boolean success) {
+    private void testAskEvent(boolean success, boolean united) {
 
         String name;
         Map<String, String> paramMap = new HashMap<>();
         if(success) {
-            name = AskTestEventHandler.SUCCESS_EVENT_NAME;
+            name = united ? UnitedTestEventCallback.SUCCESS_EVENT_NAME : AskTestEventHandler.SUCCESS_EVENT_NAME;
             paramMap.put("param1", "v1");
             paramMap.put("param2", "v2");
         } else {
-            name = "李四";
+            name = "玛尔加尼斯";
             paramMap.put("param3", "v3");
             paramMap.put("param4", "v4");
         }
 
-        AskTestEvent event = new AskTestEvent(name);
-        AskParameter askParameter = AskParameterBuilder.ask(event)
-                .addParamMap(paramMap)
-                .callbackClass(AskTestEventSecondCallback.class).build();
+        List<AskEvent> askEvents = ask(united, name, paramMap);
 
-        List<AskRequestEventPublish> askRequestEventPublishList = eventBus.ask(askParameter);
-
-        assertThat(askRequestEventPublishList.size(), is(1));
-        AskRequestEventPublish askRequestEventPublish = askRequestEventPublishList.get(0);
-
-        AskRequestEventPublish eventPublishFromDb = askRequestEventPublishRepository.findOne(askRequestEventPublish.getId());
-
-        assertThat(eventPublishFromDb.getPayload(), is(askRequestEventPublish.getPayload()));
-        assertThat(eventPublishFromDb.getStatus(), is(EventPublishStatus.NEW));
-        assertThat(eventPublishFromDb.getEventType(), is(event.getType()));
-        assertThat(eventPublishFromDb.getEventId(), is(event.getId()));
-
-        sendEvent();
-
-        //判断状态已经改过来了
-        eventPublishFromDb = askRequestEventPublishRepository.findOne(askRequestEventPublish.getId());
-        assertThat(eventPublishFromDb.getStatus(), is(EventPublishStatus.PUBLISHED));
         //判断消息已经发送到kafka
-        assertMessageWasSent(event);
+        askEvents.forEach(this::assertMessageWasSent);
 
-        EventProcess eventProcess = eventProcessRepository.getByEventId(event.getId());
-        assertThat(eventProcess, notNullValue());
-        assertThat(eventProcess.getPayload(), is(eventPublishFromDb.getPayload()));
-        assertThat(eventProcess.getStatus(), is(EventProcessStatus.NEW));
-        assertThat(eventProcess.getEventType(), is(event.getType()));
+        //判断eventProcess已经创建
+        for(AskEvent askEvent : askEvents) {
+            EventProcess eventProcess = eventProcessRepository.getByEventId(askEvent.getId());
+            assertThat(eventProcess, notNullValue());
+//            assertThat(eventProcess.getPayload(), is(eventPublishFromDb.getPayload()));
+            assertThat(eventProcess.getStatus(), is(ProcessStatus.NEW));
+            assertThat(eventProcess.getEventType(), is(askEvent.getType()));
 
-        List<AskTestEvent> askTestEvents = AskTestEventHandler.events;
-        assertThat(askTestEvents, empty());
+            assertThat(AskTestEventHandler.events, empty());
+            assertThat(RevokableAskTestEventHandler.events, empty());
+        }
 
         //处理askEvent事件
         handleEvent();
 
-        //判断状态已经改过来了
-        eventProcess = eventProcessRepository.getByEventId(event.getId());
-        assertThat(eventProcess.getStatus(), is(EventProcessStatus.PROCESSED));
-        //判断事件已经处理
-        assertThat(askTestEvents, hasItem(event));
+        //判断eventProcess已经被处理
+        for(AskEvent askEvent : askEvents) {
+            EventProcess eventProcess = eventProcessRepository.getByEventId(askEvent.getId());
+            assertThat(eventProcess.getStatus(), is(ProcessStatus.PROCESSED));
+            //判断事件已经处理
+            if(united) {
+                if (askEvent.getType().equals(AskTestEvent.EVENT_TYPE)) {
+                    assertThat(AskTestEventHandler.events, hasItem((AskTestEvent) askEvent));
+                } else if (askEvent.getType().equals(RevokableAskTestEvent.EVENT_TYPE)) {
+                    assertThat(RevokableAskTestEventHandler.events, hasItem((RevokableAskTestEvent) askEvent));
+                } else {
+                    throw new AssertionError("unknown event type :" + askEvent.getType());
+                }
+            } else {
+                assertThat(AskTestEventHandler.events, hasItem((AskTestEvent) askEvent));
+            }
+        }
 
         //发送askResponse响应
         sendEvent();
@@ -317,11 +327,17 @@ public class EventBusTest extends UserBaseTest {
         handleEvent();
 
         //判断对应的回调函数已经被调用
-        List<CallbackParam> callbackParams = success ? AskTestEventSecondCallback.successParams
-                : AskTestEventSecondCallback.failureParams;
+        List<CallbackParam> callbackParams;
+        if(united) {
+            callbackParams = success ? UnitedTestEventCallback.successParams
+                    : UnitedTestEventCallback.failureParams;
+        } else {
+            callbackParams = success ? AskTestEventSecondCallback.successParams
+                    : AskTestEventSecondCallback.failureParams;
+        }
         assertThat(callbackParams.size(), is(1));
         CallbackParam callbackParam = callbackParams.get(0);
-        assertThat(callbackParam.getAskEvents().size(), is(1));
+        assertThat(callbackParam.getAskEvents().size(), is(askEvents.size()));
         assertThat(callbackParam.getParams(), is(paramMap));
         if(!success) {
             FailureInfo failureInfo = callbackParam.getFailureInfo();
@@ -329,6 +345,52 @@ public class EventBusTest extends UserBaseTest {
             assertThat(failureInfo.getReason(), is(FailureReason.FAILED));
             assertThat(failureInfo.getFailureTime(), notNullValue());
         }
+
+    }
+
+    private List<AskEvent> ask(boolean united, String name, Map<String, String> paramMap) {
+        List<AskEvent> askEvents;
+        AskParameter askParameter;
+        if(united) {
+            AskTestEvent askTestEvent = new AskTestEvent(name);
+            RevokableAskTestEvent revokableAskTestEvent = new RevokableAskTestEvent(name);
+            askEvents = Lists.newArrayList(askTestEvent, revokableAskTestEvent);
+            askParameter = AskParameterBuilder.askUnited(askTestEvent, revokableAskTestEvent)
+                    .addParamMap(paramMap)
+                    .callbackClass(UnitedTestEventCallback.class).build();
+        } else {
+            AskTestEvent event = new AskTestEvent(name);
+            askEvents = Lists.newArrayList(event);
+            askParameter = AskParameterBuilder.ask(event)
+                    .addParamMap(paramMap)
+                    .callbackClass(AskTestEventSecondCallback.class).build();
+        }
+
+        List<AskRequestEventPublish> askRequestEventPublishList = eventBus.ask(askParameter);
+
+        assertThat(askRequestEventPublishList.size(), is(askEvents.size()));
+        for(AskRequestEventPublish askRequestEventPublish : askRequestEventPublishList) {
+            AskRequestEventPublish eventPublishFromDb = askRequestEventPublishRepository.findOne(askRequestEventPublish.getId());
+            assertThat(eventPublishFromDb.getPayload(), is(askRequestEventPublish.getPayload()));
+            assertThat(eventPublishFromDb.getStatus(), is(ProcessStatus.NEW));
+
+            boolean result = askEvents.stream()
+                    .anyMatch(askEvent -> askEvent.getType().equals(eventPublishFromDb.getEventType()));
+            assertThat(result, is(true));
+            result = askEvents.stream()
+                    .filter(askEvent -> askEvent.getType().equals(eventPublishFromDb.getEventType()))
+                    .anyMatch(askEvent -> askEvent.getId().equals(eventPublishFromDb.getEventId()));
+            assertThat(result, is(true));
+        }
+
+        sendEvent();
+
+        //判断状态已经改过来了
+        for(AskRequestEventPublish askRequestEventPublish : askRequestEventPublishList) {
+            AskRequestEventPublish eventPublishFromDb = askRequestEventPublishRepository.findOne(askRequestEventPublish.getId());
+            assertThat(eventPublishFromDb.getStatus(), is(ProcessStatus.PROCESSED));
+        }
+        return askEvents;
     }
 
 

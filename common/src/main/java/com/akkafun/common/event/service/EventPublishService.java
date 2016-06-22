@@ -1,11 +1,12 @@
 package com.akkafun.common.event.service;
 
-import com.akkafun.common.event.constant.EventPublishStatus;
+import com.akkafun.common.event.constant.ProcessStatus;
 import com.akkafun.common.event.dao.AskRequestEventPublishRepository;
 import com.akkafun.common.event.dao.AskResponseEventPublishRepository;
 import com.akkafun.common.event.dao.NotifyEventPublishRepository;
 import com.akkafun.common.event.dao.RevokeAskEventPublishRepository;
-import com.akkafun.common.event.domain.*;
+import com.akkafun.common.event.domain.AskRequestEventPublish;
+import com.akkafun.common.event.domain.EventPublish;
 import com.akkafun.common.exception.EventException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,10 +37,10 @@ public class EventPublishService {
     @Transactional(readOnly = true)
     public List<EventPublish> findUnpublishedEvent() {
         List<EventPublish> unpublishedEvents = new ArrayList<>();
-        unpublishedEvents.addAll(notifyEventPublishRepository.findByStatus(EventPublishStatus.NEW));
-        unpublishedEvents.addAll(askRequestEventPublishRepository.findByStatus(EventPublishStatus.NEW));
-        unpublishedEvents.addAll(revokeAskEventPublishRepository.findByStatus(EventPublishStatus.NEW));
-        unpublishedEvents.addAll(askResponseEventPublishRepository.findByStatus(EventPublishStatus.NEW));
+        unpublishedEvents.addAll(notifyEventPublishRepository.findByStatus(ProcessStatus.NEW));
+        unpublishedEvents.addAll(askRequestEventPublishRepository.findByStatus(ProcessStatus.NEW));
+        unpublishedEvents.addAll(revokeAskEventPublishRepository.findByStatus(ProcessStatus.NEW));
+        unpublishedEvents.addAll(askResponseEventPublishRepository.findByStatus(ProcessStatus.NEW));
         return unpublishedEvents;
     }
 

@@ -9,8 +9,7 @@ import com.akkafun.common.event.EventRegistry;
 import com.akkafun.common.event.EventUtils;
 import com.akkafun.common.event.constant.AskEventStatus;
 import com.akkafun.common.event.constant.EventCategory;
-import com.akkafun.common.event.constant.EventProcessStatus;
-import com.akkafun.common.event.constant.EventPublishStatus;
+import com.akkafun.common.event.constant.ProcessStatus;
 import com.akkafun.common.event.dao.*;
 import com.akkafun.common.event.domain.*;
 import com.akkafun.common.event.handler.AskEventHandler;
@@ -70,6 +69,7 @@ public class EventBus {
 
     @Autowired
     protected EventPublishService eventPublishService;
+
 
     /**
      * 发布Notify事件
@@ -137,16 +137,16 @@ public class EventBus {
             throw new EventException("ID为空, 新事件不能撤销");
         }
         AskRequestEventPublish eventPublish = eventPublishService.getAskRequestEventByEventId(askEvent.getId());
-        if(eventPublish.getStatus().equals(EventPublishStatus.NEW)) {
+        if(eventPublish.getStatus().equals(ProcessStatus.NEW)) {
             //首先判断原事件有没有发送, 如果没有发送就不发送了
-            eventPublish.setStatus(EventPublishStatus.IGNORE);
+            eventPublish.setStatus(ProcessStatus.IGNORE);
             askRequestEventPublishRepository.save(eventPublish);
         }
 
         if(eventPublish.getAskEventStatus().equals(AskEventStatus.PENDING)
                 || eventPublish.getAskEventStatus().equals(AskEventStatus.SUCCESS)) {
 
-            if(eventPublish.getStatus().equals(EventPublishStatus.PUBLISHED)) {
+            if(eventPublish.getStatus().equals(ProcessStatus.PROCESSED)) {
                 publishRevokeEvent(askEvent.getId(), failureInfo);
             }
 
@@ -194,7 +194,7 @@ public class EventBus {
             try {
                 //eventActivator.sendMessage抛异常不会导致整个事务回滚
                 if(eventActivator.sendMessage(event.getPayload(), event.getEventType().name())) {
-                    event.setStatus(EventPublishStatus.PUBLISHED);
+                    event.setStatus(ProcessStatus.PROCESSED);
                     saveEventPublish(event);
                 }
             } catch (EventException e) {
@@ -231,7 +231,7 @@ public class EventBus {
     @Transactional
     public void searchAndHandleUnprocessedEvent() {
 
-        List<EventProcess> events = eventProcessRepository.findByStatus(EventProcessStatus.NEW);
+        List<EventProcess> events = eventProcessRepository.findByStatus(ProcessStatus.NEW);
         logger.info("待处理事件数量: " + events.size());
 
         for(EventProcess event : events) {
@@ -256,11 +256,15 @@ public class EventBus {
     @Transactional
     public void handleEventProcess(Long eventProcessId) {
 
+
         EventProcess eventProcess = eventProcessRepository.findOne(eventProcessId);
-        if(!eventProcess.getStatus().equals(EventProcessStatus.NEW)) {
+        if(!eventProcess.getStatus().equals(ProcessStatus.NEW)) {
             //已经被处理过了, 忽略
             return;
         }
+
+        logger.debug(String.format("handle event process, id: %d, event category: %s ",
+                eventProcessId, eventProcess.getEventCategory()));
 
         switch (eventProcess.getEventCategory()) {
             case NOTIFY:
@@ -275,9 +279,12 @@ public class EventBus {
             case ASKRESP:
                 processAskResponseEvent(eventProcess);
                 break;
+            default:
+                throw new EventException(String.format("unknown event category, process id: %d, event category: %s ",
+                        eventProcessId, eventProcess.getEventCategory()));
         }
 
-        eventProcess.setStatus(EventProcessStatus.PROCESSED);
+        eventProcess.setStatus(ProcessStatus.PROCESSED);
         eventProcessRepository.save(eventProcess);
 
     }
@@ -357,7 +364,9 @@ public class EventBus {
 
     private void processAskResponseEvent(EventProcess event) {
 
-
+        if(logger.isDebugEnabled()) {
+            logger.debug("processAskResponseEvent: " + event);
+        }
         AskResponseEvent askResponseEvent = eventRegistry.deserializeAskResponseEvent(event.getPayload());
         Long askEventId = askResponseEvent.getAskEventId();
         AskRequestEventPublish askRequestEventPublish = eventPublishService.getAskRequestEventByEventId(askEventId);
@@ -449,6 +458,35 @@ public class EventBus {
         return eventProcess;
     }
 
+    public void handleUnprocessedEventWatchProcess() {
+        List<EventWatchProcess> eventWatchProcessList = eventWatchService.findUnprocessedEventWatchProcess();
+        logger.info("待处理eventWatchProcess数量: " + eventWatchProcessList.size());
+        Set<Long> successIdSet = new HashSet<>();
+        Set<Long> watchIdSet = new HashSet<>();
+        for(EventWatchProcess eventWatchProcess : eventWatchProcessList) {
+            try {
+                if(watchIdSet.add(eventWatchProcess.getWatchId())) {
+                    //processUnitedEventWatch方法内报异常只回滚内部事务
+                    eventWatchService.processUnitedEventWatch(eventWatchProcess);
+                }
+                successIdSet.add(eventWatchProcess.getId());
+            } catch (EventException e) {
+                logger.error(e.getMessage(), e);
+                eventWatchService.addToQueue(eventWatchProcess);
+                watchIdSet.remove(eventWatchProcess.getWatchId());
+            } catch (Exception e) {
+                logger.error("处理unitedEventWatch事件的时候发生异常, EventWatchProcessId:" + eventWatchProcess.getId(), e);
+                eventWatchService.addToQueue(eventWatchProcess);
+                watchIdSet.remove(eventWatchProcess.getWatchId());
+            }
+        }
+
+        if(!successIdSet.isEmpty()) {
+            eventWatchService.updateStatusBatchToProcessed(successIdSet.toArray(new Long[successIdSet.size()]));
+        }
+    }
+
+
     public Long generateEventId() {
         //TODO generate id
         return Long.parseLong(RandomStringUtils.randomNumeric(18));
@@ -460,7 +498,6 @@ public class EventBus {
         }
         baseEvent.setId(generateEventId());
     }
-
 
 
     public void setEventActivator(EventActivator eventActivator) {

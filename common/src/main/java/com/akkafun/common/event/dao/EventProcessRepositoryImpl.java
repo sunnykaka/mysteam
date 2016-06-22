@@ -1,7 +1,6 @@
 package com.akkafun.common.event.dao;
 
-import com.akkafun.common.event.constant.EventProcessStatus;
-import com.akkafun.common.utils.SQLUtils;
+import com.akkafun.common.event.constant.ProcessStatus;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -21,14 +20,4 @@ public class EventProcessRepositoryImpl implements EventProcessRepositoryCustom 
         return em;
     }
 
-    @Override
-    public int updateStatusToProcessed(Long eventProcessId) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", eventProcessId);
-        params.put("status", EventProcessStatus.PROCESSED);
-        params.put("oldStatus", EventProcessStatus.NEW);
-
-        //TODO 处理乐观锁
-        return update("update EventProcess ep set ep.status = :status where ep.id = :id and ep.status = :oldStatus", params);
-    }
 }

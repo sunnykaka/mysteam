@@ -15,12 +15,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AskEventCallback {
 
     private static Logger logger = LoggerFactory.getLogger(AskEventCallback.class);
-
 
     private final String callbackClassName;
     private final Class<?> callbackClass;
@@ -189,5 +190,80 @@ public class AskEventCallback {
         } catch (InvocationTargetException e) {
             throw new EventException(e.getTargetException());
         }
+    }
+
+    /**
+     * 校验回调方法参数和实际传的值是否匹配
+     * @param united
+     * @param askEvents
+     */
+    public void checkMethodParameter(boolean united, List<? extends AskEvent> askEvents) {
+
+        if(!united && askEvents.size() != 1) {
+            throw new EventException("ask请求不是united但是askEvent数量不等于1");
+        } else if(united && askEvents.size() <= 1){
+            throw new EventException("ask请求是united但是askEvent数量小于等于1");
+        }
+
+        checkParameterType(true);
+        checkParameterType(false);
+
+        checkAskEventParameter(true, askEvents);
+        checkAskEventParameter(false, askEvents);
+    }
+
+    /**
+     * 校验方法参数类型
+     * @param success
+     */
+    private void checkParameterType(boolean success) {
+        List<Parameter> parameters = success ? successParameters : failureParameters;
+
+        boolean allParameterValid;
+        allParameterValid = parameters.stream()
+                .map(Parameter::getType)
+                .allMatch(clazz -> BaseEvent.class.isAssignableFrom(clazz) || clazz.equals(String.class)
+                        || clazz.equals(FailureInfo.class));
+        if(!allParameterValid) {
+            throw new EventException(String.format("回调类%s的%s方法参数类型必须是String, FailureInfo或者BaseEvent的子类",
+                    callbackClassName, EventUtils.getAskCallbackMethodName(success)));
+        }
+
+    }
+
+    /**
+     * 校验方法askEvent参数声明与实际是否匹配
+     * @param success
+     * @param askEvents
+     */
+    private void checkAskEventParameter(boolean success, List<? extends AskEvent> askEvents) {
+
+        List<Parameter> parameters = success ? successParameters : failureParameters;
+
+        Set<Class<?>> methodParameterOfEventClass = parameters.stream()
+                .map(Parameter::getType)
+                .filter(BaseEvent.class::isAssignableFrom)
+                .collect(Collectors.toSet());
+
+        List<? extends Class<? extends AskEvent>> askEventClassList =
+                askEvents.stream().map(x -> x.getClass()).collect(Collectors.toList());
+
+        boolean allParameterValid = askEventClassList.stream()
+                .allMatch(eventClass -> methodParameterOfEventClass.stream()
+                        .anyMatch(parameterClass -> parameterClass.isAssignableFrom(eventClass)));
+
+        if(!allParameterValid) {
+            throw new EventException(String.format("回调类%s的%s方法参数不匹配, 方法声明: %s, 实际参数: %s",
+                    callbackClassName, EventUtils.getAskCallbackMethodName(success),
+                    methodParameterOfEventClass, askEventClassList));
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "AskEventCallback{" +
+                "callbackClassName='" + callbackClassName + '\'' +
+                ", callbackClass=" + callbackClass +
+                '}';
     }
 }

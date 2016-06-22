@@ -3,7 +3,7 @@ package com.akkafun.common.event.domain;
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.common.domain.VersionEntity;
 import com.akkafun.common.event.constant.EventCategory;
-import com.akkafun.common.event.constant.EventProcessStatus;
+import com.akkafun.common.event.constant.ProcessStatus;
 
 import javax.persistence.*;
 
@@ -23,7 +23,7 @@ public class EventProcess extends VersionEntity {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private EventProcessStatus status = EventProcessStatus.NEW;
+    private ProcessStatus status = ProcessStatus.NEW;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -54,11 +54,11 @@ public class EventProcess extends VersionEntity {
         this.payload = payload;
     }
 
-    public EventProcessStatus getStatus() {
+    public ProcessStatus getStatus() {
         return status;
     }
 
-    public void setStatus(EventProcessStatus status) {
+    public void setStatus(ProcessStatus status) {
         this.status = status;
     }
 
@@ -84,5 +84,17 @@ public class EventProcess extends VersionEntity {
 
     public void setEventType(EventType eventType) {
         this.eventType = eventType;
+    }
+
+    @Override
+    public String toString() {
+        return "EventProcess{" +
+                "id=" + id +
+                ", payload='" + payload + '\'' +
+                ", status=" + status +
+                ", eventCategory=" + eventCategory +
+                ", eventId=" + eventId +
+                ", eventType=" + eventType +
+                "} " + super.toString();
     }
 }
