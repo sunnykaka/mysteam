@@ -3,12 +3,9 @@ package com.akkafun.common.event;
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.constants.FailureReason;
 import com.akkafun.base.event.domain.BaseEvent;
-import com.akkafun.base.exception.AppBusinessException;
+import com.akkafun.common.utils.JsonUtils;
 import com.akkafun.common.event.constant.AskEventStatus;
 import com.akkafun.common.exception.EventException;
-import com.akkafun.common.utils.JsonUtils;
-import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;

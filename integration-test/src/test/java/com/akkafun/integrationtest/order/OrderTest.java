@@ -18,9 +18,11 @@ import com.akkafun.user.api.dtos.UserDto;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -29,8 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import static com.akkafun.common.test.TestUtils.createJsonEntity;
-import static com.akkafun.common.test.TestUtils.waitForAsyncEventComplete;
+import static com.akkafun.common.utils.TestUtils.createJsonEntity;
+import static com.akkafun.common.utils.TestUtils.waitForAsyncEventComplete;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 

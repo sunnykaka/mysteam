@@ -18,6 +18,7 @@ public class OrderServiceTest extends OrderBaseTest {
     OrderService orderService;
 
     @Test
+    @Ignore
     public void test() {
 
         PlaceOrderDto placeOrderDto = new PlaceOrderDto();

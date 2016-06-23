@@ -17,4 +17,6 @@ public interface EventPublishRepository<T extends EventPublish> extends PagingAn
 
     T getByEventId(Long eventId);
 
+    List<T> findByEventIdIn(List<Long> eventIds);
+
 }

@@ -159,7 +159,7 @@ public class OrderService {
                     .map(ProductDto::getId)
                     .collect(Collectors.toList());
 
-            //过滤出在根据接口查询不到的产品id列表
+            //过滤出根据接口查询不到的产品id列表
             List<Long> notExistIdList = productIds.stream()
                     .filter(productId -> !productDtoIdList.contains(productId))
                     .collect(Collectors.toList());

@@ -53,9 +53,6 @@ import static org.junit.Assert.assertThat;
 public class EventBusTest extends UserBaseTest {
 
     @Autowired
-    EventBus eventBus;
-
-    @Autowired
     EventProcessRepository eventProcessRepository;
 
     @Autowired
@@ -138,36 +135,6 @@ public class EventBusTest extends UserBaseTest {
         //判断事件已经处理
         assertThat(firstEventList, hasItem(event));
         assertThat(secondEventList, hasItem(event));
-
-    }
-
-    /**
-     * 发送事件并等待
-     */
-    private void sendEvent() {
-
-        try {
-            eventBus.sendUnpublishedEvent();
-            Thread.sleep(3000L);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    /**
-     * 异步处理事件并等待
-     */
-    private void handleEvent() {
-
-        try {
-            eventBus.searchAndHandleUnprocessedEvent();
-            Thread.sleep(3000L);
-            eventBus.handleUnprocessedEventWatchProcess();
-            Thread.sleep(3000L);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
 
     }
 

@@ -2,6 +2,7 @@ package com.akkafun.coupon.service;
 
 import com.akkafun.base.api.CommonErrorCode;
 import com.akkafun.base.exception.AppBusinessException;
+import com.akkafun.common.utils.CustomPreconditions;
 import com.akkafun.coupon.api.constants.CouponState;
 import com.akkafun.coupon.api.dtos.CouponDto;
 import com.akkafun.coupon.dao.CouponRepository;
@@ -50,15 +51,20 @@ public class CouponService {
     /**
      * 查询优惠券列表, 如果对应id在数据库不存在, 返回的List的位置对应null值.
      * 入参数组长度一定等于返回的List长度.
-     *
      * @param idList
      * @return
+     *
      */
     public List<Coupon> findCouponsById(List<Long> idList) {
         if(idList == null || idList.isEmpty()) return new ArrayList<>();
-        if(idList.size() > 50) throw new AppBusinessException(CommonErrorCode.BAD_REQUEST, "一次查询的id数量不能超过50");
+        CustomPreconditions.assertNotGreaterThanMaxQueryBatchSize(idList.size());
 
-        return Lists.newArrayList(couponRepository.findAll(idList));
+        Map<Long, Coupon> couponMap = StreamSupport
+                .stream(couponRepository.findAll(idList).spliterator(), false)
+                .collect(Collectors.toMap(Coupon::getId, Function.identity()));
+
+        return idList.stream().map(couponMap::get).collect(Collectors.toList());
+
     }
 
 

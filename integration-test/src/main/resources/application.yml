@@ -1,5 +1,5 @@
 server:
-  port: 23105
+  port: 23106
 
 spring:
   application:
@@ -14,7 +14,7 @@ spring:
     validationQuery: SELECT 1
 
   jpa:
-    show-sql: true
+    show-sql: false
     hibernate:
       naming-strategy: org.hibernate.cfg.DefaultNamingStrategy
       ddl-auto: none

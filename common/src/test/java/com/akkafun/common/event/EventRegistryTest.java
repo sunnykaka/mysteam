@@ -1,12 +1,12 @@
 package com.akkafun.common.event;
 
 import com.akkafun.base.event.constants.EventType;
+import com.akkafun.common.utils.JsonUtils;
 import com.akkafun.common.event.callbacks.AskTestEventFirstCallback;
 import com.akkafun.common.event.callbacks.AskTestEventSecondCallback;
 import com.akkafun.common.event.callbacks.CallbackParam;
 import com.akkafun.common.event.domain.AskRequestEventPublish;
 import com.akkafun.common.event.domain.AskTestEvent;
-import com.akkafun.common.utils.JsonUtils;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;

@@ -1,8 +1,7 @@
 package com.akkafun.user.web;
 
 import com.akkafun.base.api.CommonErrorCode;
-import com.akkafun.common.test.TestUtils;
-import com.akkafun.common.utils.JsonUtils;
+import com.akkafun.common.utils.TestUtils;
 import com.akkafun.user.api.UserErrorCode;
 import com.akkafun.user.test.UserBaseControllerTest;
 import com.akkafun.user.api.UserUrl;

@@ -5,6 +5,8 @@ package com.akkafun.base;
  */
 public interface Constants {
 
-    public static final int ASK_TIMEOUT = 10000;
+    int ASK_TIMEOUT = 10000;
+
+    int MAX_BATCH_QUERY_SIZE = 100;
 
 }

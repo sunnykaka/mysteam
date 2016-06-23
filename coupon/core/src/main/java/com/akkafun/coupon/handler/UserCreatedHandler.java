@@ -1,4 +1,4 @@
-package com.akkafun.coupon.event;
+package com.akkafun.coupon.handler;
 
 import com.akkafun.common.event.handler.NotifyEventHandler;
 import com.akkafun.common.spring.ApplicationContextHolder;
@@ -10,14 +10,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by liubin on 2016/4/14.
  */
-public class EventHandler implements NotifyEventHandler<UserCreated> {
+public class UserCreatedHandler implements NotifyEventHandler<UserCreated> {
 
-    protected Logger logger = LoggerFactory.getLogger(EventHandler.class);
+    protected Logger logger = LoggerFactory.getLogger(UserCreatedHandler.class);
 
-    CouponService couponService = ApplicationContextHolder.context.getBean(CouponService.class);
 
     @Override
     public void notify(UserCreated event) {
+        CouponService couponService = ApplicationContextHolder.context.getBean(CouponService.class);
         couponService.initCoupon(event.getUserId());
     }
 }

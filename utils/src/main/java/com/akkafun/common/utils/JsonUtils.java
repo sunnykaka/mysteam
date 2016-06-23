@@ -40,7 +40,7 @@ public class JsonUtils {
 
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
 
-        objectMapper.registerModule(new Hibernate4Module().enable(Hibernate4Module.Feature.FORCE_LAZY_LOADING));
+//        objectMapper.registerModule(new Hibernate4Module().enable(Hibernate4Module.Feature.FORCE_LAZY_LOADING));
         objectMapper.registerModule(new JavaTimeModule());
 
         return objectMapper;

@@ -2,6 +2,7 @@ package com.akkafun.common.event.service;
 
 import com.akkafun.base.event.constants.FailureInfo;
 import com.akkafun.base.event.domain.AskEvent;
+import com.akkafun.common.utils.JsonUtils;
 import com.akkafun.common.event.AskEventCallback;
 import com.akkafun.common.event.AskParameter;
 import com.akkafun.common.event.EventRegistry;
@@ -15,7 +16,6 @@ import com.akkafun.common.event.domain.AskRequestEventPublish;
 import com.akkafun.common.event.domain.EventWatch;
 import com.akkafun.common.event.domain.EventWatchProcess;
 import com.akkafun.common.exception.EventException;
-import com.akkafun.common.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,9 +100,7 @@ public class EventWatchService {
             String callbackClassName = eventWatch.getCallbackClass();
             String extraParams = eventWatch.getExtraParams();
             List<Long> askEventIds = eventWatch.getAskEventIds();
-            List<AskRequestEventPublish> askEvents = askEventIds.stream()
-                    .map(eventPublishService::getAskRequestEventByEventId)
-                    .collect(Collectors.toList());
+            List<AskRequestEventPublish> askEvents = eventPublishService.findAskRequestEventByEventId(askEventIds);
 
             if(askEventIds.size() != 1) {
                 throw new EventException("EventWatch united为true, 但是askEventIds的size不为1, watchId: " + watchId);
@@ -170,9 +168,7 @@ public class EventWatchService {
         String callbackClassName = eventWatch.getCallbackClass();
         String extraParams = eventWatch.getExtraParams();
         List<Long> askEventIds = eventWatch.getAskEventIds();
-        List<AskRequestEventPublish> askEvents = askEventIds.stream()
-                .map(eventPublishService::getAskRequestEventByEventId)
-                .collect(Collectors.toList());
+        List<AskRequestEventPublish> askEvents = eventPublishService.findAskRequestEventByEventId(askEventIds);
 
         if(askEvents.stream().allMatch(ep -> ep.getAskEventStatus().equals(AskEventStatus.SUCCESS))) {
             //所有askEvents都为Success, 触发成功逻辑

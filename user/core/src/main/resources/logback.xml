@@ -32,6 +32,7 @@ See here for more details: http://gordondickens.com/wordpress/2013/03/27/sawing-
     <!-- Specify logging levels -->
     <logger name="org.springframework" level="info"/>
  	<logger name="org.hibernate" level="info"/>
+    <logger name="con.akkafun" level="debug"/>
 
     <!--<logger name="org.springframework.transaction" level="DEBUG" />-->
     <!--<logger name="org.springframework.jdbc.datasource" level="DEBUG" />-->

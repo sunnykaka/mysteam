@@ -239,7 +239,7 @@ public class EventBus {
             taskExecutor.execute(() -> {
                 EventBus eventBus = ApplicationContextHolder.context.getBean(EventBus.class);
                 try {
-                    //TODO 测试在这抛异常了是不是事务会回滚
+                    //handleEventProcess方法内报异常只回滚内部事务
                     eventBus.handleEventProcess(eventProcessId);
                 } catch (EventException e) {
                     logger.error(e.getMessage());
@@ -458,6 +458,7 @@ public class EventBus {
         return eventProcess;
     }
 
+    //不在这里加事务注解, 因为想让这个方法内对service的调用都是独立事务.
     public void handleUnprocessedEventWatchProcess() {
         List<EventWatchProcess> eventWatchProcessList = eventWatchService.findUnprocessedEventWatchProcess();
         logger.info("待处理eventWatchProcess数量: " + eventWatchProcessList.size());

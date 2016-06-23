@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
  * Created by liubin on 2016/5/30.
  */
 @EnableDiscoveryClient
-public class ServiceClientApplication {
+public class ServiceClientConfiguration {
 
     @Bean(destroyMethod = "shutdown")
     @org.springframework.cloud.context.config.annotation.RefreshScope

@@ -42,11 +42,7 @@ public class CouponController {
 
         List<Coupon> coupons = couponService.findCouponsById(idList);
 
-        Map<Long, CouponDto> couponDtoMap = coupons.stream()
-                .map(this::convertCouponDto)
-                .collect(Collectors.toMap(CouponDto::getId, Function.identity()));
-
-        return idList.stream().map(couponDtoMap::get).collect(Collectors.toList());
+        return coupons.stream().map(this::convertCouponDto).collect(Collectors.toList());
 
     }
 

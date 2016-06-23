@@ -1,8 +1,9 @@
 package com.akkafun.user.test;
 
 import com.akkafun.base.event.constants.EventType;
+import com.akkafun.common.event.config.EventConfiguration;
 import com.akkafun.common.event.service.EventActivator;
-import com.akkafun.common.spring.BaseApplication;
+import com.akkafun.common.spring.BaseConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -11,7 +12,7 @@ import org.springframework.context.annotation.Import;
  * Created by liubin on 2016/3/28.
  */
 @SpringBootApplication
-@Import(BaseApplication.class)
+@Import({BaseConfiguration.class, EventConfiguration.class})
 public class TestUserApplication {
 
 

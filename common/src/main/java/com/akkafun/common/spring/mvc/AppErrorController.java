@@ -4,11 +4,9 @@ import com.akkafun.base.api.CommonErrorCode;
 import com.akkafun.base.api.Error;
 import com.akkafun.common.utils.JsonUtils;
 import org.springframework.boot.autoconfigure.web.AbstractErrorController;
-import org.springframework.boot.autoconfigure.web.BasicErrorController;
 import org.springframework.boot.autoconfigure.web.ErrorAttributes;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
@@ -19,7 +17,6 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
 
 /**
  * Created by liubin on 2016/5/3.

@@ -55,8 +55,7 @@ public class UserServiceTest extends UserBaseTest {
         Optional<User> userOp = userService.getById(user.getId());
         assertThat(userOp.isPresent(), is(true));
 
-        //发送事件
-        eventBus.sendUnpublishedEvent();
+//        sendEvent();
 
         //重复用户名不能注册
         try {
