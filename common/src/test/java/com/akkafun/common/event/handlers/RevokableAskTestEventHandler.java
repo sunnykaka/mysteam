@@ -1,5 +1,6 @@
 package com.akkafun.common.event.handlers;
 
+import com.akkafun.base.api.BooleanWrapper;
 import com.akkafun.base.event.constants.FailureInfo;
 import com.akkafun.common.event.domain.AskTestEvent;
 import com.akkafun.common.event.domain.RevokableAskTestEvent;
@@ -26,8 +27,8 @@ public class RevokableAskTestEventHandler implements RevokableAskEventHandler<Re
     }
 
     @Override
-    public boolean processRequest(RevokableAskTestEvent event) {
+    public BooleanWrapper processRequest(RevokableAskTestEvent event) {
         events.add(event);
-        return event.getName().equals(SUCCESS_EVENT_NAME);
+        return new BooleanWrapper(event.getName().equals(SUCCESS_EVENT_NAME));
     }
 }

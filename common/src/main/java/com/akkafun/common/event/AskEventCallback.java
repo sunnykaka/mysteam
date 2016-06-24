@@ -186,7 +186,11 @@ public class AskEventCallback {
         } catch (IllegalAccessException | InstantiationException e) {
             throw new EventException(e);
         } catch (InvocationTargetException e) {
-            throw new EventException(e.getTargetException());
+            if(e.getTargetException() instanceof EventException) {
+                throw (EventException)e.getTargetException();
+            } else {
+                throw new EventException(e.getTargetException());
+            }
         }
     }
 

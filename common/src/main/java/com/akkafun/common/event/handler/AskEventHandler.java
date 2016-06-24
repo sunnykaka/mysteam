@@ -1,5 +1,6 @@
 package com.akkafun.common.event.handler;
 
+import com.akkafun.base.api.BooleanWrapper;
 import com.akkafun.base.event.domain.AskEvent;
 
 /**
@@ -7,6 +8,6 @@ import com.akkafun.base.event.domain.AskEvent;
  */
 public interface AskEventHandler<E extends AskEvent> {
 
-    boolean processRequest(E event);
+    BooleanWrapper processRequest(E event);
 
 }

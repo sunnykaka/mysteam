@@ -15,17 +15,17 @@ public class EventScheduler{
         this.eventBus = eventBus;
     }
 
-    @Scheduled(fixedRate = 1000L)
+    @Scheduled(fixedRate = 300L)
     public void sendUnpublishedEvent() {
         eventBus.sendUnpublishedEvent();
     }
 
-    @Scheduled(fixedRate = 1000L)
+    @Scheduled(fixedRate = 300L)
     public void searchAndHandleUnprocessedEvent() {
         eventBus.searchAndHandleUnprocessedEvent();
     }
 
-    @Scheduled(fixedRate = 1000L)
+    @Scheduled(fixedRate = 300L)
     public void handleUnprocessedEventWatchProcess() {
         eventBus.handleUnprocessedEventWatchProcess();
     }

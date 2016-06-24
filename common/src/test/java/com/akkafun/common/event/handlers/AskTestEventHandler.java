@@ -1,5 +1,6 @@
 package com.akkafun.common.event.handlers;
 
+import com.akkafun.base.api.BooleanWrapper;
 import com.akkafun.common.event.domain.AskTestEvent;
 import com.akkafun.common.event.domain.NotifyFirstTestEvent;
 import com.akkafun.common.event.handler.AskEventHandler;
@@ -18,9 +19,9 @@ public class AskTestEventHandler implements AskEventHandler<AskTestEvent> {
     public static final List<AskTestEvent> events = new CopyOnWriteArrayList<>();
 
     @Override
-    public boolean processRequest(AskTestEvent event) {
+    public BooleanWrapper processRequest(AskTestEvent event) {
         events.add(event);
-        return event.getName().equals(SUCCESS_EVENT_NAME);
+        return new BooleanWrapper(event.getName().equals(SUCCESS_EVENT_NAME));
     }
 
 }

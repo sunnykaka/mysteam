@@ -1,17 +1,20 @@
 package com.akkafun.order.service;
 
 import com.akkafun.account.api.AccountUrl;
+import com.akkafun.account.api.events.AskReduceBalance;
 import com.akkafun.base.api.BooleanWrapper;
 import com.akkafun.base.api.CommonErrorCode;
 import com.akkafun.base.exception.AppBusinessException;
+import com.akkafun.common.event.AskParameterBuilder;
 import com.akkafun.common.event.service.EventBus;
 import com.akkafun.coupon.api.CouponUrl;
 import com.akkafun.coupon.api.constants.CouponState;
 import com.akkafun.coupon.api.dtos.CouponDto;
+import com.akkafun.coupon.api.events.AskUseCoupon;
 import com.akkafun.order.api.constants.OrderStatus;
 import com.akkafun.order.api.dtos.PlaceOrderDto;
 import com.akkafun.order.api.dtos.PlaceOrderItemDto;
-import com.akkafun.order.api.events.OrderCreatePending;
+import com.akkafun.order.callback.OrderCreateCallback;
 import com.akkafun.order.dao.OrderCouponRepository;
 import com.akkafun.order.dao.OrderItemRepository;
 import com.akkafun.order.dao.OrderRepository;
@@ -24,20 +27,15 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by liubin on 2016/4/29.
@@ -62,6 +60,18 @@ public class OrderService {
     @Autowired
     RestTemplate restTemplate;
 
+
+    @Transactional(readOnly = true)
+    public Order get(Long orderId) {
+        Order order = null;
+        if(orderId != null) {
+            order = orderRepository.findOne(orderId);
+        }
+        if(order == null) {
+            throw new AppBusinessException(CommonErrorCode.NOT_FOUND, "根据id找不到订单, id: " + orderId);
+        }
+        return order;
+    }
 
     /**
      * 下订单
@@ -138,9 +148,22 @@ public class OrderService {
             orderCouponRepository.save(orderCoupon);
         });
 
-        //发布事件
-        eventBus.publish(new OrderCreatePending(order.getId(), order.getOrderNo(), order.getTotalAmount(),
-                order.getPayAmount(), order.getUserId()));
+        AskReduceBalance askReduceBalance = new AskReduceBalance(placeOrderDto.getUserId(), order.getPayAmount());
+        AskParameterBuilder builder;
+        if(orderCouponList.isEmpty()) {
+            builder = AskParameterBuilder.ask(askReduceBalance);
+
+        } else {
+            List<Long> couponIds = orderCouponList.stream().map(OrderCoupon::getCouponId).collect(Collectors.toList());
+            AskUseCoupon askUseCoupon = new AskUseCoupon(couponIds, placeOrderDto.getUserId(), order.getId());
+            builder = AskParameterBuilder.askUnited(askReduceBalance, askUseCoupon);
+        }
+
+        eventBus.ask(
+                builder.callbackClass(OrderCreateCallback.class)
+                        .addParam("orderId", String.valueOf(order.getId()))
+                        .build()
+        );
 
         return order;
     }
@@ -214,14 +237,38 @@ public class OrderService {
 
     private boolean isBalanceEnough(Long userId, Long amount) {
         URI uri = UriComponentsBuilder
-                .fromHttpUrl(AccountUrl.buildUrl(AccountUrl.CHECK_ENOUGH_BALANCE_URL))
+                .fromHttpUrl(AccountUrl.buildUrl(AccountUrl.CHECK_ENOUGH_BALANCE))
                 .queryParam("userId", userId)
                 .queryParam("balance", amount)
                 .build().encode().toUri();
 
         BooleanWrapper booleanWrapper = restTemplate.getForObject(uri, BooleanWrapper.class);
 
-        return booleanWrapper.isResult();
+        return booleanWrapper.isSuccess();
+    }
+
+    @Transactional
+    public void markCreateSuccess(Long orderId) {
+        Order order = checkOrderBeforeMarkSuccessOrFail(orderId);
+        order.setStatus(OrderStatus.CREATED);
+
+        orderRepository.save(order);
+    }
+
+    @Transactional
+    public void markCreateFail(Long orderId) {
+        Order order = checkOrderBeforeMarkSuccessOrFail(orderId);
+        order.setStatus(OrderStatus.CREATE_FAILED);
+
+        orderRepository.save(order);
+    }
+
+    private Order checkOrderBeforeMarkSuccessOrFail(Long orderId) {
+        Order order = get(orderId);
+        if(!Objects.equals(order.getStatus(), OrderStatus.CREATE_PENDING)) {
+            throw new AppBusinessException("订单状态不为CREATE_PENDING, id: " + orderId);
+        }
+        return order;
     }
 
 }

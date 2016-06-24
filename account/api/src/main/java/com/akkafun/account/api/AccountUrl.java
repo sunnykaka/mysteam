@@ -9,7 +9,9 @@ public interface AccountUrl {
 
     String SERVICE_HOSTNAME = "http://ACCOUNT";
 
-    String CHECK_ENOUGH_BALANCE_URL = "/accounts/enough";
+    String CHECK_ENOUGH_BALANCE = "/accounts/enough";
+
+    String ACCOUNT_BALANCE = "/accounts/balance";
 
     static String buildUrl(String url) {
         return SERVICE_HOSTNAME + url;

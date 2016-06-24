@@ -94,7 +94,7 @@ public class ZkCoordinateScheduledExecutor extends ScheduledThreadPoolExecutor {
             }
             //如果当前实例不是leader, 不执行任务
             if(zkSchedulerCoordinator.isLeader()) {
-                Stopwatch stopwatch = Stopwatch.createStarted();
+//                Stopwatch stopwatch = Stopwatch.createStarted();
                 try {
                     //执行任务
                     return target.call();
@@ -102,8 +102,8 @@ public class ZkCoordinateScheduledExecutor extends ScheduledThreadPoolExecutor {
                     logger.error(String.format("定时任务[%s]运行的时候发生错误: %s", name, e.getMessage()), e);
                     throw e;
                 } finally {
-                    stopwatch.stop();
-                    logger.info(String.format("定时任务[%s]运行结束, 耗时: %s", name, stopwatch.toString()));
+//                    stopwatch.stop();
+//                    logger.info(String.format("定时任务[%s]运行结束, 耗时: %s", name, stopwatch.toString()));
                 }
             }
             return null;

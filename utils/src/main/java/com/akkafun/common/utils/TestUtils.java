@@ -59,20 +59,4 @@ public interface TestUtils {
         return new HttpEntity<>(JsonUtils.object2Json(object), requestHeaders);
     }
 
-    /**
-     * 等待异步事件处理
-     */
-    static void waitForAsyncEventComplete() {
-        try {
-            Thread.sleep(WAIT_ASYNC_EVENT_TIME);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-
-
-
-
 }

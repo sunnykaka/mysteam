@@ -13,10 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -55,6 +53,7 @@ public class CouponService {
      * @return
      *
      */
+    @Transactional(readOnly = true)
     public List<Coupon> findCouponsById(List<Long> idList) {
         if(idList == null || idList.isEmpty()) return new ArrayList<>();
         CustomPreconditions.assertNotGreaterThanMaxQueryBatchSize(idList.size());
@@ -67,10 +66,58 @@ public class CouponService {
 
     }
 
-
+    @Transactional(readOnly = true)
     public List<Coupon> findCouponsByUser(Long userId) {
         if(userId == null) return new ArrayList<>();
         return couponRepository.findByUserId(userId);
 
     }
+
+    @Transactional
+    public void useCoupon(List<Long> couponIds, Long userId, Long orderId) {
+        List<Coupon> coupons = Lists.newArrayList(couponRepository.findAll(couponIds));
+        if(coupons.isEmpty()) {
+            throw new AppBusinessException(CommonErrorCode.NOT_FOUND, "根据couponIds找到不到coupon, couponIds: " + couponIds);
+        }
+        coupons.forEach(coupon -> {
+            if(!Objects.equals(coupon.getUserId(), userId)) {
+                throw new AppBusinessException(CommonErrorCode.UNAUTHORIZED);
+            }
+            if(!coupon.getState().equals(CouponState.VALID)) {
+                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST, "优惠券已过期");
+            }
+        });
+        coupons.forEach(coupon -> {
+            coupon.setOrderId(orderId);
+            coupon.setState(CouponState.USED);
+            coupon.setUseTime(LocalDateTime.now());
+            couponRepository.save(coupon);
+        });
+
+
+    }
+
+    @Transactional
+    public void revokeUse(List<Long> couponIds, Long userId, Long orderId) {
+        List<Coupon> coupons = Lists.newArrayList(couponRepository.findAll(couponIds));
+        if(coupons.isEmpty()) {
+            throw new AppBusinessException(CommonErrorCode.NOT_FOUND, "根据couponIds找到不到coupon, couponIds: " + couponIds);
+        }
+        coupons.forEach(coupon -> {
+            if(!Objects.equals(coupon.getUserId(), userId) || !Objects.equals(coupon.getOrderId(), orderId)) {
+                throw new AppBusinessException("userId或者orderId与coupon的属性不相等, couponId:" + coupon.getId());
+            }
+            if(!coupon.getState().equals(CouponState.USED)) {
+                throw new AppBusinessException("优惠券状态不为已使用, couponId:" + coupon.getId());
+            }
+        });
+        coupons.forEach(coupon -> {
+            coupon.setOrderId(null);
+            coupon.setState(CouponState.VALID);
+            coupon.setUseTime(null);
+            couponRepository.save(coupon);
+        });
+    }
+
+
 }

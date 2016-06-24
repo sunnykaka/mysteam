@@ -1,5 +1,6 @@
 package com.akkafun.integrationtest.order;
 
+import com.akkafun.account.api.AccountUrl;
 import com.akkafun.coupon.api.CouponUrl;
 import com.akkafun.coupon.api.constants.CouponState;
 import com.akkafun.coupon.api.dtos.CouponDto;
@@ -18,11 +19,9 @@ import com.akkafun.user.api.dtos.UserDto;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -32,7 +31,6 @@ import java.util.List;
 import java.util.Random;
 
 import static com.akkafun.common.utils.TestUtils.createJsonEntity;
-import static com.akkafun.common.utils.TestUtils.waitForAsyncEventComplete;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -46,7 +44,7 @@ public class OrderTest extends BaseIntegrationTest {
     private RestTemplate restTemplate;
 
     @Test
-    public void test() throws InterruptedException {
+    public void testCreateOrderSuccess() throws InterruptedException {
 
         //注册
         String username = RandomStringUtils.randomAlphanumeric(8);
@@ -54,7 +52,7 @@ public class OrderTest extends BaseIntegrationTest {
         UserDto userDto = registerUser(username, password);
 
         //等待异步事件处理
-        waitForAsyncEventComplete();
+        waitForEventProcessed();
 
         //校验优惠券发放成功
         List<CouponDto> userCouponDtoList = findCouponByUser(userDto.getId());
@@ -65,6 +63,9 @@ public class OrderTest extends BaseIntegrationTest {
         List<ProductDto> products = findAllProducts();
         assertThat(products.size(), greaterThan(1));
 
+        //TODO 校验账户创建成功
+
+
         //下订单
         int index = new Random().nextInt(products.size());
         ProductDto product1 = products.get(index);
@@ -73,6 +74,7 @@ public class OrderTest extends BaseIntegrationTest {
         int quantity2 = 2;
 
         PlaceOrderDto placeOrderDto = new PlaceOrderDto();
+
         placeOrderDto.setUserId(userDto.getId());
         PlaceOrderItemDto placeOrderItemDto1 = new PlaceOrderItemDto();
         placeOrderItemDto1.setProductId(product1.getId());
@@ -85,8 +87,20 @@ public class OrderTest extends BaseIntegrationTest {
         //下订单不带优惠券
         OrderDto orderDto = placeOrder(placeOrderDto);
         //校验订单初步创建成功
-        assertThatPlaceOrderSuccess(placeOrderDto, orderDto);
+        assertOrderCreatePending(placeOrderDto, orderDto);
 
+        //等待ask事件被account service和coupon service接收并处理, 返回结果被order service接收并处理
+        //假设定时器轮询间隔为300ms, queue延迟为0
+        //理论最大处理时间 = ask发送事件 + queue延迟 + as接收事件 + as处理事件 + as发送事件 + queue延迟
+        // + os接收事件 + os处理事件 = 300 * 6 = 1800ms
+        waitForEventProcessed();
+
+        OrderDto orderDtoFromGet = getOrder(orderDto.getId());
+        assertThat(orderDtoFromGet, notNullValue());
+        assertThat(orderDtoFromGet.getOrderNo(), is(orderDto.getOrderNo()));
+        assertThat(orderDtoFromGet.getStatus(), is(OrderStatus.CREATED));
+
+        //TODO 校验account余额被正确扣减
 
     }
 
@@ -95,6 +109,24 @@ public class OrderTest extends BaseIntegrationTest {
 
         return restTemplate.postForObject(uri, createJsonEntity(placeOrderDto), OrderDto.class);
     }
+
+    public OrderDto getOrder(Long orderId) {
+        String uri = OrderUrl.buildUrl(OrderUrl.ORDER_INFO);
+
+        return restTemplate.getForObject(uri, OrderDto.class, orderId);
+    }
+
+    public Long getBalanceByUserId(Long userId) {
+
+        URI uri = UriComponentsBuilder
+                .fromHttpUrl(AccountUrl.buildUrl(AccountUrl.ACCOUNT_BALANCE))
+                .queryParam("userId", userId)
+                .build().encode().toUri();
+
+        return restTemplate.getForObject(uri, Long.class);
+    }
+
+
 
     public UserDto registerUser(String username, String password) {
         URI uri = UriComponentsBuilder
@@ -138,7 +170,7 @@ public class OrderTest extends BaseIntegrationTest {
 
     }
 
-    private void assertThatPlaceOrderSuccess(PlaceOrderDto placeOrderDto, OrderDto orderDto) {
+    private void assertOrderCreatePending(PlaceOrderDto placeOrderDto, OrderDto orderDto) {
         assertThat(orderDto, notNullValue());
         assertThat(orderDto.getId(), notNullValue());
         assertThat(orderDto.getStatus(), is(OrderStatus.CREATE_PENDING));

@@ -5,14 +5,22 @@ package com.akkafun.base.event.constants;
  */
 public enum EventType {
 
-    USER_CREATED,
-
-    ORDER_CREATE_PENDING,
-
     ASK_RESPONSE,
 
     REVOKE_ASK,
 
+
+    //user service
+    USER_CREATED,
+
+    //order service
+    ORDER_CREATE_PENDING,
+
+    //account service
+    ASK_REDUCE_BALANCE,
+
+    //coupon service
+    ASK_USE_COUPON,
 
 
     NOTIFY_FIRST_TEST_EVENT,

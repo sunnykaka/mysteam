@@ -8,14 +8,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class BooleanWrapper {
 
-    private boolean result;
+    private boolean success;
 
-    @JsonCreator
-    public BooleanWrapper(@JsonProperty("result") boolean result) {
-        this.result = result;
+    private String message;
+
+    public BooleanWrapper(boolean success) {
+        this(success, null);
     }
 
-    public boolean isResult() {
-        return result;
+    @JsonCreator
+    public BooleanWrapper(
+            @JsonProperty("success") boolean success,
+            @JsonProperty("message") String message) {
+        this.success = success;
+        this.message = message;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

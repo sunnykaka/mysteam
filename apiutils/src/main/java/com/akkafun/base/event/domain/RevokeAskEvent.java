@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Created by liubin on 2016/6/3.
  */
-public class RevokeAskEvent extends BaseEvent {
+public final class RevokeAskEvent extends BaseEvent {
 
     public static final EventType EVENT_TYPE = EventType.REVOKE_ASK;
 

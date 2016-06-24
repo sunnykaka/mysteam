@@ -1,5 +1,6 @@
 package com.akkafun.common.event.service;
 
+import com.akkafun.base.api.BooleanWrapper;
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.constants.FailureInfo;
 import com.akkafun.base.event.constants.FailureReason;
@@ -188,7 +189,7 @@ public class EventBus {
     public void sendUnpublishedEvent() {
 
         List<EventPublish> events = eventPublishService.findUnpublishedEvent();
-        logger.info("待发布事件数量: " + events.size());
+//        logger.info("待发布事件数量: " + events.size());
 
         for(EventPublish event : events) {
             try {
@@ -232,7 +233,7 @@ public class EventBus {
     public void searchAndHandleUnprocessedEvent() {
 
         List<EventProcess> events = eventProcessRepository.findByStatus(ProcessStatus.NEW);
-        logger.info("待处理事件数量: " + events.size());
+//        logger.info("待处理事件数量: " + events.size());
 
         for(EventProcess event : events) {
             final Long eventProcessId = event.getId();
@@ -396,11 +397,11 @@ public class EventBus {
      * @param success
      * @return
      */
-    private AskResponseEventPublish createAskResponse(AskEvent askEvent, boolean success) {
-        AskResponseEvent askResponseEvent = new AskResponseEvent(success, askEvent.getId());
+    private AskResponseEventPublish createAskResponse(AskEvent askEvent, BooleanWrapper result) {
+        AskResponseEvent askResponseEvent = new AskResponseEvent(result.isSuccess(), result.getMessage(), askEvent.getId());
         fillEventId(askResponseEvent);
         AskResponseEventPublish eventPublish = new AskResponseEventPublish();
-        eventPublish.setSuccess(success);
+        eventPublish.setSuccess(result.isSuccess());
         eventPublish.setAskEventId(askEvent.getId());
         eventPublish.setEventType(AskResponseEvent.EVENT_TYPE);
         eventPublish.setEventId(askResponseEvent.getId());
@@ -461,7 +462,7 @@ public class EventBus {
     //不在这里加事务注解, 因为想让这个方法内对service的调用都是独立事务.
     public void handleUnprocessedEventWatchProcess() {
         List<EventWatchProcess> eventWatchProcessList = eventWatchService.findUnprocessedEventWatchProcess();
-        logger.info("待处理eventWatchProcess数量: " + eventWatchProcessList.size());
+//        logger.info("待处理eventWatchProcess数量: " + eventWatchProcessList.size());
         Set<Long> successIdSet = new HashSet<>();
         Set<Long> watchIdSet = new HashSet<>();
         for(EventWatchProcess eventWatchProcess : eventWatchProcessList) {
