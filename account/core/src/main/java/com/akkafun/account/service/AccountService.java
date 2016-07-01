@@ -24,7 +24,7 @@ public class AccountService {
     @Transactional
     public Account initAccount(Long userId) {
         Account account = new Account();
-        account.setBalance(1000000L);
+        account.setBalance(0L);
         account.setUserId(userId);
         accountRepository.save(account);
 
@@ -38,7 +38,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void reduceBalance(Long userId, Long balance) {
+    public Long reduceBalance(Long userId, Long balance) {
         Account account = accountRepository.findByUserId(userId);
         if(account == null) {
             throw new AppBusinessException(CommonErrorCode.NOT_FOUND, "根据userId找不到account, userId: " + userId);
@@ -46,18 +46,24 @@ public class AccountService {
         if(account.getBalance() - balance < 0L) {
             throw new AppBusinessException(CommonErrorCode.BAD_REQUEST, "账户余额不足");
         }
-        account.setBalance(account.getBalance() - balance);
-        accountRepository.save(account);
+        if(!balance.equals(0L)) {
+            account.setBalance(account.getBalance() - balance);
+            accountRepository.save(account);
+        }
+        return account.getBalance();
     }
 
     @Transactional
-    public void addBalance(Long userId, Long balance) {
+    public Long addBalance(Long userId, Long balance) {
         Account account = accountRepository.findByUserId(userId);
         if(account == null) {
             throw new AppBusinessException(CommonErrorCode.NOT_FOUND, "根据userId找不到account, userId: " + userId);
         }
-        account.setBalance(account.getBalance() + balance);
-        accountRepository.save(account);
+        if(!balance.equals(0L)) {
+            account.setBalance(account.getBalance() + balance);
+            accountRepository.save(account);
+        }
+        return account.getBalance();
     }
 
 

@@ -1,5 +1,6 @@
 package com.akkafun.common.event;
 
+import com.akkafun.base.Constants;
 import com.akkafun.base.event.domain.AskEvent;
 import com.akkafun.common.exception.EventException;
 import com.google.common.base.Preconditions;
@@ -7,10 +8,9 @@ import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
+import java.util.*;
 
 /**
  * Created by liubin on 2016/6/6.
@@ -27,7 +27,11 @@ public class AskParameterBuilder {
 
     private Map<String, String> extraParams = new HashMap<>();
 
+    private Optional<LocalDateTime> timeoutTime = Optional.empty();
+
     private AskParameterBuilder(boolean united, List<? extends AskEvent> askEvents) {
+        this.timeoutTime = Optional.of(LocalDateTime.now()
+                .plus(Constants.ASK_TIMEOUT, ChronoField.MILLI_OF_DAY.getBaseUnit()));
         this.united = united;
         this.askEvents = askEvents;
     }
@@ -52,6 +56,26 @@ public class AskParameterBuilder {
         }
         return new AskParameterBuilder(true, askEvents);
     }
+
+    public static AskParameterBuilder askOptional(Optional<? extends AskEvent>... optionals) {
+        Preconditions.checkNotNull(optionals);
+        Preconditions.checkArgument(optionals.length > 0);
+        List<AskEvent> askEvents = new ArrayList<>();
+        for(Optional<? extends AskEvent> optional : optionals) {
+            optional.ifPresent(askEvents::add);
+        }
+        Preconditions.checkArgument(!askEvents.isEmpty());
+
+        if(askEvents.size() == 1) {
+            return ask(askEvents.get(0));
+        } else if(askEvents.size() == 2) {
+            return askUnited(askEvents.get(0), askEvents.get(1));
+        } else {
+            List<AskEvent> events = askEvents.subList(2, askEvents.size());
+            return askUnited(askEvents.get(0), askEvents.get(1), events.toArray(new AskEvent[events.size()]));
+        }
+    }
+
 
     /**
      *
@@ -110,6 +134,18 @@ public class AskParameterBuilder {
         return this;
     }
 
+    public AskParameterBuilder ttl(long ttl) {
+        if(ttl > 0L) {
+            LocalDateTime timeoutTime = LocalDateTime.now()
+                    .plus(ttl, ChronoField.MILLI_OF_DAY.getBaseUnit());
+            this.timeoutTime = Optional.of(timeoutTime);
+        } else {
+            this.timeoutTime = Optional.empty();
+        }
+        return this;
+    }
+
+
 
     public AskParameter build() {
 
@@ -118,7 +154,7 @@ public class AskParameterBuilder {
         AskEventCallback askEventCallback = EventRegistry.getAskEventCallback(callbackClass.getName());
         askEventCallback.checkMethodParameter(united, askEvents);
 
-        return new AskParameter(united, askEvents, callbackClass, extraParams);
+        return new AskParameter(united, askEvents, callbackClass, extraParams, timeoutTime);
     }
 
 }

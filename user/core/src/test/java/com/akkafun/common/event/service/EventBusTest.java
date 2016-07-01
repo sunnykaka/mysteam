@@ -81,6 +81,10 @@ public class EventBusTest extends UserBaseTest {
     @Autowired
     EventActivator eventActivator;
 
+    @Autowired
+    protected EventWatchService eventWatchService;
+
+
 
     @Before
     public void init() throws Exception {
@@ -314,6 +318,52 @@ public class EventBusTest extends UserBaseTest {
         }
 
     }
+
+
+    /**
+     * 测试askEvent超时的处理
+     */
+    @Test
+    public void sendAskEventThenTimeout() throws InterruptedException {
+
+        long ttl = 5000L;
+
+        AskTestEvent askTestEvent = new AskTestEvent("AskTestEvent");
+        RevokableAskTestEvent revokableAskTestEvent = new RevokableAskTestEvent("RevokableAskTestEvent");
+        List<AskEvent> askEvents = Lists.newArrayList(askTestEvent, revokableAskTestEvent);
+        AskParameter askParameter = AskParameterBuilder.askUnited(askTestEvent, revokableAskTestEvent)
+                .callbackClass(UnitedTestEventCallback.class).ttl(ttl).build();
+
+        List<AskRequestEventPublish> askRequestEventPublishList = eventBus.ask(askParameter);
+        askRequestEventPublishList.stream().forEach(askRequestEventPublish -> {
+            askRequestEventPublish.setStatus(ProcessStatus.IGNORE);
+            askRequestEventPublishRepository.save(askRequestEventPublish);
+        });
+
+        Thread.sleep(ttl + 1000L);
+
+        List<EventWatch> timeoutEventWatchList = eventWatchService.findTimeoutEventWatch(LocalDateTime.now());
+        assertThat(timeoutEventWatchList.size(), is(1));
+
+        eventBus.handleTimeoutEventWatch();
+        handleEvent();
+
+        timeoutEventWatchList = eventWatchService.findTimeoutEventWatch(LocalDateTime.now());
+        assertThat(timeoutEventWatchList.size(), is(0));
+
+        //判断对应的回调函数已经被调用
+        List<CallbackParam> callbackParams = UnitedTestEventCallback.failureParams;
+        assertThat(callbackParams.size(), is(1));
+        CallbackParam callbackParam = callbackParams.get(0);
+        assertThat(callbackParam.getAskEvents().size(), is(askEvents.size()));
+        FailureInfo failureInfo = callbackParam.getFailureInfo();
+        assertThat(failureInfo, notNullValue());
+        assertThat(failureInfo.getReason(), is(FailureReason.TIMEOUT));
+        assertThat(failureInfo.getFailureTime(), notNullValue());
+
+    }
+
+
 
     private List<AskEvent> ask(boolean united, String name, Map<String, String> paramMap) {
         List<AskEvent> askEvents;

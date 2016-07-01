@@ -47,4 +47,13 @@ public class AskUseCoupon extends AskEvent implements Revokable {
     public Long getOrderId() {
         return orderId;
     }
+
+    @Override
+    public String toString() {
+        return "AskUseCoupon{" +
+                "couponIds=" + couponIds +
+                ", userId=" + userId +
+                ", orderId=" + orderId +
+                "} " + super.toString();
+    }
 }

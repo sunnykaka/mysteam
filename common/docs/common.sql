@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2016/6/21 16:50:41                           */
+/* Created on:     2016/7/1 15:51:46                            */
 /*==============================================================*/
 
 
@@ -36,7 +36,7 @@ create table event_process
 create table event_publish
 (
    id                   bigint unsigned not null auto_increment,
-   status               varchar(100) not null comment 'NEW, PUBLISHED, IGNORE',
+   status               varchar(100) not null comment 'NEW, PROCESSED, IGNORE',
    eventCategory        varchar(100) not null comment 'NOTIFY, ASK, REVOKE, ASKRESP',
    payload              varchar(1024) not null,
    eventId              bigint not null,
@@ -44,7 +44,6 @@ create table event_publish
    createTime           datetime not null,
    updateTime           datetime,
    optlock              int default 0,
-   timeoutTime          datetime,
    askEventStatus       varchar(100) comment 'PENDING, TIMEOUT, FAILED, SUCCESS, CANCELLED',
    watchId              bigint,
    success              boolean,
@@ -67,6 +66,7 @@ create table event_watch
    optlock              int default 0,
    callbackClass        varchar(128),
    united               boolean default false,
+   timeoutTime          datetime,
    primary key (id)
 );
 

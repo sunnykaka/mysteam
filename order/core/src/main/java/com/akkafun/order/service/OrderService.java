@@ -148,22 +148,27 @@ public class OrderService {
             orderCouponRepository.save(orderCoupon);
         });
 
-        AskReduceBalance askReduceBalance = new AskReduceBalance(placeOrderDto.getUserId(), order.getPayAmount());
-        AskParameterBuilder builder;
-        if(orderCouponList.isEmpty()) {
-            builder = AskParameterBuilder.ask(askReduceBalance);
+        //解决订单金额为0还发送请求的问题
+        Optional<AskReduceBalance> askReduceBalance = Optional.empty();
+        if(order.getPayAmount() > 0L) {
+            askReduceBalance = Optional.of(new AskReduceBalance(placeOrderDto.getUserId(), order.getPayAmount()));
+        }
+        Optional<AskUseCoupon> askUseCoupon = Optional.empty();
+        if(!orderCouponList.isEmpty()) {
+            List<Long> couponIds = orderCouponList.stream().map(OrderCoupon::getCouponId).collect(Collectors.toList());
+            askUseCoupon = Optional.of(new AskUseCoupon(couponIds, placeOrderDto.getUserId(), order.getId()));
+        }
+        if(!askReduceBalance.isPresent() && !askUseCoupon.isPresent()) {
+            markCreateSuccess(order.getId());
 
         } else {
-            List<Long> couponIds = orderCouponList.stream().map(OrderCoupon::getCouponId).collect(Collectors.toList());
-            AskUseCoupon askUseCoupon = new AskUseCoupon(couponIds, placeOrderDto.getUserId(), order.getId());
-            builder = AskParameterBuilder.askUnited(askReduceBalance, askUseCoupon);
+            eventBus.ask(
+                    AskParameterBuilder.askOptional(askReduceBalance, askUseCoupon)
+                            .callbackClass(OrderCreateCallback.class)
+                            .addParam("orderId", String.valueOf(order.getId()))
+                            .build()
+            );
         }
-
-        eventBus.ask(
-                builder.callbackClass(OrderCreateCallback.class)
-                        .addParam("orderId", String.valueOf(order.getId()))
-                        .build()
-        );
 
         return order;
     }
@@ -238,9 +243,8 @@ public class OrderService {
     private boolean isBalanceEnough(Long userId, Long amount) {
         URI uri = UriComponentsBuilder
                 .fromHttpUrl(AccountUrl.buildUrl(AccountUrl.CHECK_ENOUGH_BALANCE))
-                .queryParam("userId", userId)
                 .queryParam("balance", amount)
-                .build().encode().toUri();
+                .buildAndExpand(userId).encode().toUri();
 
         BooleanWrapper booleanWrapper = restTemplate.getForObject(uri, BooleanWrapper.class);
 

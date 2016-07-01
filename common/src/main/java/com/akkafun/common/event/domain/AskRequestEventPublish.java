@@ -13,22 +13,11 @@ import java.time.LocalDateTime;
 public class AskRequestEventPublish extends EventPublish {
 
     @Column
-    private LocalDateTime timeoutTime;
-
-    @Column
     @Enumerated(EnumType.STRING)
     private AskEventStatus askEventStatus;
 
     @Column
     private Long watchId;
-
-    public LocalDateTime getTimeoutTime() {
-        return timeoutTime;
-    }
-
-    public void setTimeoutTime(LocalDateTime timeoutTime) {
-        this.timeoutTime = timeoutTime;
-    }
 
     public AskEventStatus getAskEventStatus() {
         return askEventStatus;

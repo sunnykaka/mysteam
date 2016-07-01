@@ -19,31 +19,23 @@ public class AskReduceBalanceHandler implements RevokableAskEventHandler<AskRedu
 
     @Override
     public void processRevoke(AskReduceBalance originEvent, FailureInfo failureInfo) {
-        AccountService accountService = ApplicationContextHolder.context.getBean(AccountService.class);
-        try {
-            accountService.addBalance(originEvent.getUserId(), originEvent.getBalance());
-        } catch (Exception e) {
-            logger.error("", e);
-        }
+        logger.debug("AskReduceBalanceHandler processRevoke, receive AskReduceBalance: " + originEvent);
 
+        AccountService accountService = ApplicationContextHolder.context.getBean(AccountService.class);
+        accountService.addBalance(originEvent.getUserId(), originEvent.getBalance());
     }
 
     @Override
     public BooleanWrapper processRequest(AskReduceBalance event) {
+        logger.debug("AskReduceBalanceHandler processRequest, receive AskReduceBalance: " + event);
+
         if(event.getUserId() == null || event.getBalance() == null) {
             return new BooleanWrapper(false, "userId or balance is null");
         }
 
         AccountService accountService = ApplicationContextHolder.context.getBean(AccountService.class);
-        try {
-            accountService.reduceBalance(event.getUserId(), event.getBalance());
-            return new BooleanWrapper(true);
-        } catch (AppBusinessException e) {
-            return new BooleanWrapper(false, e.getMessage());
-        } catch (Exception e) {
-            logger.error("", e);
-            return new BooleanWrapper(false, e.getMessage());
-        }
+        accountService.reduceBalance(event.getUserId(), event.getBalance());
+        return new BooleanWrapper(true);
     }
 
 

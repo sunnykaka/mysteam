@@ -34,7 +34,9 @@ public class EventActivator {
         //TODO 验证receiveMessage是否是被spring顺序执行的
         byte[] bytes = (byte[]) payload;
         String message = new String(bytes, Charset.forName("UTF-8"));
-
+        if(logger.isDebugEnabled()) {
+            logger.debug("receive message from kafka: {}", message);
+        }
         try {
             eventBus.recordEvent(message);
         } catch (DataIntegrityViolationException e) {
@@ -49,6 +51,10 @@ public class EventActivator {
     }
 
     public boolean sendMessage(String message, String destination) {
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("send message to kafka topic: {}, message: {}", destination, message);
+        }
 
         MessageChannel messageChannel = binderAwareChannelResolver.resolveDestination(destination);
         byte[] payload = message.getBytes(Charset.forName("UTF-8"));

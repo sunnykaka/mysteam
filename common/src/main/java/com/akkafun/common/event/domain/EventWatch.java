@@ -4,6 +4,7 @@ import com.akkafun.common.domain.VersionEntity;
 import com.akkafun.common.event.constant.AskEventStatus;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,6 +35,9 @@ public class EventWatch extends VersionEntity {
 
     @Column
     private boolean united;
+
+    @Column
+    private LocalDateTime timeoutTime;
 
 
     public Long getId() {
@@ -85,5 +89,13 @@ public class EventWatch extends VersionEntity {
 
     public void setUnited(boolean united) {
         this.united = united;
+    }
+
+    public LocalDateTime getTimeoutTime() {
+        return timeoutTime;
+    }
+
+    public void setTimeoutTime(LocalDateTime timeoutTime) {
+        this.timeoutTime = timeoutTime;
     }
 }

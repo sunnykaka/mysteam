@@ -9,6 +9,8 @@ import com.akkafun.coupon.dao.CouponRepository;
 import com.akkafun.coupon.domain.Coupon;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,8 @@ import java.util.stream.StreamSupport;
  */
 @Service
 public class CouponService {
+
+    private static Logger logger = LoggerFactory.getLogger(CouponService.class);
 
     @Autowired
     CouponRepository couponRepository;

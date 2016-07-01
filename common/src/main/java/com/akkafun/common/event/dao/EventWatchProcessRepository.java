@@ -13,6 +13,4 @@ public interface EventWatchProcessRepository extends PagingAndSortingRepository<
         EventWatchProcessRepositoryCustom{
 
     List<EventWatchProcess> findByStatus(ProcessStatus status);
-
-
 }

@@ -2,8 +2,11 @@ package com.akkafun.common.spring.cloud.stream;
 
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.common.event.EventRegistry;
+import com.google.common.base.Stopwatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.bind.RelaxedDataBinder;
 import org.springframework.cloud.stream.binder.*;
@@ -15,6 +18,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -29,7 +33,7 @@ import java.util.stream.Collectors;
  */
 public class CustomChannelBindingService extends ChannelBindingService {
 
-    private final Log log = LogFactory.getLog(CustomChannelBindingService.class);
+    private static Logger log = LoggerFactory.getLogger(CustomChannelBindingService.class);
 
     private final CustomValidatorBean validator;
 
@@ -100,7 +104,20 @@ public class CustomChannelBindingService extends ChannelBindingService {
             producerProperties = extendedProducerProperties;
         }
         validate(producerProperties);
+
+        Stopwatch stopwatch = null;
+        if(log.isDebugEnabled()) {
+            stopwatch = Stopwatch.createStarted();
+        }
+
         Binding<MessageChannel> binding = binder.bindProducer(channelBindingTarget, outputChannel, producerProperties);
+
+        if(log.isDebugEnabled() && stopwatch != null) {
+            stopwatch.stop();
+            log.debug(String.format("bind kafka producer [%s] cost %d ms",
+                    outputChannelName, stopwatch.elapsed(TimeUnit.MILLISECONDS)));
+        }
+
         this.producerBindings.put(outputChannelName, binding);
         return binding;
     }

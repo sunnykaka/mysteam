@@ -1,8 +1,8 @@
 package com.akkafun.common.event.service;
 
 import com.akkafun.base.event.constants.FailureInfo;
+import com.akkafun.base.event.constants.FailureReason;
 import com.akkafun.base.event.domain.AskEvent;
-import com.akkafun.common.utils.JsonUtils;
 import com.akkafun.common.event.AskEventCallback;
 import com.akkafun.common.event.AskParameter;
 import com.akkafun.common.event.EventRegistry;
@@ -16,6 +16,7 @@ import com.akkafun.common.event.domain.AskRequestEventPublish;
 import com.akkafun.common.event.domain.EventWatch;
 import com.akkafun.common.event.domain.EventWatchProcess;
 import com.akkafun.common.exception.EventException;
+import com.akkafun.common.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +60,7 @@ public class EventWatchService {
     @Autowired
     EventBus eventBus;
 
+
     public static final int MAX_MESSAGE_COUNTS = 10000;
 
     private BlockingQueue<EventWatchProcess> queue = new LinkedBlockingQueue<>(MAX_MESSAGE_COUNTS);
@@ -76,6 +80,9 @@ public class EventWatchService {
         if(!askParameter.getExtraParams().isEmpty()) {
             String json = JsonUtils.object2Json(askParameter.getExtraParams());
             eventWatch.setExtraParams(json);
+        }
+        if(askParameter.getTimeoutTime().isPresent()) {
+            eventWatch.setTimeoutTime(askParameter.getTimeoutTime().get());
         }
         eventWatch.setUnited(askParameter.isUnited());
 
@@ -120,11 +127,7 @@ public class EventWatchService {
                 eventWatchProcess.setFailureInfo(JsonUtils.object2Json(failureInfo));
             }
             eventWatchProcessRepository.save(eventWatchProcess);
-            if(logger.isDebugEnabled()) {
-                logger.debug("add eventWatchProcess to queue, eventWatchProcess: " + eventWatchProcess);
-            }
             addToQueue(eventWatchProcess);
-
         }
 
     }
@@ -147,11 +150,13 @@ public class EventWatchService {
          如果为PENDING/SUCCESS, 设置状态为TIMEOUT/FAILED/CANCELLED, 然后判断该askEvent是否实现了Revokable接口, 如果实现了, 需要发送RevokeAskEvent事件进行撤销操作.
          */
 
+        logger.debug(String.format("process event watch process, id: %d",
+                eventWatchProcess.getId()));
 
         Long watchId = eventWatchProcess.getWatchId();
         EventWatch eventWatch = eventWatchRepository.findOne(watchId);
         if(eventWatch == null) {
-            throw new EventException("根据ID没有找到EventWatch, watchId: " + watchId);
+            return;
         }
         if(!eventWatch.getAskEventStatus().equals(AskEventStatus.PENDING)) {
             return;
@@ -170,6 +175,9 @@ public class EventWatchService {
         List<Long> askEventIds = eventWatch.getAskEventIds();
         List<AskRequestEventPublish> askEvents = eventPublishService.findAskRequestEventByEventId(askEventIds);
 
+        AskEventStatus failedStatus = null;
+        FailureInfo unitedFailedInfo = null;
+
         if(askEvents.stream().allMatch(ep -> ep.getAskEventStatus().equals(AskEventStatus.SUCCESS))) {
             //所有askEvents都为Success, 触发成功逻辑
             eventWatch.setAskEventStatus(AskEventStatus.SUCCESS);
@@ -178,9 +186,15 @@ public class EventWatchService {
             eventWatchRepository.save(eventWatch);
 
         } else if(askEvents.stream().allMatch(ep -> ep.getAskEventStatus().equals(AskEventStatus.PENDING))) {
-            //所有askEvents都为PENDING, 报错
-            throw new EventException(String.format("处理united watch事件的时候发现askEvent对应的状态都为PENDING, " +
-                    "程序有bug? watchId: %d, askEventIds: %s", watchId, askEventIds.toString()));
+
+            if(eventWatch.getTimeoutTime() != null && eventWatch.getTimeoutTime().isBefore(LocalDateTime.now())) {
+                failedStatus = AskEventStatus.TIMEOUT;
+                unitedFailedInfo = new FailureInfo(FailureReason.TIMEOUT, LocalDateTime.now());
+            } else {
+                //所有askEvents都为PENDING, 报错
+                throw new EventException(String.format("处理united watch事件的时候发现askEvent对应的状态都为PENDING, " +
+                        "程序有bug? watchId: %d, askEventIds: %s", watchId, askEventIds.toString()));
+            }
 
         } else {
             Optional<AskRequestEventPublish> failedEventPublish = askEvents.stream()
@@ -195,31 +209,36 @@ public class EventWatchService {
                     .findFirst();
             if(failedEventPublish.isPresent()) {
                 // 查询到第一个不为PENDING也不为SUCCESS状态的askEvent, 根据这个状态设置UnionEventWatch的状态
-                AskEventStatus failedStatus = failedEventPublish.get().getAskEventStatus();
-                eventWatch.setAskEventStatus(failedStatus);
-                FailureInfo unitedFailedInfo = new FailureInfo(EventUtils.fromAskEventStatus(failedStatus),
+                failedStatus = failedEventPublish.get().getAskEventStatus();
+                unitedFailedInfo = new FailureInfo(EventUtils.fromAskEventStatus(failedStatus),
                         failedEventPublish.get().getUpdateTime());
-
-                eventWatchRepository.save(eventWatch);
-
-                //修改状态为PENDING或PENDING的askEvent到这个失败状态, 并且如果askEvent可以撤销, 进行撤销
-                askEvents.stream()
-                        .filter(ep -> ep.getAskEventStatus().equals(AskEventStatus.PENDING)
-                                || ep.getAskEventStatus().equals(AskEventStatus.SUCCESS))
-                        .forEach(ep -> {
-                            ep.setAskEventStatus(failedStatus);
-                            askRequestEventPublishRepository.save(ep);
-                            if(eventRegistry.isEventRevokable(ep.getEventType())) {
-                                //撤销操作
-                                eventBus.publishRevokeEvent(ep.getEventId(), unitedFailedInfo);
-                            }
-                        });
-
-                // 执行失败的回调函数
-                executeCallback(false, callbackClassName, extraParams, askEvents, unitedFailedInfo);
             }
 
         }
+
+        if(failedStatus != null) {
+
+            eventWatch.setAskEventStatus(failedStatus);
+            eventWatchRepository.save(eventWatch);
+
+            //修改状态为PENDING或PENDING的askEvent到这个失败状态, 并且如果askEvent可以撤销, 进行撤销
+            List<AskRequestEventPublish> failedEventProcessList = askEvents.stream()
+                    .filter(ep -> ep.getAskEventStatus().equals(AskEventStatus.PENDING)
+                            || ep.getAskEventStatus().equals(AskEventStatus.SUCCESS))
+                    .collect(Collectors.toList());
+            for(AskRequestEventPublish ep : failedEventProcessList) {
+                ep.setAskEventStatus(failedStatus);
+                askRequestEventPublishRepository.save(ep);
+                if(eventRegistry.isEventRevokable(ep.getEventType())) {
+                    //撤销操作
+                    eventBus.publishRevokeEvent(ep.getEventId(), unitedFailedInfo);
+                }
+            }
+
+            // 执行失败的回调函数
+            executeCallback(false, callbackClassName, extraParams, askEvents, unitedFailedInfo);
+        }
+
     }
 
     /**
@@ -233,15 +252,18 @@ public class EventWatchService {
     private void executeCallback(boolean success, String callbackClassName, String extraParams,
                                  List<AskRequestEventPublish> askEvents, FailureInfo failureInfo) {
 
-        if(StringUtils.isNotBlank(callbackClassName)) {
-            AskEventCallback askEventCallback = EventRegistry.getAskEventCallback(callbackClassName);
+        if(StringUtils.isBlank(callbackClassName)) return;
 
-            if(logger.isDebugEnabled()) {
-                logger.debug("execute callback method, askEventCallback: {}, success: {}, askEvents size: {}",
-                        askEventCallback, success, askEvents.size());
-            }
-            askEventCallback.call(eventRegistry, success, askEvents, extraParams, failureInfo);
+
+        AskEventCallback askEventCallback = EventRegistry.getAskEventCallback(callbackClassName);
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("execute callback method, askEventCallback: {}, success: {}, askEvents size: {}",
+                    askEventCallback, success, askEvents.size());
         }
+        askEventCallback.call(eventRegistry, success, askEvents, extraParams, failureInfo);
+
+
     }
 
     @Transactional(readOnly = true)
@@ -265,6 +287,14 @@ public class EventWatchService {
         eventWatchProcessRepository.updateStatusBatch(ids, ProcessStatus.PROCESSED);
     }
 
+    @Transactional(readOnly = true)
+    public List<EventWatch> findTimeoutEventWatch(LocalDateTime timeoutTime) {
+
+        return eventWatchRepository.findByAskEventStatusAndTimeoutTimeBefore(AskEventStatus.PENDING, timeoutTime);
+
+    }
+
+
 
     /**
      * 往队列放入元素
@@ -274,6 +304,9 @@ public class EventWatchService {
     public boolean addToQueue(EventWatchProcess eventWatchProcess) {
 
         try {
+            if(logger.isDebugEnabled()) {
+                logger.debug("add eventWatchProcess to queue, eventWatchProcess: " + eventWatchProcess);
+            }
             queue.offer(eventWatchProcess, 1, TimeUnit.SECONDS);
             return true;
         } catch (InterruptedException e) {

@@ -20,31 +20,24 @@ public class AskUseCouponHandler implements RevokableAskEventHandler<AskUseCoupo
 
     @Override
     public void processRevoke(AskUseCoupon originEvent, FailureInfo failureInfo) {
+        logger.debug("AskUseCouponHandler processRevoke, receive AskUseCoupon: " + originEvent);
+
         CouponService couponService = ApplicationContextHolder.context.getBean(CouponService.class);
-        try {
-            couponService.revokeUse(originEvent.getCouponIds(), originEvent.getUserId(), originEvent.getOrderId());
-        } catch (Exception e) {
-            logger.error("", e);
-        }
+        couponService.revokeUse(originEvent.getCouponIds(), originEvent.getUserId(), originEvent.getOrderId());
     }
 
     @Override
     public BooleanWrapper processRequest(AskUseCoupon event) {
+        logger.debug("AskUseCouponHandler processRequest, receive AskUseCoupon: " + event);
+
         if(event.getCouponIds() == null || event.getCouponIds().isEmpty()
                 || event.getUserId() == null || event.getOrderId() == null) {
             return new BooleanWrapper(false, "couponId or userId or orderId is null");
         }
 
         CouponService couponService = ApplicationContextHolder.context.getBean(CouponService.class);
-        try {
-            couponService.useCoupon(event.getCouponIds(), event.getUserId(), event.getOrderId());
-            return new BooleanWrapper(true);
-        } catch (AppBusinessException e) {
-            return new BooleanWrapper(false, e.getMessage());
-        } catch (Exception e) {
-            logger.error("", e);
-            return new BooleanWrapper(false, e.getMessage());
-        }
+        couponService.useCoupon(event.getCouponIds(), event.getUserId(), event.getOrderId());
+        return new BooleanWrapper(true);
 
     }
 }

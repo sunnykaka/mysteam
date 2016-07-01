@@ -48,4 +48,12 @@ public class UserCreated extends NotifyEvent {
         return registerTime;
     }
 
+    @Override
+    public String toString() {
+        return "UserCreated{" +
+                "userId=" + userId +
+                ", username='" + username + '\'' +
+                ", registerTime=" + registerTime +
+                "} " + super.toString();
+    }
 }

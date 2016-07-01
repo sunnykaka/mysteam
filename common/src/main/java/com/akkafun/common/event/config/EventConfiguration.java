@@ -30,8 +30,6 @@ public class EventConfiguration extends AsyncConfigurerSupport {
 
     }
 
-
-
     @Bean
     public ChannelBindingService bindingService(ChannelBindingServiceProperties channelBindingServiceProperties,
                                                 BinderFactory<MessageChannel> binderFactory, EventRegistry eventRegistry) {
@@ -49,11 +47,19 @@ public class EventConfiguration extends AsyncConfigurerSupport {
                 dynamicDestinationsBindable);
     }
 
+    @Bean
+    public InitBindProducer initBindProducer() {
+
+        return new InitBindProducer();
+    }
+
+
+
 
     @Override
     public Executor getAsyncExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
+        executor.setCorePoolSize(20);
         executor.setMaxPoolSize(20);
         executor.setQueueCapacity(10000);
         executor.setThreadNamePrefix("EventExecutor-");

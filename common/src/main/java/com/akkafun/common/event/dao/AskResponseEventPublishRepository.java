@@ -8,4 +8,7 @@ import com.akkafun.common.event.domain.AskResponseEventPublish;
 public interface AskResponseEventPublishRepository extends
         EventPublishRepository<AskResponseEventPublish>, AskResponseEventPublishRepositoryCustom {
 
+    Long countByAskEventId(Long askEventId);
+
+    AskResponseEventPublish getByAskEventId(Long askEventId);
 }

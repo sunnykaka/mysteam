@@ -37,4 +37,12 @@ public class AskReduceBalance extends AskEvent implements Revokable {
     public Long getBalance() {
         return balance;
     }
+
+    @Override
+    public String toString() {
+        return "AskReduceBalance{" +
+                "userId=" + userId +
+                ", balance=" + balance +
+                "} " + super.toString();
+    }
 }

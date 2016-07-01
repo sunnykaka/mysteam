@@ -14,11 +14,6 @@ public class AskTestEvent extends AskEvent {
         return EVENT_TYPE;
     }
 
-    @Override
-    public long getTtl() {
-        return 5000;
-    }
-
     private String name;
 
     @JsonCreator

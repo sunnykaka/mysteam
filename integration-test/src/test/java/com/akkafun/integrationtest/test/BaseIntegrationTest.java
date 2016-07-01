@@ -17,7 +17,7 @@ public abstract class BaseIntegrationTest {
 
     protected void waitForEventProcessed() {
         try {
-            Thread.sleep(3000L);
+            Thread.sleep(20000L);
         } catch (InterruptedException e) {
             logger.error("", e);
         }
