@@ -39,7 +39,7 @@ import static org.junit.Assert.assertThat;
 /**
  * Created by liubin on 2016/3/29.
  */
-public class OrderTest extends BaseIntegrationTest {
+public class OrderIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private RestTemplate restTemplate;

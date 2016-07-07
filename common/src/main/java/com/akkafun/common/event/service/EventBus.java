@@ -478,6 +478,9 @@ public class EventBus {
                 return null;
             }
         }
+        if(logger.isDebugEnabled()) {
+            logger.debug("receive message from kafka: {}", message);
+        }
 
         EventProcess eventProcess = new EventProcess();
         eventProcess.setPayload(message);
