@@ -193,7 +193,7 @@ public class OrderService {
                     .collect(Collectors.toList());
 
             if (!notExistIdList.isEmpty()) {
-                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST,
+                throw new AppBusinessException(CommonErrorCode.NOT_FOUND,
                         String.format("不存在的产品id: %s", notExistIdList.toString()));
             }
         }
@@ -222,7 +222,7 @@ public class OrderService {
                     .filter(couponId -> !couponDtoIdList.contains(couponId))
                     .collect(Collectors.toList());
             if (!notExistIdList.isEmpty()) {
-                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST,
+                throw new AppBusinessException(CommonErrorCode.NOT_FOUND,
                         String.format("不存在的优惠券id: %s", notExistIdList.toString()));
             }
 
@@ -231,7 +231,7 @@ public class OrderService {
                     .filter(couponDto -> !couponDto.getState().equals(CouponState.VALID))
                     .collect(Collectors.toList());
             if (!notValidCouponDtoList.isEmpty()) {
-                throw new AppBusinessException(CommonErrorCode.BAD_REQUEST,
+                throw new AppBusinessException(CommonErrorCode.NOT_FOUND,
                         String.format("无效的优惠券信息, 优惠券id: %s",
                                 notValidCouponDtoList.stream().map(CouponDto::getId).collect(Collectors.toList())));
             }
