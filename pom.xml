@@ -12,6 +12,7 @@
         <module>utils</module>
         <module>common</module>
         <module>eureka</module>
+        <module>config</module>
         <module>user</module>
         <module>account</module>
         <module>coupon</module>
@@ -22,6 +23,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <argLine>-Dfile.encoding=UTF-8</argLine>
         <jackson.version>2.6.5</jackson.version>
         <springfox.version>2.5.0</springfox.version>
     </properties>

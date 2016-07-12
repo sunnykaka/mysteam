@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: account
+  cloud:
+    config:
+      uri: ${CONFIG_SERVER_URI:http://localhost:8888}
+      failFast: true
+encrypt:
+  failOnError: true
+     

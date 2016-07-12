@@ -4,6 +4,7 @@ import com.akkafun.base.event.constants.EventType;
 import com.akkafun.common.event.config.EventConfiguration;
 import com.akkafun.common.event.service.EventActivator;
 import com.akkafun.common.spring.BaseConfiguration;
+import com.akkafun.common.spring.WebApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;

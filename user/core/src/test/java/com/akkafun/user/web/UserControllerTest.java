@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
-import static com.akkafun.common.test.TestUtils.createJsonEntity;
+import static com.akkafun.common.utils.TestUtils.createJsonEntity;
 
 /**
  * Created by liubin on 2016/3/29.

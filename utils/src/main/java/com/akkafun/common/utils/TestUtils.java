@@ -17,8 +17,6 @@ import static org.junit.Assert.assertThat;
  */
 public interface TestUtils {
 
-    long WAIT_ASYNC_EVENT_TIME = 5000L;
-
 
     /**
      * 当使用RestTemplate调用测试接口时, 可能会抛出HttpClientErrorException或HttpClientErrorException

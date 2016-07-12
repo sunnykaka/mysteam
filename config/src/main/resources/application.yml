@@ -1,0 +1,59 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: config
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/sunnykaka/mysteam-config-repo
+          basedir: target/config
+          searchPaths: "*"
+
+    stream:
+      instanceCount: 1
+      instanceIndex: 0
+      kafka:
+        binder:
+          brokers: 192.168.239.129:9092,192.168.239.129:9093,192.168.239.129:9094
+          zkNodes: 192.168.239.129:2181
+          offsetUpdateTimeWindow: 10000
+          #offsetUpdateCount: 0
+          requiredAcks: 1
+          minPartitionCount: 1
+          replicationFactor: 1
+
+        bindings:
+          input:
+            consumer:
+              autoCommitOffset: true
+              startOffset: earliest
+              headerMode: raw
+          output:
+            producer:
+              bufferSize: 16384
+              sync: true
+              batchTimeout: 0
+
+
+management:
+  context-path: /admin
+  
+logging:
+  level:
+    com.netflix.discovery: 'OFF'
+    org.springframework.cloud: 'DEBUG'
+
+eureka:
+  instance:
+    preferIpAddress: true
+    leaseRenewalIntervalInSeconds: 10
+    statusPageUrlPath: /admin/info
+    healthCheckUrlPath: /admin/health
+
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:1111/eureka/
