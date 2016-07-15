@@ -105,22 +105,22 @@ public class UserControllerTest extends UserBaseControllerTest {
 
     }
 
-    /**
-     * 测试访问不存在页面的异常处理(404)
-     */
-    @Test
-    public void testServer404Error() {
-
-        TestUtils.assertServerError(
-                () -> restTemplate.getForObject(buildRequestUrl("/A_URL_NOT_EXIST"), Object.class),
-                error -> {
-                    System.out.println(error);
-                    assertThat(error.getCode(), is(CommonErrorCode.NOT_FOUND.getCode()));
-                    assertThat(error.getMessage(), notNullValue());
-                }
-        );
-
-    }
+//    /**
+//     * 测试访问不存在页面的异常处理(404)
+//     */
+//    @Test
+//    public void testServer404Error() {
+//
+//        TestUtils.assertServerError(
+//                () -> restTemplate.getForObject(buildRequestUrl("/A_URL_NOT_EXIST"), Object.class),
+//                error -> {
+//                    System.out.println(error);
+//                    assertThat(error.getCode(), is(CommonErrorCode.NOT_FOUND.getCode()));
+//                    assertThat(error.getMessage(), notNullValue());
+//                }
+//        );
+//
+//    }
 
 
 }
