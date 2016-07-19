@@ -42,7 +42,8 @@ public class AppErrorController extends AbstractErrorController {
     public ModelAndView errorHtml(HttpServletRequest request, HttpServletResponse response) {
 
         HttpStatus status = getStatus(request);
-        Error error = new Error(CommonErrorCode.fromHttpStatus(status.value()), null, status.getReasonPhrase());
+        CommonErrorCode errorCode = CommonErrorCode.fromHttpStatus(status.value());
+        Error error = new Error(errorCode.getCode(), request.getRequestURI(), status.getReasonPhrase());
         ModelAndView mav = new ModelAndView();
         MappingJackson2JsonView view = new MappingJackson2JsonView(JsonUtils.OBJECT_MAPPER);
         view.setAttributesMap(JsonUtils.object2Map(error));
@@ -56,7 +57,8 @@ public class AppErrorController extends AbstractErrorController {
     @ResponseBody
     public ResponseEntity<String> error(HttpServletRequest request) {
         HttpStatus status = getStatus(request);
-        Error error = new Error(CommonErrorCode.fromHttpStatus(status.value()), null, status.getReasonPhrase());
+        CommonErrorCode errorCode = CommonErrorCode.fromHttpStatus(status.value());
+        Error error = new Error(errorCode.getCode(), request.getRequestURI(), status.getReasonPhrase());
         return new ResponseEntity<>(JsonUtils.object2Json(error), status);
     }
 

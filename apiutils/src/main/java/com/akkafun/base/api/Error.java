@@ -14,18 +14,10 @@ public class Error {
 
     private String requestUri;
 
-    public Error(ErrorCode errorCode, String requestUri) {
-        this(errorCode, requestUri, errorCode == null ? null : errorCode.getMessage());
-    }
-
-    public Error(ErrorCode errorCode, String requestUri, String message) {
-        this(errorCode == null ? null : errorCode.getCode(), requestUri, message);
-    }
-
     @JsonCreator
     public Error(@JsonProperty("code") String code,
                  @JsonProperty("requestUri") String requestUri,
-                 @JsonProperty("message") String message) {
+                 @JsonProperty(value = "message", defaultValue = "") String message) {
         this.code = code;
         this.requestUri = requestUri;
         this.message = message;

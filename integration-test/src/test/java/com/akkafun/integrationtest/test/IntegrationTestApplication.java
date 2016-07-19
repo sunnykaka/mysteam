@@ -1,6 +1,7 @@
 package com.akkafun.integrationtest.test;
 
 import com.akkafun.common.utils.JsonUtils;
+import com.akkafun.common.utils.spring.CustomRestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.discovery.DiscoveryClient;
@@ -12,12 +13,8 @@ import org.springframework.cloud.netflix.eureka.CloudEurekaClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by liubin on 2016/3/28.
@@ -35,16 +32,7 @@ public class IntegrationTestApplication {
     @LoadBalanced
     @Bean
     public RestTemplate restTemplate(MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter) {
-        RestTemplate restTemplate = new RestTemplate();
-        List<HttpMessageConverter<?>> messageConverters = restTemplate.getMessageConverters();
-        for(Iterator<HttpMessageConverter<?>> iterator = messageConverters.iterator(); iterator.hasNext();) {
-            HttpMessageConverter<?> converter = iterator.next();
-            if(converter instanceof MappingJackson2HttpMessageConverter) {
-                iterator.remove();
-            }
-        }
-        messageConverters.add(mappingJackson2HttpMessageConverter);
-        return restTemplate;
+        return CustomRestTemplate.assembleRestTemplate(mappingJackson2HttpMessageConverter);
     }
 
     @Bean

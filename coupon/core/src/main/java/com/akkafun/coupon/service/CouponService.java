@@ -51,7 +51,7 @@ public class CouponService {
     }
 
     /**
-     * 查询优惠券列表, 如果对应id在数据库不存在, 返回的List的位置对应null值.
+     * 查询优惠券列表, 如果对应id在数据库不存在, 返回404.
      * 入参数组长度一定等于返回的List长度.
      * @param idList
      * @return
@@ -65,6 +65,15 @@ public class CouponService {
         Map<Long, Coupon> couponMap = StreamSupport
                 .stream(couponRepository.findAll(idList).spliterator(), false)
                 .collect(Collectors.toMap(Coupon::getId, Function.identity()));
+
+        List<Long> notExistIdList = idList.stream().filter(
+                id -> !couponMap.containsKey(id)).collect(Collectors.toList());
+
+        //过滤出在数据库不存在的优惠券id列表
+        if (!notExistIdList.isEmpty()) {
+            throw new AppBusinessException(CommonErrorCode.NOT_FOUND,
+                    String.format("不存在的优惠券id: %s", notExistIdList.toString()));
+        }
 
         return idList.stream().map(couponMap::get).collect(Collectors.toList());
 

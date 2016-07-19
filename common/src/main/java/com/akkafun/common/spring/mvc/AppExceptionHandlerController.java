@@ -4,6 +4,8 @@ import com.akkafun.base.api.CommonErrorCode;
 import com.akkafun.base.api.Error;
 import com.akkafun.base.api.ErrorCode;
 import com.akkafun.base.exception.AppBusinessException;
+import com.akkafun.base.exception.RemoteCallException;
+import com.akkafun.base.exception.ServiceUnavailableException;
 import com.akkafun.common.utils.JsonUtils;
 import com.google.common.base.Joiner;
 import org.slf4j.Logger;
@@ -64,13 +66,19 @@ public class AppExceptionHandlerController extends ResponseEntityExceptionHandle
         return createResponseEntity(errorCode, request.getDescription(false), errorCode.getMessage());
     }
 
+    @ExceptionHandler(value = {ServiceUnavailableException.class, RemoteCallException.class})
+    public ResponseEntity<Object> handleRemoteCallException(HttpServletRequest request, AppBusinessException e) {
+
+        logger.error(e.getMessage(), e);
+        return createResponseEntity(e.getCode(), e.getHttpStatus(), request.getRequestURI(), e.getMessage());
+    }
+
+
     @ExceptionHandler(value = AppBusinessException.class)
     public ResponseEntity<Object> handleAppBusinessException(HttpServletRequest request, AppBusinessException e) {
 
         //业务异常
-        ErrorCode errorCode = e.getErrorCode() == null ? CommonErrorCode.INTERNAL_ERROR : e.getErrorCode();
-        return createResponseEntity(errorCode, request.getRequestURI(), e.getMessage());
-
+        return createResponseEntity(e.getCode(), e.getHttpStatus(), request.getRequestURI(), e.getMessage());
     }
 
     @ExceptionHandler(value = Exception.class)
@@ -82,13 +90,19 @@ public class AppExceptionHandlerController extends ResponseEntityExceptionHandle
 
     }
 
+
     private ResponseEntity<Object> createResponseEntity(ErrorCode errorCode, String requestUri, String message) {
-        Error error = new Error(errorCode, requestUri, message);
+        return createResponseEntity(errorCode.getCode(), errorCode.getStatus(), requestUri, message);
+    }
+
+    private ResponseEntity<Object> createResponseEntity(String code, int httpStatus, String requestUri, String message) {
+        Error error = new Error(code, requestUri, message);
         String json = JsonUtils.object2Json(error);
 
-        return ResponseEntity.status(HttpStatus.valueOf(errorCode.getStatus())).body(json);
+        return ResponseEntity.status(HttpStatus.valueOf(httpStatus)).body(json);
 
     }
+
 
     private String extractErrorMessageFromObjectErrors(List<ObjectError> allErrors, String defaultMessage) {
         if(allErrors == null || allErrors.isEmpty()) {

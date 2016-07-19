@@ -8,13 +8,18 @@ import com.akkafun.base.api.ErrorCode;
  */
 public class AppBusinessException extends BaseException {
 
+    private static final ErrorCode DEFAULT_CODE = CommonErrorCode.INTERNAL_ERROR;
+
+    private String code = DEFAULT_CODE.getCode();
+
     //类似Http状态码
-    private ErrorCode errorCode = CommonErrorCode.INTERNAL_ERROR;
+    private int httpStatus = DEFAULT_CODE.getStatus();
 
-    public AppBusinessException() {
-        super(CommonErrorCode.INTERNAL_ERROR.getMessage());
+    public AppBusinessException(String code, int httpStatus, String message) {
+        super(message);
+        this.code = code;
+        this.httpStatus = httpStatus;
     }
-
 
     public AppBusinessException(String message) {
         super(message);
@@ -25,30 +30,18 @@ public class AppBusinessException extends BaseException {
      * @param message
      */
     public AppBusinessException(ErrorCode errorCode, String message) {
-        super(message);
-        this.errorCode = errorCode;
+        this(errorCode.getCode(), errorCode.getStatus(), message);
     }
 
     public AppBusinessException(ErrorCode errorCode) {
         this(errorCode, errorCode.getMessage());
     }
 
-    public AppBusinessException(String message, Throwable cause) {
-        super(message, cause);
+    public String getCode() {
+        return code;
     }
 
-    public AppBusinessException(Throwable cause) {
-        super(cause);
-    }
-
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
-
-    @Override
-    public String toString() {
-        return "AppBusinessException{" +
-                "errorCode=" + errorCode +
-                "} " + super.toString();
+    public int getHttpStatus() {
+        return httpStatus;
     }
 }
