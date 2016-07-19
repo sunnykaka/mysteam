@@ -3,6 +3,7 @@ package com.akkafun.base.exception;
 import com.akkafun.base.api.Error;
 
 /**
+ * hystrix会忽略这个异常, 不会触发熔断
  * Created by liubin on 2016/5/3.
  */
 public class RemoteCallException extends AppBusinessException {
