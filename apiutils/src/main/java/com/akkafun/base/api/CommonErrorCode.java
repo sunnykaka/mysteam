@@ -15,7 +15,8 @@ public enum CommonErrorCode implements ErrorCode {
     CONFLICT(409, "资源冲突"),
     UNSUPPORTED_MEDIA_TYPE(415, "不支持的Media Type"),
     INTERNAL_ERROR(500, "服务器内部错误"),
-    SERVICE_UNAVAILABLE(503, "服务不可用");
+    SERVICE_UNAVAILABLE(503, "服务不可用"),
+    GATEWAY_TIMEOUT(504, "请求服务超时");
 
     private int status;
 

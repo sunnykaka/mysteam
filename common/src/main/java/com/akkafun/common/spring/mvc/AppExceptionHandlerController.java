@@ -8,6 +8,8 @@ import com.akkafun.base.exception.RemoteCallException;
 import com.akkafun.base.exception.ServiceUnavailableException;
 import com.akkafun.common.utils.JsonUtils;
 import com.google.common.base.Joiner;
+import com.netflix.hystrix.exception.HystrixRuntimeException;
+import com.netflix.hystrix.exception.HystrixTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -72,6 +74,23 @@ public class AppExceptionHandlerController extends ResponseEntityExceptionHandle
         logger.error(e.getMessage(), e);
         return createResponseEntity(e.getCode(), e.getHttpStatus(), request.getRequestURI(), e.getMessage());
     }
+
+    @ExceptionHandler(value = HystrixTimeoutException.class)
+    public ResponseEntity<Object> handleHystrixTimeoutException(HttpServletRequest request, HystrixTimeoutException e) {
+
+        logger.error(e.getMessage(), e);
+        ErrorCode errorCode = CommonErrorCode.GATEWAY_TIMEOUT;
+        return createResponseEntity(errorCode, request.getRequestURI(), e.getMessage());
+    }
+
+    @ExceptionHandler(value = HystrixRuntimeException.class)
+    public ResponseEntity<Object> handleHystrixRuntimeException(HttpServletRequest request, HystrixRuntimeException e) {
+
+        logger.error("Hystrix Command 运行报错: " + e.getMessage(), e);
+        ErrorCode errorCode = CommonErrorCode.INTERNAL_ERROR;
+        return createResponseEntity(errorCode, request.getRequestURI(), e.getMessage());
+    }
+
 
 
     @ExceptionHandler(value = AppBusinessException.class)

@@ -5,6 +5,7 @@ import com.akkafun.common.utils.spring.CustomRestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
@@ -22,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 })
 @EnableJpaRepositories("com.akkafun.**.dao")
 @EnableJpaAuditing
+@EnableHystrix
 @ComponentScan({"com.akkafun.**.service", "com.akkafun.**.web"})
 public class BaseConfiguration {
 
