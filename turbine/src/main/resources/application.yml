@@ -1,0 +1,27 @@
+server:
+  port: 7777
+
+spring:
+  application:
+    name: turbine
+
+logging:
+  level:
+    org.springframework.cloud: 'INFO'
+
+turbine:
+  aggregator:
+    clusterConfig: USER,ACCOUNT,COUPON,PRODUCT,ORDER
+  appConfig: user,account,coupon,product,order
+  instanceUrlSuffix: /hystrix.stream
+
+# Discovery Server Access
+eureka:
+  instance:
+    # hostname: localhost
+    preferIpAddress: true
+
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:1111/eureka/
+

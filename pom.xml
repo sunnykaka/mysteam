@@ -13,6 +13,7 @@
         <module>common</module>
         <module>eureka</module>
         <module>config</module>
+        <module>turbine</module>
         <module>user</module>
         <module>account</module>
         <module>coupon</module>

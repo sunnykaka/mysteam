@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>eureka</artifactId>
+    <artifactId>turbine</artifactId>
     <packaging>jar</packaging>
 
     <parent>
@@ -12,28 +12,26 @@
     </parent>
 
     <properties>
-        <!-- Stand-alone RESTFul application for testing only -->
-        <start-class>com.akkafun.eureka.EurekaApplication</start-class>
+        <start-class>com.akkafun.turbine.TurbineApplication</start-class>
     </properties>
 
     <dependencies>
+
         <dependency>
-            <!-- Setup Spring Boot -->
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-hystrix</artifactId>
         </dependency>
 
         <dependency>
-            <!-- Spring Cloud starter -->
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter</artifactId>
+            <artifactId>spring-cloud-starter-hystrix-dashboard</artifactId>
         </dependency>
 
         <dependency>
-            <!-- Eureka service registration -->
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka-server</artifactId>
+            <artifactId>spring-cloud-starter-turbine</artifactId>
         </dependency>
+
     </dependencies>
 
     <build>
