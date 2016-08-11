@@ -1,9 +1,8 @@
-package com.akkafun.common.event.callbacks;
+package com.akkafun.common.test.callbacks;
 
-import com.akkafun.common.event.domain.AskTestEvent;
+import com.akkafun.common.test.domain.AskTestEvent;
 import com.google.common.collect.Lists;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 

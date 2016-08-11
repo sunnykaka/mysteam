@@ -1,4 +1,4 @@
-package com.akkafun.common.event.callbacks;
+package com.akkafun.common.test.callbacks;
 
 import com.akkafun.base.event.constants.FailureInfo;
 import com.akkafun.base.event.domain.AskEvent;

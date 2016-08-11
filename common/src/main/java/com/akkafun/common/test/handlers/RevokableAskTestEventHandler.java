@@ -1,10 +1,9 @@
-package com.akkafun.common.event.handlers;
+package com.akkafun.common.test.handlers;
 
 import com.akkafun.base.api.BooleanWrapper;
 import com.akkafun.base.event.constants.FailureInfo;
-import com.akkafun.common.event.domain.AskTestEvent;
-import com.akkafun.common.event.domain.RevokableAskTestEvent;
 import com.akkafun.common.event.handler.RevokableAskEventHandler;
+import com.akkafun.common.test.domain.RevokableAskTestEvent;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

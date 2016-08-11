@@ -1,6 +1,6 @@
 package com.akkafun.common.event;
 
-import com.akkafun.common.event.domain.NotifyFirstTestEvent;
+import com.akkafun.common.test.domain.NotifyFirstTestEvent;
 import org.junit.Test;
 
 import java.time.LocalDateTime;

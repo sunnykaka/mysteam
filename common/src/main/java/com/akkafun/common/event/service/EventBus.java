@@ -246,7 +246,8 @@ public class EventBus {
                 try {
                     EventBus eventBus = ApplicationContextHolder.context.getBean(EventBus.class);
                     //handleEventProcess方法内报异常只回滚内部事务
-                    eventBus.handleEventProcess(eventProcessId);
+                    eventBus.handleEventProcess(eventProcessId)
+                            .map(eventWatchProcess -> eventWatchService.addToQueue(eventWatchProcess));
                 } catch (EventException e) {
                     logger.error(e.getMessage());
                 } catch (Exception e) {
@@ -268,12 +269,14 @@ public class EventBus {
     }
 
     @Transactional
-    public void handleEventProcess(Long eventProcessId) {
+    public Optional<EventWatchProcess> handleEventProcess(Long eventProcessId) {
+
+        Optional<EventWatchProcess> eventWatchProcessOptional = Optional.empty();
 
         EventProcess eventProcess = eventProcessRepository.findOne(eventProcessId);
         if(!eventProcess.getStatus().equals(ProcessStatus.NEW)) {
             //已经被处理过了, 忽略
-            return;
+            return eventWatchProcessOptional;
         }
 
         logger.debug(String.format("handle event process, id: %d, event category: %s ",
@@ -290,7 +293,7 @@ public class EventBus {
                 processRevokeEvent(eventProcess);
                 break;
             case ASKRESP:
-                processAskResponseEvent(eventProcess);
+                eventWatchProcessOptional = processAskResponseEvent(eventProcess);
                 break;
             default:
                 throw new EventException(String.format("unknown event category, process id: %d, event category: %s ",
@@ -299,6 +302,8 @@ public class EventBus {
 
         eventProcess.setStatus(ProcessStatus.PROCESSED);
         eventProcessRepository.save(eventProcess);
+
+        return eventWatchProcessOptional;
     }
 
 
@@ -381,13 +386,13 @@ public class EventBus {
         );
     }
 
-    private void processAskResponseEvent(EventProcess event) {
+    private Optional<EventWatchProcess> processAskResponseEvent(EventProcess event) {
 
         AskResponseEvent askResponseEvent = eventRegistry.deserializeAskResponseEvent(event.getPayload());
         Long askEventId = askResponseEvent.getAskEventId();
         AskRequestEventPublish askRequestEventPublish = eventPublishService.getAskRequestEventByEventId(askEventId);
         if(!askRequestEventPublish.getAskEventStatus().equals(AskEventStatus.PENDING)) {
-            return;
+            return Optional.empty();
         }
 
         AskEventStatus askEventStatus;
@@ -401,7 +406,7 @@ public class EventBus {
         askRequestEventPublish.setAskEventStatus(askEventStatus);
         askRequestEventPublishRepository.save(askRequestEventPublish);
 
-        eventWatchService.processEventWatch(askRequestEventPublish.getWatchId(), askEventStatus, failureInfo);
+        return eventWatchService.processEventWatch(askRequestEventPublish.getWatchId(), askEventStatus, failureInfo);
 
     }
 
@@ -521,14 +526,15 @@ public class EventBus {
         }
     }
 
-    @Transactional
+    //不在这里加事务注解, 因为想让这个方法内对service的调用都是独立事务.
     public void handleTimeoutEventWatch() {
         LocalDateTime now = LocalDateTime.now();
         List<EventWatch> eventWatchList = eventWatchService.findTimeoutEventWatch(now);
         FailureInfo failureInfo = new FailureInfo(FailureReason.TIMEOUT, now);
         for(EventWatch eventWatch : eventWatchList) {
             try {
-                eventWatchService.processEventWatch(eventWatch.getId(), AskEventStatus.TIMEOUT, failureInfo);
+                eventWatchService.processEventWatch(eventWatch.getId(), AskEventStatus.TIMEOUT, failureInfo)
+                        .map(eventWatchProcess -> eventWatchService.addToQueue(eventWatchProcess));
             } catch (EventException e) {
                 logger.error(e.getMessage());
             }  catch (Exception e) {

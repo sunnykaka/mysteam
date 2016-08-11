@@ -1,4 +1,4 @@
-package com.akkafun.common.event.domain;
+package com.akkafun.common.test.domain;
 
 import com.akkafun.base.event.constants.EventType;
 import com.akkafun.base.event.domain.AskEvent;

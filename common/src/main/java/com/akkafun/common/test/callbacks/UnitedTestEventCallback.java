@@ -1,8 +1,8 @@
-package com.akkafun.common.event.callbacks;
+package com.akkafun.common.test.callbacks;
 
 import com.akkafun.base.event.constants.FailureInfo;
-import com.akkafun.common.event.domain.AskTestEvent;
-import com.akkafun.common.event.domain.RevokableAskTestEvent;
+import com.akkafun.common.test.domain.AskTestEvent;
+import com.akkafun.common.test.domain.RevokableAskTestEvent;
 import com.google.common.collect.Lists;
 
 import java.util.HashMap;

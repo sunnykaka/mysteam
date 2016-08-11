@@ -92,14 +92,14 @@ public class EventWatchService {
     }
 
     @Transactional
-    public void processEventWatch(Long watchId, AskEventStatus triggerStatus, FailureInfo failureInfo) {
+    public Optional<EventWatchProcess> processEventWatch(Long watchId, AskEventStatus triggerStatus, FailureInfo failureInfo) {
 
         EventWatch eventWatch = eventWatchRepository.findOne(watchId);
         if(eventWatch == null) {
             throw new EventException("根据ID没有找到EventWatch, watchId: " + watchId);
         }
         if(!eventWatch.getAskEventStatus().equals(AskEventStatus.PENDING)) {
-            return;
+            return Optional.empty();
         }
 
         if(!eventWatch.isUnited()) {
@@ -127,9 +127,13 @@ public class EventWatchService {
                 eventWatchProcess.setFailureInfo(JsonUtils.object2Json(failureInfo));
             }
             eventWatchProcessRepository.save(eventWatchProcess);
-            addToQueue(eventWatchProcess);
+            //这里不能加入处理队列, 因为之前的askRequestEventPublish.setAskEventStatus(askEventStatus), 到这里事务还没提交
+            //如果此时队列里的数据就被拿出来处理的话, 就有问题了. 所以将eventWatchProcess作为返回值返回, 在事务完成后加入队列
+            //addToQueue(eventWatchProcess);
+            return Optional.of(eventWatchProcess);
         }
 
+        return Optional.empty();
     }
 
     @Transactional

@@ -10,6 +10,7 @@ spring:
       server:
         git:
           uri: https://github.com/sunnykaka/mysteam-config-repo
+          # uri: file:///D:/opensource/workspace/mysteam-config-repo
           basedir: target/config
           searchPaths: "*"
 

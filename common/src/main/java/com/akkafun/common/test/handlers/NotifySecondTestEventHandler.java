@@ -1,7 +1,7 @@
-package com.akkafun.common.event.handlers;
+package com.akkafun.common.test.handlers;
 
-import com.akkafun.common.event.domain.NotifySecondTestEvent;
 import com.akkafun.common.event.handler.NotifyEventHandler;
+import com.akkafun.common.test.domain.NotifySecondTestEvent;
 
 /**
  * Created by liubin on 2016/6/15.

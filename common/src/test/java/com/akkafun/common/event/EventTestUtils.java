@@ -1,12 +1,12 @@
 package com.akkafun.common.event;
 
-import com.akkafun.common.event.callbacks.AskTestEventFirstCallback;
-import com.akkafun.common.event.callbacks.AskTestEventSecondCallback;
-import com.akkafun.common.event.callbacks.UnitedTestEventCallback;
-import com.akkafun.common.event.handlers.AskTestEventHandler;
-import com.akkafun.common.event.handlers.NotifyFirstTestEventFirstHandler;
-import com.akkafun.common.event.handlers.NotifyFirstTestEventSecondHandler;
-import com.akkafun.common.event.handlers.RevokableAskTestEventHandler;
+import com.akkafun.common.test.callbacks.AskTestEventFirstCallback;
+import com.akkafun.common.test.callbacks.AskTestEventSecondCallback;
+import com.akkafun.common.test.callbacks.UnitedTestEventCallback;
+import com.akkafun.common.test.handlers.AskTestEventHandler;
+import com.akkafun.common.test.handlers.NotifyFirstTestEventFirstHandler;
+import com.akkafun.common.test.handlers.NotifyFirstTestEventSecondHandler;
+import com.akkafun.common.test.handlers.RevokableAskTestEventHandler;
 
 /**
  * Created by liubin on 2016/6/17.

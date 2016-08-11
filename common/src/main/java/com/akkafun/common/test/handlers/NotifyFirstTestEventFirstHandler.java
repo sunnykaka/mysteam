@@ -1,9 +1,8 @@
-package com.akkafun.common.event.handlers;
+package com.akkafun.common.test.handlers;
 
-import com.akkafun.common.event.domain.NotifyFirstTestEvent;
 import com.akkafun.common.event.handler.NotifyEventHandler;
+import com.akkafun.common.test.domain.NotifyFirstTestEvent;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
