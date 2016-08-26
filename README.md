@@ -14,4 +14,4 @@ mysteam是一个Demo项目, 用来演示Spring Cloud与Netflix OSS在微服务�
 
 5. 使用Spring Cloud Config实现配置集中管理.
 
-详细介绍: [Spring Cloud与微服务](http://skaka.me/blog/2016/08/04/springcloud2/)
+详细介绍: [Spring Cloud与微服务](http://skaka.me/blog/2016/08/03/springcloud2/)
