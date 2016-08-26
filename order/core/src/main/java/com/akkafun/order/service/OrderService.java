@@ -17,9 +17,7 @@ import com.akkafun.order.dao.OrderRepository;
 import com.akkafun.order.domain.Order;
 import com.akkafun.order.domain.OrderCoupon;
 import com.akkafun.order.domain.OrderItem;
-import com.akkafun.order.service.gateway.AccountGateway;
-import com.akkafun.order.service.gateway.CouponGateway;
-import com.akkafun.order.service.gateway.ProductGateway;
+import com.akkafun.order.service.gateway.*;
 import com.akkafun.product.api.dtos.ProductDto;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
@@ -60,7 +58,6 @@ public class OrderService {
 
     @Autowired
     AccountGateway accountGateway;
-
 
 
     @Transactional(readOnly = true)

@@ -3,7 +3,6 @@ package com.akkafun.order.service.gateway;
 import com.akkafun.base.api.CommonErrorCode;
 import com.akkafun.base.exception.AppBusinessException;
 import com.akkafun.base.exception.RemoteCallException;
-import com.akkafun.coupon.api.CouponUrl;
 import com.akkafun.coupon.api.constants.CouponState;
 import com.akkafun.coupon.api.dtos.CouponDto;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
@@ -11,12 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,20 +24,14 @@ public class CouponGateway {
     protected Logger logger = LoggerFactory.getLogger(CouponGateway.class);
 
     @Autowired
-    RestTemplate restTemplate;
+    CouponClient couponClient;
 
     @HystrixCommand(ignoreExceptions = RemoteCallException.class)
     public List<CouponDto> findCoupons(List<Long> couponIds) {
 
         if(couponIds.isEmpty()) return new ArrayList<>();
 
-        URI uri = UriComponentsBuilder
-                .fromHttpUrl(CouponUrl.buildUrl(CouponUrl.COUPON_LIST_URL))
-                .queryParam("id", couponIds.toArray())
-                .build().encode().toUri();
-
-        CouponDto[] couponDtos = restTemplate.getForObject(uri, CouponDto[].class);
-        List<CouponDto> couponDtoList = Arrays.asList(couponDtos);
+        List<CouponDto> couponDtoList = couponClient.findCoupons(couponIds);
 
         if(!couponDtoList.isEmpty()) {
 

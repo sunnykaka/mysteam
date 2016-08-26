@@ -4,7 +4,6 @@ import com.akkafun.base.exception.RemoteCallException;
 import com.akkafun.product.api.ProductUrl;
 import com.akkafun.product.api.dtos.ProductDto;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,26 +24,17 @@ public class ProductGateway {
     protected Logger logger = LoggerFactory.getLogger(ProductGateway.class);
 
     @Autowired
-    RestTemplate restTemplate;
+    ProductClient productClient;
 
     @HystrixCommand(ignoreExceptions = RemoteCallException.class)
     public List<ProductDto> findProducts(List<Long> productIds) {
-        URI uri = UriComponentsBuilder
-                .fromHttpUrl(ProductUrl.buildUrl(ProductUrl.PRODUCT_LIST_URL))
-                .queryParam("id", productIds.toArray())
-                .build().encode().toUri();
 
-        ProductDto[] productDtos = restTemplate.getForObject(uri, ProductDto[].class);
-        return Arrays.asList(productDtos);
+        return productClient.findProducts(productIds);
     }
 
     @HystrixCommand(ignoreExceptions = RemoteCallException.class)
     public List<ProductDto> findAllProducts() {
-        URI uri = UriComponentsBuilder
-                .fromHttpUrl(ProductUrl.buildUrl(ProductUrl.ALL_PRODUCT_LIST_URL))
-                .build().encode().toUri();
-
-        ProductDto[] productDtos = restTemplate.getForObject(uri, ProductDto[].class);
+        List<ProductDto> productDtos = productClient.findAllProducts();
 
         try {
             Thread.sleep(2000L);
@@ -52,7 +42,7 @@ public class ProductGateway {
             e.printStackTrace();
         }
 
-        return Arrays.asList(productDtos);
+        return productDtos;
 
     }
 
